@@ -1,0 +1,34 @@
+.root {
+    -fx-font-family: "Roboto", sans-serif;
+}
+
+/* Buttons */
+.button {
+    -fx-background-color: #3fbbc0;
+    -fx-text-fill: white;
+    -fx-padding: 10 20;
+    -fx-border-radius: 5;
+}
+
+.button:hover {
+    -fx-background-color: #2a9d9f;
+}
+
+/* Sidebar */
+#sidebar {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
+}
+
+/* Labels */
+.label {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+}
+
+/* Text Fields */
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: #ced4da;
+    -fx-border-radius: 5;
+    -fx-padding: 5;
+}
