@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Button?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ListeSuiviController">
+    <top>
+        <VBox BorderPane.alignment="CENTER">
+            <children>
+                <Label alignment="CENTER" prefHeight="60.0" prefWidth="800.0" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Liste des Suivis Médicaux" BorderPane.alignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                <!-- Patient info label is kept but will be empty -->
+                <Label fx:id="patientInfoLabel" alignment="CENTER" prefHeight="30.0" prefWidth="800.0" style="-fx-background-color: #f0f0f0;" visible="false">
+                    <font>
+                        <Font name="System Italic" size="14.0" />
+                    </font>
+                </Label>
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Table header for columns -->
+                <HBox style="-fx-background-color: #f0f0f0; -fx-padding: 5px; -fx-border-color: #ddd; -fx-border-width: 0 0 2 0;">
+                    <children>
+                        <Label prefWidth="50.0" text="ID" style="-fx-font-weight: bold;">
+                            <HBox.margin>
+                                <Insets left="10.0" right="10.0" />
+                            </HBox.margin>
+                        </Label>
+                        <Label prefWidth="150.0" text="Date" style="-fx-font-weight: bold;">
+                            <HBox.margin>
+                                <Insets right="10.0" />
+                            </HBox.margin>
+                        </Label>
+                        <Label prefWidth="400.0" text="Commentaire" style="-fx-font-weight: bold;">
+                            <HBox.margin>
+                                <Insets right="10.0" />
+                            </HBox.margin>
+                        </Label>
+                        <Label prefWidth="170.0" text="Actions" style="-fx-font-weight: bold;" />
+                    </children>
+                </HBox>
+
+                <!-- ListView replacing TableView -->
+                <ListView fx:id="listViewSuivi" prefHeight="400.0" prefWidth="780.0">
+                    <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" />
+                    </VBox.margin>
+                </ListView>
+            </children>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" prefHeight="60.0" prefWidth="600.0" spacing="20.0" BorderPane.alignment="CENTER">
+            <children>
+                <Button fx:id="ajouterButton" mnemonicParsing="false" onAction="#ajouterNouveauSuivi" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Ajouter">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Button>
+                <Button fx:id="retourButton" mnemonicParsing="false" onAction="#retourVersList" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #f39c12; -fx-text-fill: white;" text="Retour">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Button>
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

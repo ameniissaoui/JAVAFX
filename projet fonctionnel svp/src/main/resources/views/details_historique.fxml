@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DetailsHistoriqueController">
+    <top>
+        <HBox alignment="CENTER" prefHeight="60.0" prefWidth="200.0" style="-fx-background-color: #f0f0f0;" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Détails du Traitement" textFill="#3498db">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+            </children>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="15.0">
+                    <children>
+                        <VBox spacing="5.0" style="-fx-background-color: #f8f9fa; -fx-background-radius: 5;">
+                            <children>
+                                <Label text="Informations du Patient" textFill="#2c3e50">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                </Label>
+                                <Separator />
+                                <HBox spacing="20.0">
+                                    <children>
+                                        <VBox spacing="10.0">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <Label text="Nom:" textFill="#2c3e50">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label fx:id="labelNom" text="Nom du patient" />
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <Label text="Prénom:" textFill="#2c3e50">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <Label fx:id="labelPrenom" text="Prénom du patient" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                            <padding>
+                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                            </padding>
+                        </VBox>
+                        <VBox spacing="5.0" style="-fx-background-color: #f8f9fa; -fx-background-radius: 5;">
+                            <children>
+                                <Label text="Détails du Traitement" textFill="#2c3e50">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                </Label>
+                                <Separator />
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label text="Maladie:" textFill="#2c3e50">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="labelMaladie" text="Nom de la maladie" wrapText="true" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <Label text="Type de traitement:" textFill="#2c3e50">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="labelTypeTraitement" text="Type de traitement" wrapText="true" />
+                                    </children>
+                                </HBox>
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Description:" textFill="#2c3e50">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="labelDescription" text="Description du traitement" wrapText="true" />
+                                    </children>
+                                </VBox>
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Bilan:" textFill="#2c3e50">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <HBox fx:id="bilanContainer" alignment="CENTER_LEFT" spacing="10.0" />
+                                    </children>
+                                </VBox>
+                            </children>
+                            <padding>
+                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                            </padding>
+                        </VBox>
+                        <VBox spacing="5.0" style="-fx-background-color: #f8f9fa; -fx-background-radius: 5;">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                                    <children>
+                                        <Label text="Suivis Médicaux" textFill="#2c3e50">
+                                            <font>
+                                                <Font name="System Bold" size="16.0" />
+                                            </font>
+                                        </Label>
+
+                                    </children>
+                                </HBox>
+                                <Separator />
+                                <!-- Header for ListView columns -->
+                                <HBox style="-fx-background-color: #e8e8e8; -fx-padding: 5px;">
+                                    <children>
+                                        <Label text="Date" prefWidth="150.0" style="-fx-font-weight: bold;" />
+                                        <Label text="Commentaire" prefWidth="450.0" style="-fx-font-weight: bold;" />
+                                    </children>
+                                </HBox>
+                                <!-- Replace TableView with ListView -->
+                                <ListView fx:id="listViewSuivis" prefHeight="200.0" prefWidth="200.0" styleClass="table-view-style" />
+                            </children>
+                            <padding>
+                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                            </padding>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" prefHeight="60.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
+            <children>
+                <Button mnemonicParsing="false" onAction="#fermer" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Fermer">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Button>
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>
