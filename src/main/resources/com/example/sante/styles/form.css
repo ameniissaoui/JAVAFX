@@ -1,0 +1,58 @@
+/* Style du conteneur du formulaire */
+.form-container {
+    -fx-padding: 30px;
+    -fx-background-color: linear-gradient(#f0f4f8, #d9e2ec);
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 5, 5);
+    -fx-text-alignment: center;
+    -fx-max-width: 600px;
+    -fx-margin: 0 auto;
+}
+
+/* Style des champs de texte */
+.form-input {
+    -fx-pref-width: 100%;
+    -fx-padding: 15px;  /* Plus d'espace pour éviter que le texte soit collé aux bords */
+    -fx-border-radius: 10;
+    -fx-font-size: 16px;
+    -fx-background-color: white;
+    -fx-border-color: #3fbbc0;
+    -fx-border-width: 2px;
+    -fx-box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    -fx-font-family: "Poppins", sans-serif;
+    -fx-transition: all 0.3s ease, transform 0.3s;
+}
+
+/* Label des champs */
+.form-label {
+    -fx-font-size: 16px;
+    -fx-margin-bottom: 10px;
+    -fx-text-fill: #3fbbc0;
+    -fx-font-family: "Poppins", sans-serif;
+    -fx-margin-bottom: 10px;
+}
+
+/* Style du titre */
+.form-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3fbbc0;
+    -fx-margin-bottom: 20px;
+    -fx-text-align: center;
+}
+
+/* Style du bouton */
+.btn-submit {
+    -fx-padding: 15px;
+    -fx-background-color: #3fbbc0;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-border-radius: 10px;
+    -fx-transition: all 0.3s ease-in-out, transform 0.2s;
+}
+
+.btn-submit:hover {
+    -fx-background-color: #2a9ba6;
+    -fx-transform: scale(1.05);
+}

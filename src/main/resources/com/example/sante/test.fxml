@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            stylesheets="@styles/list.css,@styles/button.css"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.sante.controllers.test"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <left>
+        <VBox styleClass="sidebar">
+            <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@images/details.png" />
+                </image>
+            </ImageView>
+
+            <Button styleClass="my-button2" text="Home"/>
+            <Button styleClass="my-button2" text="Reservations"/>
+            <Button styleClass="my-button2" text="Events"/>
+            <Button styleClass="my-button2" text="Front"/>
+        </VBox>
+    </left>
+
+    <!-- Tu peux ajouter un <center> ou d'autres éléments ici si nécessaire -->
+</BorderPane>
