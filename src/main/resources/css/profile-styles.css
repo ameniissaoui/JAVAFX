@@ -2,6 +2,9 @@
 .root {
     -fx-background-color: #f2f7f7;
     -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-position: center;
 }
 
 /* Navigation Bar Styling */

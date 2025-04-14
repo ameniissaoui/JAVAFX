@@ -44,10 +44,17 @@ public class PatientRegistrationController extends BaseRegistrationController {
             messageLabel.setStyle("-fx-text-fill: green;");
             PauseTransition pause = new PauseTransition(Duration.seconds(1.5));
             pause.setOnFinished(event -> {
+
                 try {
+
                     Parent loginRoot = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
                     Stage stage = (Stage) messageLabel.getScene().getWindow();
-                    stage.setScene(new Scene(loginRoot));
+                    Scene loginScene = new Scene(loginRoot);
+                    stage.setScene(loginScene);
+
+                    stage.setMaximized(true);
+                    stage.show(); //
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

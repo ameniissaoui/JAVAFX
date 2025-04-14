@@ -34,18 +34,8 @@ public class RoleSelectionController {
 
 
     private void loadScene(String fxmlPath, ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
+        SceneManager.loadScene(fxmlPath, event);
 
-            // Get the Stage from the event source
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Error loading scene: " + fxmlPath);
-            e.printStackTrace();
-        }
+
     }
 }

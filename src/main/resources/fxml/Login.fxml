@@ -11,9 +11,11 @@
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.example.controllers.LoginController"
            styleClass="background"
-           prefWidth="1200" prefHeight="800">
+           prefWidth="1200" prefHeight="800"
+           maxWidth="Infinity" maxHeight="Infinity">
 
-    <stylesheets>
+
+<stylesheets>
         <URL value="@/css/login.css" />
     </stylesheets>
 

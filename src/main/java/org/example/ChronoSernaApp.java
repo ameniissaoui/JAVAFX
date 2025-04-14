@@ -26,6 +26,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 // Importations pour Ikonli
+import org.example.controllers.SceneManager;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -43,18 +44,13 @@ public class ChronoSernaApp extends Application {
             // Load the FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
-
-            // Get the current stage from the event source
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // Set the new scene with the same size as before
             Scene scene = new Scene(root);
+            if (stage.getScene() != null && stage.getScene().getStylesheets() != null) {
+                scene.getStylesheets().addAll(stage.getScene().getStylesheets());
+            }
             stage.setScene(scene);
-
-            // Make it fullscreen
             stage.setMaximized(true);
-
-            // Show the stage
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -140,7 +136,7 @@ public class ChronoSernaApp extends Application {
         loginIcon.setIconColor(Color.WHITE);
         loginButton.setGraphic(loginIcon);
         loginButton.setOnAction(e -> {
-            loadNewScene("/fxml/Login.fxml", e);
+            SceneManager.loadScene("/fxml/Login.fxml", e);
         });
         Button registerButton = new Button("Inscription");
         registerButton.getStyleClass().add("cta-button");
@@ -149,7 +145,7 @@ public class ChronoSernaApp extends Application {
         registerIcon.setIconColor(Color.WHITE);
         registerButton.setGraphic(registerIcon);
         registerButton.setOnAction(e -> {
-            loadNewScene("/fxml/RoleSelection.fxml", e);
+            SceneManager.loadScene("/fxml/RoleSelection.fxml", e);
         });
         ComboBox<String> languageSelector = new ComboBox<>();
         languageSelector.getItems().addAll("Français", "English", "العربية");

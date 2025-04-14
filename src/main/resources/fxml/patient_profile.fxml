@@ -18,7 +18,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" styleClass="root" stylesheets="@/css/profile-styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.PatientProfileController">
+<BorderPane maxHeight="-Infinity" maxWidth="Infinity" minHeight="Infinity" minWidth="Infinity" prefWidth="1200" prefHeight="800" styleClass="root" stylesheets="@/css/profile-styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.PatientProfileController">
     <!-- Top Navigation Bar -->
     <top>
         <HBox alignment="CENTER_LEFT" prefHeight="70.0" styleClass="top-nav-bar" BorderPane.alignment="CENTER">
