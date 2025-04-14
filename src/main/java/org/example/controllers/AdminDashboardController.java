@@ -58,6 +58,7 @@ public class AdminDashboardController implements Initializable {
     private AdminService adminService = new AdminService();
     private MedecinService medecinService = new MedecinService();
     private PatientService patientService = new PatientService();
+    @FXML private Button buttoncommande;
 
     private ObservableList<UserTableData> allUsers = FXCollections.observableArrayList();
     private ObservableList<UserTableData> filteredUsers = FXCollections.observableArrayList();
@@ -79,12 +80,25 @@ public class AdminDashboardController implements Initializable {
         eventButton.setOnAction(event -> handleeventRedirect());
         historique.setOnAction(event -> handleHistoriqueRedirect());
         suivi.setOnAction(event -> handleSuiviRedirect());
+        buttoncommande.setOnAction(event -> handleCommandeRedirect());
 
         // Link the profile button to its handler
         profileButton.setOnAction(event -> handleProfileRedirect());
+        refreshTable();
 
     }
-
+    private void handleCommandeRedirect() {
+        try {
+            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showCommande.fxml"));
+            Stage stage = (Stage) buttoncommande.getScene().getWindow();
+            Scene tableScene = new Scene(tableRoot);
+            stage.setScene(tableScene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     private void handleSuiviRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_suivi_back.fxml"));

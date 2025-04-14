@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -32,10 +33,30 @@ public class ShowProduitController implements Initializable {
     private ListView<Produit> listview;
     @FXML
     private Button addButton;
+    @FXML private Button buttoncommande;
+    @FXML private Button profileButton;
+    @FXML private Button historique;
+    @FXML private Button suivi;
+    @FXML private Button tablesButton; // Add this field
+    @FXML private Button eventButton; // Add this field
+    @FXML private Button acceuil; // Add this field
+
+
+    @FXML
     private ProduitServices ps;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        buttoncommande.setOnAction(event -> handleCommandeRedirect());
+        tablesButton.setOnAction(event -> handleTablesRedirect());
+        eventButton.setOnAction(event -> handleeventRedirect());
+        historique.setOnAction(event -> handleHistoriqueRedirect());
+        suivi.setOnAction(event -> handleSuiviRedirect());
+        buttoncommande.setOnAction(event -> handleCommandeRedirect());
+        acceuil.setOnAction(event -> handleAcceuilRedirect());
+
+        // Link the profile button to its handler
+
         try {
             // Initialize the product service
             ps = new ProduitServices();
@@ -72,7 +93,89 @@ public class ShowProduitController implements Initializable {
                     "Could not connect to the database. Please ensure the database server is running.");
         }
     }
+    private void showErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    private void handleCommandeRedirect() {
+        try {
+            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showCommande.fxml"));
+            Stage stage = (Stage) buttoncommande.getScene().getWindow();
+            Scene tableScene = new Scene(tableRoot);
+            stage.setScene(tableScene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void handleSuiviRedirect() {
+        try {
+            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_suivi_back.fxml"));
+            Stage stage = (Stage) suivi.getScene().getWindow();
+            Scene tableScene = new Scene(tableRoot);
+            stage.setScene(tableScene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des historiques: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void handleHistoriqueRedirect() {
+        try {
+            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_historique_back.fxml"));
+            Stage stage = (Stage) tablesButton.getScene().getWindow();
+            Scene tableScene = new Scene(tableRoot);
+            stage.setScene(tableScene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des historiques: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void handleeventRedirect() {
+        try {
+            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/listevent.fxml"));
+            Stage stage = (Stage) tablesButton.getScene().getWindow();
+            Scene tableScene = new Scene(tableRoot);
+            stage.setScene(tableScene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void handleTablesRedirect() {
+        try {
+            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showProduit.fxml"));
+            Stage stage = (Stage) tablesButton.getScene().getWindow();
+            Scene tableScene = new Scene(tableRoot);
+            stage.setScene(tableScene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void handleAcceuilRedirect() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminDashboard.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
 
+            // Get the stage from the acceuil button
+            Stage stage = (Stage) acceuil.getScene().getWindow();
+
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page d'accueil: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     private void setupListViewCellFactory() {
         listview.setCellFactory(lv -> new ListCell<Produit>() {
             private final HBox container = new HBox();

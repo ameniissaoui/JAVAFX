@@ -61,43 +61,54 @@
 
     <!-- Left sidebar -->
     <left>
-        <VBox prefWidth="200" spacing="5" style="-fx-background-color: #f1f5f9; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0; -fx-padding: 15 10;">
-            <HBox alignment="CENTER_LEFT" prefWidth="180" style="-fx-background-color: #e0f2fe; -fx-background-radius: 5; -fx-padding: 10 15;">
-                <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #0ea5e9; -fx-shape: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z';" />
-                <Label style="-fx-text-fill: #0ea5e9; -fx-font-weight: bold; -fx-padding: 0 0 0 10;" text="Accueil" />
-            </HBox>
+        <VBox prefWidth="200" spacing="5" style="-fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0; -fx-padding: 15 10;">
+            <Button fx:id="acceuil" alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 5; -fx-padding: 10 15;" text="Accueil">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #3b82f6; -fx-shape: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z';" />
+                </graphic>
+            </Button>
 
-            <HBox alignment="CENTER_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-padding: 10 15;">
-                <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
-                <Label style="-fx-text-fill: #64748b; -fx-padding: 0 0 0 10;" text="Vérification" />
-            </HBox>
+            <Button fx:id="suivi" alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Suivies Médicales">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z';" />
+                </graphic>
+            </Button>
+            <Button fx:id="historique" alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Historiques">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z';" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttoncommande" alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Commande">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M4 18h17v-6H4v6zM4 5v6h17V5H4z';" />
+                </graphic>
+            </Button>
 
-            <HBox alignment="CENTER_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-padding: 10 15;">
-                <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z';" />
-                <Label style="-fx-text-fill: #64748b; -fx-padding: 0 0 0 10;" text="Charts" />
-            </HBox>
+            <Button fx:id="tablesButton" alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Produit">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M4 18h17v-6H4v6zM4 5v6h17V5H4z';" />
+                </graphic>
+            </Button>
 
-            <HBox alignment="CENTER_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-padding: 10 15;">
-                <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M4 18h17v-6H4v6zM4 5v6h17V5H4z';" />
-                <Label style="-fx-text-fill: #64748b; -fx-padding: 0 0 0 10;" text="Tables" />
-            </HBox>
-
-            <HBox alignment="CENTER_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-padding: 10 15;">
-                <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z';" />
-                <Label style="-fx-text-fill: #64748b; -fx-padding: 0 0 0 10;" text="Icons" />
-            </HBox>
+            <Button fx:id="eventButton" alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Evenement">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z';" />
+                </graphic>
+            </Button>
 
             <Label style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-padding: 15 0 5 5;" text="PAGES" />
 
-            <HBox alignment="CENTER_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-padding: 10 15;">
-                <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
-                <Label style="-fx-text-fill: #64748b; -fx-padding: 0 0 0 10;" text="Profile" />
-            </HBox>
+            <Button fx:id="profileButton" alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Profile">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
+                </graphic>
+            </Button>
 
-            <HBox alignment="CENTER_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-padding: 10 15;">
-                <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z';" />
-                <Label style="-fx-text-fill: #64748b; -fx-padding: 0 0 0 10;" text="Register" />
-            </HBox>
+            <Button alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Register">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z';" />
+                </graphic>
+            </Button>
         </VBox>
     </left>
 

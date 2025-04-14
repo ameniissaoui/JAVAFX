@@ -102,10 +102,7 @@ public class EditCommandeController {
             // Try to find the correct FXML path
             URL fxmlLocation = null;
             String[] possiblePaths = {
-                    "/front/showCommande.fxml",
-                    "showCommande.fxml",
-                    "/showCommande.fxml",
-                    "../showCommande.fxml"
+                    "/fxml/front/showCommande.fxml"
             };
 
             for (String path : possiblePaths) {
@@ -223,7 +220,11 @@ public class EditCommandeController {
     private void navigateBack() {
         try {
             // Load the FXML file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/front/showCommande.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/showCommande.fxml"));
+            if (loader.getLocation() == null) {
+                System.err.println("FXML file not found!");
+                return;
+            }
             Parent root = loader.load();
 
             // Get the current stage

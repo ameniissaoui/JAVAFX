@@ -255,7 +255,6 @@ public abstract class BaseProfileController implements Initializable {
     @FXML
     void redirectProduit(ActionEvent event) {
         try {
-            // Make sure to provide the correct path to your FXML file
             URL fxmlLocation = getClass().getResource("/fxml/front/showProduit.fxml");
             if (fxmlLocation == null) {
                 throw new IllegalStateException("FXML file not found!");
@@ -264,27 +263,21 @@ public abstract class BaseProfileController implements Initializable {
             FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
 
-            // Create a new scene and stage
             Scene scene = new Scene(root);
             Stage newStage = new Stage();
             newStage.setScene(scene);
             newStage.setTitle("Commandes");
-
-            // Set the new stage to maximized
             newStage.setMaximized(true);
-
-            // Show the new stage
             newStage.show();
 
-            // Close the current stage
-            Stage currentStage = (Stage) submitButton.getScene().getWindow();
+            // Get current stage from a component we know exists
+            Stage currentStage = (Stage) nomField.getScene().getWindow();
             currentStage.close();
 
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error opening commandes view: " + e.getMessage(), "error");
         }
-
     }
     private void showAlert(String message, String type) {
         // You can implement this method to show alerts
