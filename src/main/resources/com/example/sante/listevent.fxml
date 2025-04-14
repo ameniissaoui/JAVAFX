@@ -2,16 +2,13 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Label?>
 
 <BorderPane prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #f6f9ff;" stylesheets="@styles/button.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.sante.controllers.ListEvent">
     <top>
@@ -22,22 +19,6 @@
                 </image>
             </ImageView>
             <Button style="-fx-background-color: transparent; -fx-text-fill: #0662d5; -fx-font-weight: bold;" text="Dashboard" />
-
-            <Region HBox.hgrow="ALWAYS" />
-
-            <!-- Notification icon from product page -->
-            <Button style="-fx-background-color: transparent;">
-                <graphic>
-                    <Region prefHeight="20" prefWidth="20" style="-fx-background-color: #64748b; -fx-shape: 'M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z';" />
-                </graphic>
-            </Button>
-
-            <!-- Messages icon from product page -->
-            <Button style="-fx-background-color: transparent;">
-                <graphic>
-                    <Region prefHeight="20" prefWidth="20" style="-fx-background-color: #64748b; -fx-shape: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z';" />
-                </graphic>
-            </Button>
         </HBox>
     </top>
 
@@ -57,60 +38,23 @@
         </VBox>
     </left>
 
-    <!-- CONTENU PRINCIPAL - KEEP AS ANCHORPANE -->
+    <!-- CONTENU PRINCIPAL -->
     <center>
         <AnchorPane fx:id="mainContent" prefHeight="517.0" prefWidth="800.0">
             <children>
                 <AnchorPane layoutX="1.0" layoutY="21.0" prefHeight="407.0" prefWidth="767.0">
                     <children>
-                        <!-- Page title -->
-                        <HBox alignment="CENTER_LEFT" layoutX="30.0" layoutY="20.0" spacing="10">
-                            <Region prefHeight="24" prefWidth="24" style="-fx-background-color: #6366f1; -fx-shape: 'M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z';" />
-                            <Label style="-fx-text-fill: #334155; -fx-font-weight: bold;" text="Gestion Événement">
-                                <font>
-                                    <Font size="24.0" />
-                                </font>
-                            </Label>
-                        </HBox>
-
-                        <!-- Search and filter section -->
-                        <HBox alignment="CENTER_LEFT" layoutX="30.0" layoutY="60.0" spacing="10">
-                            <Label style="-fx-text-fill: #334155;" text="Rechercher:">
-                                <font>
-                                    <Font size="14.0" />
-                                </font>
-                            </Label>
-                            <TextField prefWidth="250" promptText="Rechercher un événement..." />
-                        </HBox>
-
-                        <!-- Events list header with product styling -->
-                        <HBox alignment="CENTER_LEFT" layoutX="30.0" layoutY="100.0" prefWidth="855.0" spacing="0" style="-fx-background-color: #f1f5f9; -fx-border-color: #e5e7eb; -fx-border-width: 1 1 0 1; -fx-border-radius: 5 5 0 0; -fx-padding: 10 0;">
-                            <Label prefWidth="70" style="-fx-font-weight: bold; -fx-padding: 0 0 0 10;" text="ID" />
-                            <Label prefWidth="150" style="-fx-font-weight: bold; -fx-padding: 0 0 0 10;" text="Titre" />
-                            <Label prefWidth="200" style="-fx-font-weight: bold; -fx-padding: 0 0 0 10;" text="Description" />
-                            <Label prefWidth="120" style="-fx-font-weight: bold; -fx-padding: 0 0 0 10;" text="Date" />
-                            <Label prefWidth="120" style="-fx-font-weight: bold; -fx-padding: 0 0 0 10;" text="Lieu" />
-                            <Label prefWidth="120" style="-fx-font-weight: bold; -fx-padding: 0 0 0 10;" text="Actions" />
-                        </HBox>
-
-                        <!-- Events list with product styling -->
-                        <ListView fx:id="eventListView" layoutX="30.0" layoutY="130.0" prefHeight="250.0" prefWidth="855.0" style="-fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 1 1; -fx-border-radius: 0 0 5 5;" />
+                        <Label layoutX="350.0" layoutY="20.0" text="Gestion Événement" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #011329;"/>
+                        <ListView fx:id="eventListView" layoutX="30.0" layoutY="75.0" prefHeight="318.0" prefWidth="855.0" style="-fx-background-color: transparent; -fx-border-color: transparent;" />
 
                         <!-- Bouton Ajouter un événement -->
-                        <Button onAction="#gotoAddEvent" layoutX="30.0" layoutY="400.0" style="-fx-background-color: #0662d5; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 5;" text="Ajouter un événement">
+                        <Button onAction="#gotoAddEvent" text="Ajouter un événement" layoutX="30.0" layoutY="420.0" style="-fx-background-color: #0662d5; -fx-text-fill: white; -fx-font-weight: bold;">
                             <graphic>
                                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                     <image>
                                         <Image url="@images/add.png" />
                                     </image>
                                 </ImageView>
-                            </graphic>
-                        </Button>
-
-                        <!-- Export button -->
-                        <Button layoutX="765.0" layoutY="400.0" style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 5;" text="Export to PDF">
-                            <graphic>
-                                <Region prefHeight="14" prefWidth="14" style="-fx-background-color: white; -fx-shape: 'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z';" />
                             </graphic>
                         </Button>
                     </children>

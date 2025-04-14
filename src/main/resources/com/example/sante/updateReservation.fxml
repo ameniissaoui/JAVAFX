@@ -1,89 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.effect.DropShadow?>
-<?import javafx.scene.image.Image?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
-
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.sante.controllers.reservationController"
-            prefHeight="700.0" prefWidth="1200.0">
-
-    <!-- Navbar -->
+<?import javafx.scene.image.Image?>
+<AnchorPane prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.sante.controllers.reservationController">
     <HBox fx:id="navbar" alignment="CENTER" spacing="20"
           style="-fx-background-color: white; -fx-padding: 10;"
           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
-        <!-- Logo -->
+        <!-- Logo aligné à gauche -->
         <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
             <image>
                 <Image url="@images/sante.png" />
             </image>
         </ImageView>
 
-        <!-- Espace pousseur gauche -->
+        <!-- Espace pousseur -->
         <Region HBox.hgrow="ALWAYS" />
 
-        <!-- Boutons de navigation -->
+        <!-- Boutons centrés -->
         <Button style="-fx-text-fill: #3fbbc0; -fx-background-color: transparent;" text="Home" />
         <Button onAction="#reservationfront" style="-fx-text-fill: #3fbbc0; -fx-background-color: transparent;" text="Reservation" />
         <Button onAction="#eventfront" style="-fx-text-fill: #3fbbc0; -fx-background-color: transparent;" text="Event" />
 
-        <!-- Espace pousseur droit -->
+        <!-- Espace pousseur (pour équilibrer à droite aussi) -->
         <Region HBox.hgrow="ALWAYS" />
     </HBox>
 
-    <!-- Formulaire de Réservation -->
-    <VBox alignment="CENTER" layoutX="360.0" layoutY="152.0" prefHeight="400.0" prefWidth="480.0" spacing="20">
+    <VBox alignment="CENTER" layoutX="360.0" layoutY="152.0" prefHeight="300.0" prefWidth="400.0" spacing="15">
+        <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #3fbbc0;"  text="Modifier la Réservation" />
 
-        <!-- Titre principal -->
-        <Label text="Modifier Réservation"
-               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #3fbbc0;" />
+        <!-- Champ pour le nom -->
+        <TextField fx:id="nameField" promptText="Nom de la réservation" style="-fx-pref-width: 300;" />
 
-        <!-- Carte formulaire -->
-        <VBox alignment="CENTER" spacing="20"
-              style="-fx-background-color: linear-gradient(to bottom right, #f0f8ff, #ffffff); -fx-background-radius: 20; -fx-padding: 30;">
-            <effect>
-                <DropShadow color="grey" radius="10" />
-            </effect>
+        <!-- Champ pour l'email -->
+        <TextField fx:id="emailField" promptText="Email" style="-fx-pref-width: 300;" />
 
-            <!-- Titre interne -->
-            <Label text="Modifier" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #3fbbc0;" />
+        <!-- Champ pour le nombre de personnes -->
+        <TextField fx:id="peopleCountField" promptText="Nombre de personnes" style="-fx-pref-width: 300;" />
 
-            <!-- Champs -->
-            <VBox spacing="15" alignment="CENTER">
+        <!-- Bouton pour enregistrer les modifications -->
+        <Button fx:id="submitButton" onAction="#handleReservation" text="Enregistrer" style="-fx-background-color: #3fbbc0; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px; -fx-pref-width: 200px;" />
 
-                <!-- Nom -->
-                <VBox spacing="5" alignment="CENTER_LEFT">
-                    <Label text="Nom de la réservation" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #3fbbc0;" />
-                    <TextField fx:id="nameField" promptText="Entrez votre nom"
-                               style="-fx-background-radius: 10; -fx-border-color: #3fbbc0; -fx-border-radius: 10; -fx-padding: 8; -fx-pref-width: 350px;" />
-                </VBox>
-
-                <!-- Email -->
-                <VBox spacing="5" alignment="CENTER_LEFT">
-                    <Label text="Email" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #3fbbc0;" />
-                    <TextField fx:id="emailField" promptText="Entrez votre email"
-                               style="-fx-background-radius: 10; -fx-border-color: #3fbbc0; -fx-border-radius: 10; -fx-padding: 8; -fx-pref-width: 350px;" />
-                </VBox>
-
-                <!-- Nombre de personnes -->
-                <VBox spacing="5" alignment="CENTER_LEFT">
-                    <Label text="Nombre de personnes" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #3fbbc0;" />
-                    <TextField fx:id="peopleCountField" promptText="Entrez le nombre de personnes"
-                               style="-fx-background-radius: 10; -fx-border-color: #3fbbc0; -fx-border-radius: 10; -fx-padding: 8; -fx-pref-width: 350px;" />
-                </VBox>
-            </VBox>
-
-            <!-- Bouton de soumission -->
-            <HBox spacing="15" alignment="CENTER">
-                <Button text="Réserver" fx:id="submitButton" onAction="#handleReservation"
-                        style="-fx-background-color: #3fbbc0; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px; -fx-pref-width: 120px;" />
-            </HBox>
-        </VBox>
+        <!-- Bouton pour annuler -->
+        <Button fx:id="cancelButton" onAction="#cancelAction" text="Annuler" style="-fx-background-color: #3fbbc0; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px; -fx-pref-width: 200px;" />
     </VBox>
 
 </AnchorPane>
