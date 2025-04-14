@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+
+<BorderPane prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #f6f9ff;" stylesheets="@/css/button.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.ListEvent">
+    <top>
+        <HBox fx:id="navbar" alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 10;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@/images/sante.png" />
+                </image>
+            </ImageView>
+            <Button style="-fx-background-color: transparent; -fx-text-fill: #0662d5; -fx-font-weight: bold;" text="Dashboard" />
+        </HBox>
+    </top>
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox fx:id="sidebar" alignment="TOP_CENTER" prefWidth="200.0" spacing="10" style="-fx-background-color: white; -fx-padding: 15;">
+            <ImageView fitHeight="150.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@/images/logo.png" />
+                </image>
+            </ImageView>
+
+            <Button styleClass="my-button3" text="Home" />
+            <Button onAction="#gotoreservation" styleClass="my-button3" text="Reservations" />
+            <Button onAction="#gotoevent" styleClass="my-button3" text="Events" />
+            <Button onAction="#gotofront" styleClass="my-button3" text="Front" />
+        </VBox>
+    </left>
+
+    <!-- CONTENU PRINCIPAL -->
+    <center>
+        <AnchorPane fx:id="mainContent" prefHeight="517.0" prefWidth="800.0">
+            <children>
+                <AnchorPane layoutX="1.0" layoutY="21.0" prefHeight="407.0" prefWidth="767.0">
+                    <children>
+                        <Label layoutX="350.0" layoutY="20.0" text="Gestion Événement" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #011329;"/>
+                        <ListView fx:id="eventListView" layoutX="30.0" layoutY="75.0" prefHeight="318.0" prefWidth="855.0" style="-fx-background-color: transparent; -fx-border-color: transparent;" />
+
+                        <!-- Bouton Ajouter un événement -->
+                        <Button onAction="#gotoAddEvent" text="Ajouter un événement" layoutX="30.0" layoutY="420.0" style="-fx-background-color: #0662d5; -fx-text-fill: white; -fx-font-weight: bold;">
+                            <graphic>
+                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@/images/addM.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                    </children>
+                </AnchorPane>
+            </children>
+        </AnchorPane>
+    </center>
+</BorderPane>
