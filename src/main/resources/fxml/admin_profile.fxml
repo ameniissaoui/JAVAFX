@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.controllers.AdminProfileController">
+    <!-- Top NavBar -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #00abc0; -fx-padding: 10;">
+            <!-- Logo -->
+            <ImageView fitWidth="40" fitHeight="40">
+                <image>
+                    <Image url="@../images/logo.png"/> <!-- Replace with your logo path -->
+                </image>
+            </ImageView>
+            <Label text="CHRONOSERENA" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <HBox spacing="20" alignment="CENTER_RIGHT">
+                <Button text="ACCUEIL" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+                <Button text="CONSERNANT" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+                <Button text="EVENEMENT" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+                <Button text="PRODUIT" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+                <Button fx:id="historique" text="TRAITEMENT" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+                <Button text="MÉDECIN" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+                <Button text="CONTACT" style="-fx-background-color: transparent; -fx-text-fill: white;"/>
+                <Button text="Mon Profile" style="-fx-background-color: #0096ff; -fx-text-fill: white; -fx-background-radius: 3;"/>
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox style="-fx-background-color: #e9ecef;">
+            <padding>
+                <Insets top="50" right="50" bottom="50" left="50"/>
+            </padding>
+
+            <!-- Profile Content -->
+            <HBox spacing="20" alignment="TOP_LEFT">
+                <!-- Left Profile Card -->
+                <VBox alignment="TOP_CENTER" spacing="10" style="-fx-background-color: white; -fx-background-radius: 5;">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <!-- Profile Picture -->
+                    <StackPane>
+                        <Circle radius="50" style="-fx-fill: #48d1cc;"/>
+                        <ImageView fx:id="profileImageView" fitHeight="100" fitWidth="100" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/avatar_paceholder.jpg"/> <!-- Placeholder for profile image -->
+                            </image>
+                        </ImageView>
+                    </StackPane>
+
+                    <Label fx:id="fullNameLabel" text="dcsq zds" style="-fx-font-size: 18px; -fx-font-weight: bold;">
+                        <VBox.margin>
+                            <Insets top="10"/>
+                        </VBox.margin>
+                    </Label>
+
+                    <Button text="Médecin" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 20;">
+                        <padding>
+                            <Insets top="5" right="15" bottom="5" left="15"/>
+                        </padding>
+                    </Button>
+                </VBox>
+
+                <!-- Right Profile Details -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <!-- Navigation Buttons -->
+                    <HBox spacing="10">
+                        <Button fx:id="overviewButton" text="Overview" onAction="#handleOverview"
+                                style="-fx-background-color: transparent; -fx-text-fill: #007bff; -fx-font-weight: bold; -fx-border-width: 0 0 2 0; -fx-border-color: #007bff;"/>
+                        <Label text="|" style="-fx-text-fill: #dddddd;"/>
+                        <Button fx:id="modifierButton" text="Modifier" onAction="#handleModifier"
+                                style="-fx-background-color: transparent; -fx-text-fill: #007bff;"/>
+                        <Label text="|" style="-fx-text-fill: #dddddd;"/>
+                        <Button fx:id="changerMotDePasseButton" text="Changer Mot De Passe" onAction="#handleChangePassword"
+                                style="-fx-background-color: transparent; -fx-text-fill: #007bff;"/>
+                    </HBox>
+
+                    <!-- Profile Header -->
+                    <Label text="Détail du profil" style="-fx-font-size: 16px; -fx-font-weight: bold;">
+                        <VBox.margin>
+                            <Insets top="10" bottom="10"/>
+                        </VBox.margin>
+                    </Label>
+
+                    <!-- Message Label for feedback -->
+                    <Label fx:id="messageLabel" visible="false" textAlignment="CENTER" wrapText="true"
+                           style="-fx-font-size: 14px;"/>
+
+                    <!-- Profile Form -->
+                    <GridPane hgap="15" vgap="15">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="150" />
+                            <ColumnConstraints hgrow="ALWAYS" />
+                        </columnConstraints>
+
+                        <!-- Nom -->
+                        <Label text="Nom :" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="nomField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <!-- Prénom -->
+                        <Label text="Prénom :" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <TextField fx:id="prenomField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <!-- Email -->
+                        <Label text="Email :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <!-- Nouveau mot de passe -->
+                        <Label text="Nouveau mot de passe :" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                       promptText="Laissez vide pour conserver l'ancien"/>
+
+                        <!-- Confirmer mot de passe -->
+                        <Label text="Confirmer mot de passe :" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                        <PasswordField fx:id="confirmPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                        <!-- Date de naissance -->
+                        <Label text="Date de naissance :" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                        <DatePicker fx:id="dateNaissancePicker" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                        <!-- Téléphone -->
+                        <Label text="Téléphone :" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                        <TextField fx:id="telephoneField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                    </GridPane>
+
+                    <!-- Save Button -->
+                    <HBox alignment="CENTER_RIGHT">
+                        <Button text="Enregistrer" onAction="#handleSave"
+                                style="-fx-background-color: #007bff; -fx-text-fill: white;">
+                            <padding>
+                                <Insets top="8" right="16" bottom="8" left="16"/>
+                            </padding>
+                        </Button>
+                    </HBox>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" style="-fx-background-color: transparent;">
+            <padding>
+                <Insets right="50" bottom="20"/>
+            </padding>
+            <Button text="Déconnexion" onAction="#handleLogout"
+                    style="-fx-background-color: #dc3545; -fx-text-fill: white;">
+                <padding>
+                    <Insets top="8" right="16" bottom="8" left="16"/>
+                </padding>
+            </Button>
+        </HBox>
+    </bottom>
+</BorderPane>

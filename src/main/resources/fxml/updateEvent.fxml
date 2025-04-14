@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane prefHeight="700.0" prefWidth="1200.0"
+            stylesheets="@/css/list.css,@/css/button.css"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.controllers.AddEvent">
+
+    <center>
+        <AnchorPane style="-fx-background-color: #EDF2F9;">
+            <children>
+                <!-- Titre principal -->
+                <Text layoutX="460.0"
+                      layoutY="50.0"
+                      style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-fill: #009dff; -fx-effect: dropshadow(gaussian, #b3d9ff, 1, 1, 0, 0);"
+                      text="MODIFIER UN ÉVÉNEMENT" />
+
+                <!-- ScrollPane contenant le formulaire -->
+                <ScrollPane layoutX="400.0" layoutY="80.0"
+                            prefWidth="430.0" prefHeight="550.0"
+                            fitToWidth="true"
+                            style="-fx-background-color: transparent;">
+                    <content>
+                        <VBox spacing="10" alignment="CENTER"
+                              style="-fx-padding: 15px;
+                               -fx-background-color: #F0F8FF;
+                               -fx-background-radius: 10px;
+                               -fx-border-color: #1E90FF;
+                               -fx-border-width: 2;
+                               -fx-border-radius: 10px;
+                               -fx-effect: dropshadow(gaussian, #e6e6e6, 2, 0, 0, 1);">
+
+                            <!-- Label + Upload -->
+                            <Text text="Images"
+                                  style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #0077cc;" />
+                            <HBox spacing="5" alignment="CENTER">
+                                <Button fx:id="imageButton"
+                                        onAction="#chooseImage"
+                                        text="Choose Files"
+                                        style="-fx-background-color: white; -fx-text-fill: #212529; -fx-border-color: #dee2e6; -fx-border-radius: 4px; -fx-background-radius: 4px; -fx-padding: 4px 8px;" />
+                                <TextField fx:id="imageField"
+                                           disable="true"
+                                           text="No file chosen"
+                                           style="-fx-pref-width: 260px; -fx-padding: 6px; -fx-background-radius: 4px; -fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-radius: 4px;" />
+                            </HBox>
+
+                            <!-- Aperçu image -->
+                            <HBox alignment="CENTER" style="-fx-padding: 5 0 5 0;">
+                                <ImageView fx:id="imageView"
+                                           fitHeight="80.0"
+                                           fitWidth="80.0"
+                                           preserveRatio="true"
+                                           style="-fx-effect: dropshadow(gaussian, #cccccc, 3, 0, 0, 1);
+                                          -fx-border-color: #dee2e6;
+                                          -fx-border-width: 1;
+                                          -fx-border-radius: 4px;" />
+                            </HBox>
+                            <Text text="Sélectionnez une ou plusieurs images pour votre événement"
+                                  style="-fx-font-size: 11px; -fx-fill: #6c757d;" />
+
+                            <!-- Titre -->
+                            <Text text="Titre"
+                                  style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #0077cc;" />
+                            <TextField fx:id="titreField"
+                                       style="-fx-pref-width: 360px; -fx-padding: 6px; -fx-background-radius: 4px; -fx-border-color: #dee2e6; -fx-border-radius: 4px;" />
+
+                            <!-- Date -->
+                            <Text text="Date de l'événement"
+                                  style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #0077cc;" />
+                            <DatePicker fx:id="dateEventField"
+                                        promptText="04/11/2025"
+                                        style="-fx-pref-width: 360px; -fx-padding: 6px; -fx-background-radius: 4px; -fx-border-color: #dee2e6; -fx-border-radius: 4px;" />
+
+                            <!-- Lieu -->
+                            <Text text="Lieu"
+                                  style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #0077cc;" />
+                            <TextField fx:id="lieuField"
+                                       style="-fx-pref-width: 360px; -fx-padding: 6px; -fx-background-radius: 4px; -fx-border-color: #dee2e6; -fx-border-radius: 4px;" />
+
+                            <!-- Description -->
+                            <Text text="Description"
+                                  style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #0077cc;" />
+                            <TextField fx:id="descriptionField"
+                                       style="-fx-pref-width: 360px; -fx-padding: 6px; -fx-background-radius: 4px; -fx-border-color: #dee2e6; -fx-border-radius: 4px;" />
+
+                            <!-- Nombre de places -->
+                            <Text text="Nombre de places"
+                                  style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-fill: #0077cc;" />
+                            <TextField fx:id="nbPlaceField"
+                                       style="-fx-pref-width: 360px; -fx-padding: 6px; -fx-background-radius: 4px; -fx-border-color: #dee2e6; -fx-border-radius: 4px;" />
+
+                            <!-- Bouton MODIFIER -->
+                            <Button fx:id="updateEvent"
+                                    onAction="#updateEvent"
+                                    text="MODIFIER EVENT"
+                                    style="-fx-font-size: 14px; -fx-padding: 8px 30px; -fx-background-color: #007bff; -fx-text-fill: white; -fx-background-radius: 4px; -fx-pref-width: 360px;" />
+                        </VBox>
+                    </content>
+                </ScrollPane>
+
+                <!-- Footer -->
+                <Text layoutX="770.0" layoutY="657.0"
+                      style="-fx-font-size: 11px; -fx-fill: #6c757d;"
+                      text="© Copyright NiceAdmin. All Rights Reserved" />
+                <Text layoutX="850.0" layoutY="672.0"
+                      style="-fx-font-size: 11px; -fx-fill: #6c757d;"
+                      text="Designed by BootstrapMade" />
+            </children>
+        </AnchorPane>
+    </center>
+</BorderPane>
