@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" styleClass="root" stylesheets="@/css/profile-styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.DemandeRecommendationsController">
+    <!-- Top Navigation Bar -->
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="70.0" styleClass="top-nav-bar" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Logo Section -->
+                <HBox alignment="CENTER_LEFT" HBox.hgrow="NEVER">
+                    <Label style="-fx-text-fill: white; -fx-font-weight: bold;" text="CHRONOSERENA">
+                        <font>
+                            <Font name="System Bold" size="24.0" />
+                        </font>
+                        <HBox.margin>
+                            <Insets left="40.0" right="20.0" />
+                        </HBox.margin>
+                    </Label>
+                </HBox>
+
+                <!-- Navigation Menu - Centered with proper spacing -->
+                <HBox alignment="CENTER" spacing="20.0" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Button mnemonicParsing="false" styleClass="nav-button" text="ACCUEIL" />
+                        <Button mnemonicParsing="false" styleClass="nav-button" text="CONSERNANT" />
+                        <Button mnemonicParsing="false" styleClass="nav-button" text="Historiques" />
+                        <Button mnemonicParsing="false" styleClass="nav-button" text="DEMANDE" />
+                        <Button mnemonicParsing="false" styleClass="nav-button" text="PRODUIT" />
+                        <Button mnemonicParsing="false" styleClass="nav-button" text="TRAITEMENT" />
+                        <Button mnemonicParsing="false" styleClass="nav-button" text="MÉDECIN" />
+                        <Button mnemonicParsing="false" styleClass="nav-button" text="CONTACT" />
+                    </children>
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                </HBox>
+
+                <!-- Profile Button -->
+                <Button mnemonicParsing="false" styleClass="profile-button" text="Mon Profile">
+                    <HBox.margin>
+                        <Insets right="40.0" />
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="15.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="20.0" left="30.0" right="30.0" top="10.0" />
+            </padding>
+            <children>
+                <!-- Page heading -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <Button mnemonicParsing="false" onAction="#navigateBack" styleClass="secondary-button">
+                        <graphic>
+                            <Label text="←" />
+                        </graphic>
+                    </Button>
+                    <Label styleClass="page-title" text="Mes Recommandations" textAlignment="CENTER">
+                        <font>
+                            <Font name="System Bold" size="22.0" />
+                        </font>
+                    </Label>
+                </HBox>
+                
+                <!-- Recommendations content -->
+                <ScrollPane fitToWidth="true" styleClass="transparent-scroll-pane" VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="recommendationsContainer" spacing="15.0">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                            
+                            <!-- No Recommendations View -->
+                            <VBox fx:id="noRecommendationsView" alignment="CENTER" styleClass="no-recommendation" visible="true">
+                                <children>
+                                    <Label alignment="CENTER" prefHeight="120.0" prefWidth="120.0" styleClass="dashboard-emoji" text="📭" textAlignment="CENTER">
+                                        <font>
+                                            <Font size="80.0" />
+                                        </font>
+                                    </Label>
+                                    <Label text="Vous n'avez pas encore de recommandations" textAlignment="CENTER">
+                                        <font>
+                                            <Font name="System Bold" size="18.0" />
+                                        </font>
+                                        <VBox.margin>
+                                            <Insets top="20.0" />
+                                        </VBox.margin>
+                                    </Label>
+                                    <Label text="Créez ou mettez à jour votre demande pour recevoir des recommandations personnalisées" textAlignment="CENTER" wrapText="true">
+                                        <VBox.margin>
+                                            <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                        </VBox.margin>
+                                    </Label>
+                                    <Button mnemonicParsing="false" onAction="#navigateToDemande" styleClass="primary-button" text="Gérer mes demandes">
+                                        <VBox.margin>
+                                            <Insets top="10.0" />
+                                        </VBox.margin>
+                                        <padding>
+                                            <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                        </padding>
+                                    </Button>
+                                </children>
+                                <padding>
+                                    <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                                </padding>
+                            </VBox>
+                            
+                            <!-- Recommendations List View (Initially hidden) -->
+                            <VBox fx:id="recommendationsListView" spacing="15.0" visible="false">
+                                <!-- Sample Recommendation Cards -->
+                                <VBox styleClass="recommendation-card">
+                                    <children>
+                                        <Label styleClass="recommendation-title" text="Recommandation pour la consommation d'eau">
+                                            <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                        <Label styleClass="recommendation-content" text="Basé sur votre demande, nous vous recommandons d'augmenter votre consommation d'eau à 2L par jour. Cela peut améliorer votre hydratation, votre métabolisme et votre niveau d'énergie." wrapText="true" />
+                                    </children>
+                                </VBox>
+                                
+                                <VBox styleClass="recommendation-card">
+                                    <children>
+                                        <Label styleClass="recommendation-title" text="Recommandation pour l'activité physique">
+                                            <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                        <Label styleClass="recommendation-content" text="Considérez d'augmenter votre durée d'activité physique à 2 heures par jour. Le type d'activité que vous pratiquez est excellent, mais plus de durée pourrait vous aider à atteindre vos objectifs plus rapidement." wrapText="true" />
+                                    </children>
+                                </VBox>
+                                
+                                <VBox styleClass="recommendation-card">
+                                    <children>
+                                        <Label styleClass="recommendation-title" text="Recommandation pour l'alimentation">
+                                            <VBox.margin>
+                                                <Insets bottom="10.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                        <Label styleClass="recommendation-content" text="Pour un meilleur équilibre, essayez de maintenir 3 repas par jour et évitez les snacks. Cela peut vous aider à mieux contrôler votre apport calorique et améliorer votre métabolisme." wrapText="true" />
+                                    </children>
+                                </VBox>
+                            </VBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </center>
+</BorderPane> 
