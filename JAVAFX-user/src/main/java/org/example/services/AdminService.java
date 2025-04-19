@@ -17,6 +17,7 @@ public class AdminService extends UserService<Admin> {
     @Override
     public void add(Admin admin) {
         Connection conn = MaConnexion.getInstance().getCnx();
+
         try {
             conn.setAutoCommit(false);
 
@@ -129,6 +130,7 @@ public class AdminService extends UserService<Admin> {
                         rs.getDate("dateNaissance"),
                         rs.getString("telephone")
                 );
+                admin.setBanned(rs.getBoolean("banned"));
                 list.add(admin);
             }
 
@@ -147,7 +149,7 @@ public class AdminService extends UserService<Admin> {
             pst.setInt(1, id);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Admin(
+                Admin admin = new Admin(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("prenom"),
@@ -156,6 +158,8 @@ public class AdminService extends UserService<Admin> {
                         rs.getDate("dateNaissance"),
                         rs.getString("telephone")
                 );
+                admin.setBanned(rs.getBoolean("banned"));
+                return admin;
             }
         } catch (SQLException e) {
             System.out.println("Erreur getOne admin: " + e.getMessage());
@@ -170,7 +174,7 @@ public class AdminService extends UserService<Admin> {
             pst.setString(1, email);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Admin(
+                Admin admin = new Admin(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("prenom"),
@@ -179,6 +183,9 @@ public class AdminService extends UserService<Admin> {
                         rs.getDate("dateNaissance"),
                         rs.getString("telephone")
                 );
+                // Make sure to set the banned status
+                admin.setBanned(rs.getBoolean("banned"));
+                return admin;
             }
         } catch (SQLException e) {
             System.out.println("Erreur findByEmail: " + e.getMessage());

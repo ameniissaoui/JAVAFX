@@ -2,9 +2,12 @@ package org.example.models;
 
 import java.util.Date;
 
-public class Medecin extends User{
+public class
+Medecin extends User{
     String specialite;
     String diploma;
+    private boolean is_verified = false;
+
     public Medecin() {
         super();
     }
@@ -31,6 +34,9 @@ public class Medecin extends User{
         this.specialite = specialite;
         this.diploma = diploma;
     }
+
+
+
     public String getSpecialite() {
         return specialite;
     }
@@ -45,6 +51,14 @@ public class Medecin extends User{
 
     public void setDiploma(String diploma) {
         this.diploma = diploma;
+    }
+
+    public boolean isIs_verified() {
+        return is_verified;
+    }
+
+    public void setIs_verified(boolean is_verified) {
+        this.is_verified = is_verified;
     }
 
     @Override

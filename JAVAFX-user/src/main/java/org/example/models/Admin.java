@@ -16,6 +16,7 @@ public class Admin extends User {
         super(nom, prenom, email, motDePasse, dateNaissance, telephone);
     }
 
+
     @Override
     public String toString() {
         return "Admin{" + super.toString() + "}";

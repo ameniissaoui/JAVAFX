@@ -437,3 +437,23 @@
 .transparent-scroll-pane > .corner {
     -fx-background-color: transparent;
 }
+.success-message {
+    -fx-text-fill: #155724;
+    -fx-background-color: #d4edda;
+    -fx-border-color: #c3e6cb;
+    -fx-padding: 5px;
+}
+
+.danger-message {
+    -fx-text-fill: #d63031;
+    -fx-background-color: #fee8e7;
+    -fx-border-color: #fdd6d3;
+    -fx-padding: 5px;
+}
+
+.warning-message {
+    -fx-text-fill: #856404;
+    -fx-background-color: #fff3cd;
+    -fx-border-color: #ffeeba;
+    -fx-padding: 5px;
+}

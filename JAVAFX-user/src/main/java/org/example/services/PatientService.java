@@ -106,7 +106,6 @@ public class PatientService extends UserService<Patient> {
             }
         }
     }
-
     @Override
     public List<Patient> getAll() {
         List<Patient> list = new ArrayList<>();
@@ -125,6 +124,7 @@ public class PatientService extends UserService<Patient> {
                         rs.getDate("dateNaissance"),
                         rs.getString("telephone")
                 );
+                patient.setBanned(rs.getBoolean("banned"));
                 list.add(patient);
             }
 
@@ -143,7 +143,7 @@ public class PatientService extends UserService<Patient> {
             pst.setInt(1, id);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Patient(
+                Patient patient = new Patient(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("prenom"),
@@ -152,19 +152,22 @@ public class PatientService extends UserService<Patient> {
                         rs.getDate("dateNaissance"),
                         rs.getString("telephone")
                 );
+                patient.setBanned(rs.getBoolean("banned"));
+                return patient;
             }
         } catch (SQLException e) {
             System.out.println("Erreur getOne patient: " + e.getMessage());
         }
         return null;
     }
+
     public Patient findByEmail(String email) {
         String query = "SELECT u.* FROM user u JOIN patient p ON u.id = p.user_id WHERE u.email = ?";
         try (PreparedStatement pst = cnx.prepareStatement(query)) {
             pst.setString(1, email);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Patient(
+                Patient patient = new Patient(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("prenom"),
@@ -173,6 +176,9 @@ public class PatientService extends UserService<Patient> {
                         rs.getDate("dateNaissance"),
                         rs.getString("telephone")
                 );
+                // Make sure to set the banned status
+                patient.setBanned(rs.getBoolean("banned"));
+                return patient;
             }
         } catch (SQLException e) {
             e.printStackTrace();

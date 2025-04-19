@@ -10,6 +10,8 @@ public abstract class User {
     protected String motDePasse;
     protected Date dateNaissance;
     protected String telephone;
+    protected boolean banned; // New field
+
 
 
     public User() {
@@ -24,6 +26,8 @@ public abstract class User {
         this.motDePasse = motDePasse;
         this.dateNaissance = dateNaissance;
         this.telephone = telephone;
+        this.banned = false; // Default value
+
     }
 
     public User(String nom, String prenom, String email, String motDePasse,
@@ -34,6 +38,8 @@ public abstract class User {
         this.motDePasse = motDePasse;
         this.dateNaissance = dateNaissance;
         this.telephone = telephone;
+        this.banned = false; // Default value
+
 
     }
 
@@ -58,7 +64,8 @@ public abstract class User {
 
     public String getTelephone() { return telephone; }
     public void setTelephone(String telephone) { this.telephone = telephone; }
-
+    public boolean isBanned() { return banned; }
+    public void setBanned(boolean banned) { this.banned = banned; }
     @Override
     public String toString() {
         return "User{" +
@@ -70,4 +77,10 @@ public abstract class User {
                 ", telephone='" + telephone +
                 '}';
     }
+
+    public String getProfilePicture(){
+        return "";
+    };
+
+    public void setProfilePicture(String string){};
 }

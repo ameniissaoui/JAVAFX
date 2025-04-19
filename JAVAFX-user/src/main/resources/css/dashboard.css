@@ -167,3 +167,239 @@
     -fx-font-size: 14px;
     -fx-padding: 20px;
 }
+/* Add to your dashboard.css file */
+.status-active {
+    -fx-background-color: #10b981;
+    -fx-text-fill: white;
+    -fx-padding: 4 8;
+    -fx-background-radius: 4;
+    -fx-font-size: 11px;
+}
+
+.status-banned {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-padding: 4 8;
+    -fx-background-radius: 4;
+    -fx-font-size: 11px;
+}
+
+.ban-btn {
+    -fx-background-color: #ef4444;
+}
+
+.unban-btn {
+    -fx-background-color: #10b981;
+}
+
+/* User Details Panel Styling */
+.details-panel {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 1);
+    -fx-padding: 20;
+    -fx-spacing: 15;
+}
+
+.details-header {
+    -fx-padding: 0 0 10 0;
+    -fx-border-color: #f1f5f9;
+    -fx-border-width: 0 0 1 0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 10;
+}
+
+.details-title {
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+    -fx-text-fill: #334155;
+}
+
+.details-grid {
+    -fx-hgap: 15;
+    -fx-vgap: 12;
+    -fx-padding: 5 0;
+}
+
+.details-section-title {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #64748b;
+    -fx-padding: 5 0;
+}
+
+.details-label {
+    -fx-text-fill: #64748b;
+    -fx-font-weight: normal;
+}
+
+.details-value {
+    -fx-text-fill: #0f172a;
+    -fx-font-weight: medium;
+}
+
+.details-icon {
+    -fx-fill: #64748b;
+}
+
+/* Stats boxes at the top */
+.stats-container {
+    -fx-spacing: 15;
+    -fx-padding: 0 0 15 0;
+}
+
+.stat-box {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 12;
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.03), 4, 0, 0, 1);
+}
+
+.stat-box:hover {
+    -fx-background-color: #f8fafc;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 6, 0, 0, 2);
+}
+
+.stat-icon-container {
+    -fx-background-radius: 8;
+    -fx-min-width: 42;
+    -fx-min-height: 42;
+    -fx-max-width: 42;
+    -fx-max-height: 42;
+    -fx-alignment: CENTER;
+}
+
+.stat-icon {
+    -fx-fill: white;
+}
+
+.user-icon-container {
+    -fx-background-color: #3b82f6;
+}
+
+.role-icon-container {
+    -fx-background-color: #f59e0b;
+}
+
+.status-icon-container {
+    -fx-background-color: #10b981;
+}
+
+.status-banned-icon-container {
+    -fx-background-color: #ef4444;
+}
+
+.stat-label {
+    -fx-font-size: 12;
+    -fx-text-fill: #64748b;
+}
+
+.stat-value {
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-text-fill: #334155;
+}
+
+/* Contact information section */
+.contact-info-container {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 6;
+    -fx-padding: 15;
+    -fx-spacing: 12;
+}
+
+.contact-item {
+    -fx-spacing: 10;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.contact-icon {
+    -fx-fill: #64748b;
+}
+
+.contact-label {
+    -fx-text-fill: #334155;
+    -fx-font-weight: medium;
+}
+
+/* Role badge (reusing styles from table) */
+.role-badge {
+    -fx-background-radius: 4px;
+    -fx-padding: 5 12;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+}
+
+.status-badge {
+    -fx-background-radius: 4px;
+    -fx-padding: 5 12;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+}
+
+/* Action buttons */
+.details-actions {
+    -fx-spacing: 10;
+    -fx-padding: 15 0 0 0;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.close-details-btn {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #64748b;
+    -fx-padding: 8 15;
+    -fx-background-radius: 6;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.close-details-btn:hover {
+    -fx-background-color: #cbd5e1;
+}
+
+.edit-details-btn {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-padding: 8 15;
+    -fx-background-radius: 6;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.edit-details-btn:hover {
+    -fx-background-color: #2563eb;
+}
+/* Add to your dashboard.css file */
+.detail-icon {
+    -fx-min-width: 18px;
+    -fx-min-height: 18px;
+    -fx-max-width: 18px;
+    -fx-max-height: 18px;
+    -fx-background-radius: 3px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);
+}
+
+/* Make details section more attractive */
+#detailsVBox {
+    -fx-background-color: white;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 15;
+    -fx-spacing: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 1);
+}
+
+/* Style for the details title */
+#detailsVBox > .label {
+    -fx-padding: 0 0 8 0;
+    -fx-border-color: #f1f5f9;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding-bottom: 10;
+}

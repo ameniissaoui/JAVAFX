@@ -29,11 +29,11 @@ public class MedecinService extends UserService<Medecin> {
             medecin.setId(userId);
 
             // Then insert into medecin table
-            String query = "INSERT INTO medecin (user_id, specialite, diploma) VALUES (?, ?, ?)";
-            try (PreparedStatement pst = conn.prepareStatement(query)) {
+            String query = "INSERT INTO medecin (user_id, specialite, diploma, is_verified) VALUES (?, ?, ?, ?)";            try (PreparedStatement pst = conn.prepareStatement(query)) {
                 pst.setInt(1, userId);
                 pst.setString(2, medecin.getSpecialite());
                 pst.setString(3, medecin.getDiploma());
+                pst.setBoolean(4, medecin.isIs_verified());
                 pst.executeUpdate();
                 conn.commit();
                 System.out.println("Medecin ajouté !");
@@ -62,11 +62,12 @@ public class MedecinService extends UserService<Medecin> {
             updateBaseUser(medecin);
 
             // Update medecin-specific information
-            String query = "UPDATE medecin SET specialite = ?, diploma = ? WHERE user_id = ?";
+            String query = "UPDATE medecin SET specialite = ?, diploma = ?, is_verified = ?  WHERE user_id = ?";
             try (PreparedStatement pst = conn.prepareStatement(query)) {
                 pst.setString(1, medecin.getSpecialite());
                 pst.setString(2, medecin.getDiploma());
-                pst.setInt(3, medecin.getId());
+                pst.setBoolean(3, medecin.isIs_verified());
+                pst.setInt(4, medecin.getId());
                 pst.executeUpdate();
                 conn.commit();
                 System.out.println("Medecin mis à jour !");
@@ -120,7 +121,7 @@ public class MedecinService extends UserService<Medecin> {
     @Override
     public List<Medecin> getAll() {
         List<Medecin> list = new ArrayList<>();
-        String query = "SELECT u.*, m.specialite, m.diploma FROM user u " +
+        String query = "SELECT u.*, m.specialite, m.diploma, m.is_verified  FROM user u " +
                 "JOIN medecin m ON u.id = m.user_id";
         try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(query)) {
@@ -137,6 +138,8 @@ public class MedecinService extends UserService<Medecin> {
                         rs.getString("specialite"),
                         rs.getString("diploma")
                 );
+                medecin.setBanned(rs.getBoolean("banned"));
+                medecin.setIs_verified(rs.getBoolean("is_verified"));
                 list.add(medecin);
             }
 
@@ -148,14 +151,14 @@ public class MedecinService extends UserService<Medecin> {
 
     @Override
     public Medecin getOne(int id) {
-        String query = "SELECT u.*, m.specialite, m.diploma FROM user u " +
+        String query = "SELECT u .*, m.specialite, m.diploma, m.is_verified  FROM user u " +
                 "JOIN medecin m ON u.id = m.user_id " +
                 "WHERE u.id = ?";
         try (PreparedStatement pst = cnx.prepareStatement(query)) {
             pst.setInt(1, id);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Medecin(
+                Medecin medecin = new Medecin(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("prenom"),
@@ -166,6 +169,9 @@ public class MedecinService extends UserService<Medecin> {
                         rs.getString("specialite"),
                         rs.getString("diploma")
                 );
+                medecin.setBanned(rs.getBoolean("banned"));
+                medecin.setIs_verified(rs.getBoolean("is_verified"));
+                return medecin;
             }
         } catch (SQLException e) {
             System.out.println("Erreur getOne medecin: " + e.getMessage());
@@ -173,12 +179,12 @@ public class MedecinService extends UserService<Medecin> {
         return null;
     }
     public Medecin findByEmail(String email) {
-        String query = "SELECT u.*, m.specialite, m.diploma FROM user u JOIN medecin m ON u.id = m.user_id WHERE u.email = ?";
+        String query = "SELECT u.*, m.specialite, m.diploma, m.is_verified  FROM user u JOIN medecin m ON u.id = m.user_id WHERE u.email = ?";
         try (PreparedStatement pst = cnx.prepareStatement(query)) {
             pst.setString(1, email);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Medecin(
+                Medecin medecin = new Medecin(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("prenom"),
@@ -189,9 +195,28 @@ public class MedecinService extends UserService<Medecin> {
                         rs.getString("specialite"),
                         rs.getString("diploma")
                 );
+                medecin.setBanned(rs.getBoolean("banned"));
+                medecin.setIs_verified(rs.getBoolean("is_verified"));
+                return medecin;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
-    }}
+    }
+    public void verifyDoctor(int id) {
+        Medecin medecin = getOne(id);
+        if (medecin != null) {
+            medecin.setIs_verified(true);
+            update(medecin);
+        }
+    }
+
+    public void unverifyDoctor(int id) {
+        Medecin medecin = getOne(id);
+        if (medecin != null) {
+            medecin.setIs_verified(false);
+            update(medecin);
+        }
+    }
+}

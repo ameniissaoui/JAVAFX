@@ -114,12 +114,6 @@ public class MedecinRegistrationController extends BaseRegistrationController {
             e.printStackTrace();
         }
     }
-
-    /**
-     * Saves the diploma file to a permanent location and returns the file path
-     * @return the path to the saved file
-     * @throws IOException if an I/O error occurs
-     */
     private String saveDiplomaFile() throws IOException {
         if (selectedDiplomaFile == null) {
             return "";
@@ -154,10 +148,6 @@ public class MedecinRegistrationController extends BaseRegistrationController {
         return baseFieldsValid && medecinFieldsValid;
     }
 
-    /**
-     * Validates medecin-specific fields
-     * @return true if all medecin-specific fields are valid
-     */
     private boolean validateMedecinFields() {
         boolean isValid = true;
 
@@ -187,12 +177,6 @@ public class MedecinRegistrationController extends BaseRegistrationController {
         return isValid;
     }
 
-    /**
-     * Creates a Medecin object from the form fields
-     * @param diplomaPath the path to the saved diploma file
-     * @return a new Medecin object with data from the form
-     * @throws IllegalStateException if validation fails
-     */
     private Medecin createMedecinFromFields(String diplomaPath) throws IllegalStateException {
         try {
             // Get base user info

@@ -50,8 +50,13 @@ public class AdminProfileController extends BaseProfileController {
         acceuil.setOnAction(event -> handleAcceuilRedirect());
         super.initialize(url, resourceBundle);
         adminService = new AdminService();
+        setUserService();
+        super.initialize(url, resourceBundle);
     }
-
+    @Override
+    protected void setUserService() {
+        this.userService = adminService;
+    }
     private void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -81,16 +86,15 @@ public class AdminProfileController extends BaseProfileController {
     public void setUser(User user) {
         if (user instanceof Admin) {
             super.setUser(user);
+            setUserService(); // Set the service when user is set
         } else {
             throw new IllegalArgumentException("User must be an Admin");
         }
     }
-
-    // This method is now redundant as we get admin from SessionManager
-    // Only keep it for backward compatibility
     public void setAdmin(Admin admin) {
         this.currentUser = admin;
         loadUserData();
+        setUserService();
     }
 
     @Override

@@ -32,14 +32,37 @@ public class PatientProfileController extends BaseProfileController {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url, resourceBundle);
+        // Check if user is logged in and is a patient
+        if (!SessionManager.getInstance().isLoggedIn() || !SessionManager.getInstance().isPatient()) {
+            showMessage("Erreur: Accès non autorisé", "danger");
+            handleLogout();
+            return;
+        }
+
+        // Get current patient from session
+        Patient patient = SessionManager.getInstance().getCurrentPatient();
+        if (patient != null) {
+            currentUser = patient;
+            loadUserData();
+        }
+
+        // Initialize service and set it
         patientService = new PatientService();
+        setUserService();
+
+        super.initialize(url, resourceBundle);
+    }
+
+    @Override
+    protected void setUserService() {
+        this.userService = patientService;
     }
 
     @Override
     public void setUser(User user) {
         if (user instanceof Patient) {
             super.setUser(user, "patient");
+            setUserService(); // Ensure service is set
         } else {
             throw new IllegalArgumentException("User must be a Patient");
         }
@@ -49,8 +72,8 @@ public class PatientProfileController extends BaseProfileController {
         this.currentUser = patient;
         this.userType = "patient";
         loadUserData();
+        setUserService(); // Ensure service is set
 
-        // Update session manager
         if (patient != null) {
             SessionManager.getInstance().setCurrentUser(patient, "patient");
         }
@@ -59,21 +82,25 @@ public class PatientProfileController extends BaseProfileController {
     @Override
     protected void saveUser() {
         if (currentUser instanceof Patient) {
-            patientService.update((Patient) currentUser);
+            try {
+                patientService.update((Patient) currentUser);
+                SessionManager.getInstance().setCurrentUser(currentUser, "patient");
+                updateDisplayLabels();
+                showMessage("Profil patient mis à jour avec succès", "success");
+            } catch (Exception e) {
+                showMessage("Erreur lors de la mise à jour du profil: " + e.getMessage(), "danger");
+                e.printStackTrace();
+            }
         }
     }
+
     @FXML
     public void redirectToDemande(ActionEvent event) {
         try {
-            // Make sure the currentUser is set in the SessionManager before navigating
             if (currentUser != null) {
                 SessionManager.getInstance().setCurrentUser(currentUser, "patient");
-
-                // Load the DemandeDashboard.fxml instead of DemandeMyView.fxml
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DemandeDashboard.fxml"));
                 Parent root = loader.load();
-
-                // Create new scene and show it
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
@@ -92,18 +119,10 @@ public class PatientProfileController extends BaseProfileController {
     @FXML
     public void redirectToRendezVous(ActionEvent event) {
         try {
-            // Make sure the currentUser is set in the SessionManager before navigating
             if (currentUser != null) {
                 SessionManager.getInstance().setCurrentUser(currentUser, "patient");
-
-                // Load the RendezVous view
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/rendez-vous-view.fxml"));
                 Parent root = loader.load();
-
-                // Get the controller
-                RendezVousViewController controller = loader.getController();
-
-                // Create new scene and show it
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
@@ -122,15 +141,10 @@ public class PatientProfileController extends BaseProfileController {
     @FXML
     public void redirectProduit(ActionEvent event) {
         try {
-            // Make sure the currentUser is set in the SessionManager before navigating
             if (currentUser != null) {
                 SessionManager.getInstance().setCurrentUser(currentUser, "patient");
-
-                // Load the Product view
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/showProduit.fxml"));
                 Parent root = loader.load();
-
-                // Create new scene and show it
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
@@ -159,18 +173,15 @@ public class PatientProfileController extends BaseProfileController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Sélectionner une photo de profil");
 
-        // Set extension filters for images
         FileChooser.ExtensionFilter imageFilter =
                 new FileChooser.ExtensionFilter("Images (*.png, *.jpg, *.jpeg)", "*.png", "*.jpg", "*.jpeg");
         fileChooser.getExtensionFilters().add(imageFilter);
 
-        // Show open file dialog
         File file = fileChooser.showOpenDialog(profileImageView.getScene().getWindow());
 
         if (file != null) {
-            // Check file size (max 2MB)
             long fileSize = file.length();
-            long maxSize = 2 * 1024 * 1024; // 2MB in bytes
+            long maxSize = 2 * 1024 * 1024;
 
             if (fileSize > maxSize) {
                 showMessage("La photo est trop volumineuse (max 2MB)", "danger");
@@ -178,28 +189,23 @@ public class PatientProfileController extends BaseProfileController {
             }
 
             try {
-                // Create upload directory if it doesn't exist
                 Path uploadDir = Paths.get("uploads", "profiles");
                 if (!Files.exists(uploadDir)) {
                     Files.createDirectories(uploadDir);
                 }
 
-                // Generate a unique filename
                 String originalFilename = file.getName();
                 String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
 
-                // Save the file
                 Path targetPath = uploadDir.resolve(uniqueFilename);
                 Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-                // Update the model
                 if (currentUser instanceof Patient) {
-                    // Add appropriate method to set profile picture path
-                    // ((Patient)currentUser).setProfilePicture(targetPath.toString());
+                    ((Patient) currentUser).setProfilePicture(targetPath.toString()); // Requires profilePicture field
+                    patientService.update((Patient) currentUser); // Save to database
                 }
 
-                // Update the UI
                 Image profileImage = new Image(file.toURI().toString());
                 profileImageView.setImage(profileImage);
 

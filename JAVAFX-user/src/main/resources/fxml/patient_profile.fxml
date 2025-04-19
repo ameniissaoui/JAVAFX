@@ -313,7 +313,6 @@
                                                 </ScrollPane>
                                             </content>
                                         </Tab>
-                                        <!-- Change Password Tab -->
                                         <Tab text="Changer Mot De Passe">
                                             <graphic>
                                                 <Label text="🔒" />
@@ -329,7 +328,27 @@
                                                                 <Font name="System Bold" size="16.0" />
                                                             </font>
                                                         </Label>
-
+                                                        <!-- Message Label for Errors -->
+                                                        <Label fx:id="messageLabell" alignment="CENTER" styleClass="message-label" visible="false">
+                                                            <font>
+                                                                <Font size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <!-- Current Password Field -->
+                                                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="field-with-icon">
+                                                            <children>
+                                                                <Label prefWidth="150.0" styleClass="field-label" text="Mot de passe actuel:">
+                                                                    <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                    </font>
+                                                                </Label>
+                                                                <PasswordField fx:id="currentPasswordField" promptText="Entrez votre mot de passe actuel" HBox.hgrow="ALWAYS" />
+                                                            </children>
+                                                            <padding>
+                                                                <Insets bottom="5.0" top="5.0" />
+                                                            </padding>
+                                                        </HBox>
+                                                        <!-- New Password Field -->
                                                         <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="field-with-icon">
                                                             <children>
                                                                 <Label prefWidth="150.0" styleClass="field-label" text="Nouveau mot de passe:">
@@ -343,7 +362,7 @@
                                                                 <Insets bottom="5.0" top="5.0" />
                                                             </padding>
                                                         </HBox>
-
+                                                        <!-- Confirm Password Field -->
                                                         <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="field-with-icon">
                                                             <children>
                                                                 <Label prefWidth="150.0" styleClass="field-label" text="Confirmer:">
@@ -357,8 +376,7 @@
                                                                 <Insets bottom="5.0" top="5.0" />
                                                             </padding>
                                                         </HBox>
-
-                                                        <Button defaultButton="true" mnemonicParsing="false" onAction="#handleSave" styleClass="primary-button" text="Mettre à jour le mot de passe">
+                                                        <Button defaultButton="true" mnemonicParsing="false" onAction="#handleChangePassword" styleClass="primary-button" text="Mettre à jour le mot de passe">
                                                             <font>
                                                                 <Font size="14.0" />
                                                             </font>
@@ -369,8 +387,7 @@
                                                     </children>
                                                 </VBox>
                                             </content>
-                                        </Tab>
-                                    </tabs>
+                                        </Tab>                                    </tabs>
                                 </TabPane>
                             </children>
                         </VBox>

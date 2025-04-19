@@ -14,6 +14,7 @@ import org.example.models.User;
 import org.example.models.Admin;
 import org.example.models.Patient;
 import org.example.models.Medecin;
+import org.example.services.UserService;
 import org.example.util.SessionManager;
 
 import java.io.IOException;
@@ -34,8 +35,9 @@ public abstract class BaseProfileController implements Initializable {
     @FXML protected DatePicker dateNaissancePicker;
     @FXML protected TextField telephoneField;
     @FXML protected Label messageLabel;
+    @FXML protected Label messageLabell;
     @FXML public Button submitButton;
-    @FXML private Label fullNameLabel;
+    @FXML public Label fullNameLabel;
     @FXML private Button historique;
     @FXML private Label nomDisplayLabel;
     @FXML private Label prenomDisplayLabel;
@@ -44,13 +46,15 @@ public abstract class BaseProfileController implements Initializable {
     @FXML private Label dateNaissanceDisplayLabel;
     protected User currentUser;
     protected String userType;
-
+    @FXML protected PasswordField currentPasswordField;
+    protected UserService<?> userService; // Abstract service to handle all user types
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("Initializing BaseProfileController...");
         System.out.println("nomField: " + nomField);
         System.out.println("prenomField: " + prenomField);
         System.out.println("emailField: " + emailField);
+        System.out.println("currentPasswordField: " + currentPasswordField);
         System.out.println("passwordField: " + passwordField);
         System.out.println("confirmPasswordField: " + confirmPasswordField);
         System.out.println("dateNaissancePicker: " + dateNaissancePicker);
@@ -65,8 +69,10 @@ public abstract class BaseProfileController implements Initializable {
         }
 
         historique.setOnAction(event -> handleHistoRedirect());
+        if (messageLabell != null) {
+            messageLabell.setVisible(false);
+        }
     }
-
     public void handleHistoRedirect() {
         try {
             // Check if user is logged in
@@ -85,7 +91,6 @@ public abstract class BaseProfileController implements Initializable {
             e.printStackTrace();
         }
     }
-
     private void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -93,7 +98,7 @@ public abstract class BaseProfileController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
+    protected abstract void setUserService();
     public void setUser(User user) {
         this.currentUser = user;
 
@@ -113,8 +118,93 @@ public abstract class BaseProfileController implements Initializable {
             SessionManager.getInstance().setCurrentUser(user, this.userType);
         }
     }
+    @FXML
+    protected void handleChangePassword() {
+        if (validatePasswordFields()) {
+            try {
+                userService.updatePassword(currentUser.getId(), passwordField.getText());
+                currentPasswordField.clear();
+                passwordField.clear();
+                confirmPasswordField.clear();
+                showMessage("Mot de passe mis à jour avec succès. Veuillez vous reconnecter.", "success");
+                handleLogout(); // Force logout for security
+            } catch (Exception e) {
+                showMessage("Erreur lors de la mise à jour du mot de passe: " + e.getMessage(), "danger");
+                e.printStackTrace();
+            }
+        }
+    }
+    @FXML
+    protected void handleSavePassword() {
+        if (validatePasswordFields()) {
+            // Update the password
+            currentUser.setMotDePasse(passwordField.getText());
+            saveUser();
 
-    // Overload for when userType is explicitly provided
+            // Update the session with the updated user
+            SessionManager.getInstance().setCurrentUser(currentUser, userType);
+
+            // Clear password fields
+            currentPasswordField.clear();
+            passwordField.clear();
+            confirmPasswordField.clear();
+
+            showMessage("Mot de passe mis à jour avec succès", "success");
+        }
+    }
+    protected boolean validatePasswordFields() {
+        boolean isValid = true;
+
+        // Validate current password
+        if (currentPasswordField.getText() == null || currentPasswordField.getText().isEmpty()) {
+            currentPasswordField.setStyle("-fx-border-color: red;");
+            showMessage("Veuillez entrer votre mot de passe actuel", "danger");
+            isValid = false;
+        } else if (!userService.verifyPassword(currentUser.getId(), currentPasswordField.getText())) {
+            currentPasswordField.setStyle("-fx-border-color: red;");
+            showMessage("Mot de passe actuel incorrect", "danger");
+            isValid = false;
+        } else {
+            currentPasswordField.setStyle("");
+        }
+
+        // Validate new password
+        if (passwordField.getText() == null || passwordField.getText().isEmpty()) {
+            passwordField.setStyle("-fx-border-color: red;");
+            showMessage("Veuillez entrer un nouveau mot de passe", "danger");
+            isValid = false;
+        } else if (passwordField.getText().length() < 8) {
+            passwordField.setStyle("-fx-border-color: red;");
+            showMessage("Le nouveau mot de passe doit contenir au moins 8 caractères", "danger");
+            isValid = false;
+        } else if (!passwordField.getText().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
+            passwordField.setStyle("-fx-border-color: red;");
+            showMessage("Le mot de passe doit contenir des lettres majuscules, minuscules, chiffres et caractères spéciaux", "danger");
+            isValid = false;
+        } else {
+            passwordField.setStyle("");
+        }
+
+        // Validate confirm password
+        if (confirmPasswordField.getText() == null || confirmPasswordField.getText().isEmpty()) {
+            confirmPasswordField.setStyle("-fx-border-color: red;");
+            showMessage("Veuillez confirmer votre nouveau mot de passe", "danger");
+            isValid = false;
+        } else if (!confirmPasswordField.getText().equals(passwordField.getText())) {
+            confirmPasswordField.setStyle("-fx-border-color: red;");
+            showMessage("Les mots de passe ne correspondent pas", "danger");
+            isValid = false;
+        } else {
+            confirmPasswordField.setStyle("");
+        }
+
+        // Show a general error message if any validation fails
+        if (!isValid && messageLabell != null && !messageLabell.isVisible()) {
+            showMessage("Veuillez corriger les champs en rouge", "danger");
+        }
+
+        return isValid;
+    }
     public void setUser(User user, String userType) {
         this.currentUser = user;
         this.userType = userType;

@@ -18,6 +18,7 @@ public class Patient extends User {
     public Patient(int id, String nom, String prenom, String email, String motDePasse, java.sql.Date dateNaissance, String telephone, String assurance) {
     }
 
+
     @Override
     public String toString() {
         return "Patient{" + super.toString() + "}";

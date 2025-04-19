@@ -55,21 +55,13 @@ public class LoginController implements Initializable {
         alertBox.setManaged(false);
         alertBox.setVisible(false);
         prefs = Preferences.userNodeForPackage(LoginController.class);
-
-        // Check if "Remember Me" was selected before
         boolean remembered = prefs.getBoolean(PREF_REMEMBER, false);
         if (remembered) {
-            // Restore saved credentials
             String savedEmail = prefs.get(PREF_EMAIL, "");
             String savedPassword = decrypt(prefs.get(PREF_PASSWORD, ""));
-
-            // Set fields
             emailField.setText(savedEmail);
             passwordField.setText(savedPassword);
             rememberMeCheckbox.setSelected(true);
-
-            // Auto login option - uncomment this if you want immediate login
-            // handleLogin();
         }
     }
     private String encrypt(String data) {
@@ -84,7 +76,6 @@ public class LoginController implements Initializable {
             return "";
         }
     }
-
     private String decrypt(String encryptedData) {
         try {
             if (encryptedData.isEmpty()) return "";
@@ -98,51 +89,53 @@ public class LoginController implements Initializable {
             return "";
         }
     }
-
     @FXML
     private void handleLogin(ActionEvent event) {
         String email = emailField.getText();
         String password = passwordField.getText();
-
         if (email == null || email.trim().isEmpty() || password == null || password.isEmpty()) {
             showAlert("warning", "Veuillez saisir votre email et mot de passe");
             return;
         }
-
-        // Try to find user in admin table
         AdminService adminService = new AdminService();
         Admin admin = adminService.findByEmail(email);
-        if (admin != null && admin.getMotDePasse().equals(password)) {
-            // Set the admin in the session
+        if (admin != null && adminService.verifyPassword(admin.getId(), password)) {
+            if (admin.isBanned()) {
+                showAlert("danger", "Votre compte a été suspendu. Veuillez contacter l'administrateur.");
+                return;
+            }
             SessionManager.getInstance().setCurrentUser(admin, "admin");
             navigateToProfile("admin", admin);
             return;
         }
-
-        // Try to find user in medecin table
         MedecinService medecinService = new MedecinService();
         Medecin medecin = medecinService.findByEmail(email);
-        if (medecin != null && medecin.getMotDePasse().equals(password)) {
-            // Set the medecin in the session
+        if (medecin != null && medecinService.verifyPassword(medecin.getId(), password)) {
+            if (medecin.isBanned()) {
+                showAlert("danger", "Votre compte a été suspendu. Veuillez contacter l'administrateur.");
+                return;
+            }
+            if (!medecin.isIs_verified()) {
+                showAlert("warning", "Votre compte est en attente de vérification. Veuillez attendre que votre diplôme soit vérifié par un administrateur.");
+                return;
+            }
             SessionManager.getInstance().setCurrentUser(medecin, "medecin");
             navigateToProfile("medecin", medecin);
             return;
         }
-
-        // Try to find user in patient table
         PatientService patientService = new PatientService();
         Patient patient = patientService.findByEmail(email);
-        if (patient != null && patient.getMotDePasse().equals(password)) {
-            // Set the patient in the session
+        if (patient != null && patientService.verifyPassword(patient.getId(), password)) {
+            if (patient.isBanned()) {
+                showAlert("danger", "Votre compte a été suspendu. Veuillez contacter l'administrateur.");
+                return;
+            }
             SessionManager.getInstance().setCurrentUser(patient, "patient");
             navigateToProfile("patient", patient);
             return;
         }
-
-        // No valid user found
         showAlert("danger", "Email ou mot de passe invalide");
     }
-
     private void showAlert(String type, String message) {
         alertBox.setManaged(true);
         alertBox.setVisible(true);
@@ -166,7 +159,6 @@ public class LoginController implements Initializable {
                 break;
         }
     }
-
     @FXML
     private void closeAlert() {
         alertBox.setManaged(false);
@@ -215,13 +207,11 @@ public class LoginController implements Initializable {
             showAlert("danger", "Erreur lors de la navigation vers le profil");
         }
     }
-
     @FXML
     private void openRoleSelection(ActionEvent event) {
         ChronoSernaApp app = new ChronoSernaApp();
         app.loadNewScene("/fxml/RoleSelection.fxml", event);
     }
-
     @FXML
     private void resetPassword() {
         // Implement password reset functionality

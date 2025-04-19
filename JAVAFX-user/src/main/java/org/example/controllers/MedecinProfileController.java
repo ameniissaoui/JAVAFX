@@ -34,12 +34,6 @@ public class MedecinProfileController extends BaseProfileController {
 
     // New fields for the updated design
     @FXML private ImageView profileImageView;
-    @FXML private Label fullNameLabel;
-    @FXML private Label nomDisplayLabel;
-    @FXML private Label prenomDisplayLabel;
-    @FXML private Label emailDisplayLabel;
-    @FXML private Label telephoneDisplayLabel;
-    @FXML private Label dateNaissanceDisplayLabel;
     @FXML private Button downloadDiplomaButton;
 
     private final MedecinService medecinService = new MedecinService();
@@ -48,10 +42,26 @@ public class MedecinProfileController extends BaseProfileController {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url, resourceBundle);
-        System.out.println("Initializing MedecinProfileController...");
+        // Check if user is logged in and is a medecin
+        if (!SessionManager.getInstance().isLoggedIn() || !SessionManager.getInstance().isMedecin()) {
+            showMessage("Erreur: Accès non autorisé", "danger");
+            handleLogout();
+            return;
+        }
 
-        // Try to load default profile image
+        // Get current medecin from session
+        Medecin medecin = SessionManager.getInstance().getCurrentMedecin();
+        if (medecin != null) {
+            currentMedecin = medecin;
+            currentUser = medecin;
+            loadUserData();
+            loadMedecinData();
+        }
+
+        // Set the user service
+        setUserService();
+
+        // Initialize default profile image
         try {
             Image defaultProfileImage = new Image(getClass().getResourceAsStream("/images/default-profile.png"));
             if (profileImageView != null) {
@@ -60,39 +70,27 @@ public class MedecinProfileController extends BaseProfileController {
         } catch (Exception e) {
             System.err.println("Could not load default profile image: " + e.getMessage());
         }
+
+        super.initialize(url, resourceBundle);
+        System.out.println("Initializing MedecinProfileController...");
+    }
+
+    @Override
+    protected void setUserService() {
+        this.userService = medecinService;
     }
 
     public void setMedecin(Medecin medecin) {
         this.currentMedecin = medecin;
-        // Call setUser from parent class to handle common fields
         super.setUser(medecin, "medecin");
-        // Load medecin-specific data
         loadMedecinData();
+        setUserService(); // Ensure service is set
     }
 
     private void loadMedecinData() {
         if (currentMedecin != null) {
             // Set editable fields
             specialiteField.setText(currentMedecin.getSpecialite());
-            //usernameField.setText(currentUser.getNom());
-
-            // Set display labels for overview tab
-            String nom = currentUser.getNom();
-            String prenom = currentUser.getPrenom();
-
-            nomDisplayLabel.setText(nom);
-            prenomDisplayLabel.setText(prenom);
-            emailDisplayLabel.setText(currentUser.getEmail());
-            telephoneDisplayLabel.setText(currentUser.getTelephone());
-
-            // Format date for display
-            if (currentUser.getDateNaissance() != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                dateNaissanceDisplayLabel.setText(sdf.format(currentUser.getDateNaissance()));
-            }
-
-            // Set full name in profile card
-            fullNameLabel.setText(prenom + " " + nom);
 
             // Load diploma info
             String diplomaPath = currentMedecin.getDiploma();
@@ -104,25 +102,18 @@ public class MedecinProfileController extends BaseProfileController {
                     if (diplomaPath.toLowerCase().endsWith(".png") ||
                             diplomaPath.toLowerCase().endsWith(".jpg") ||
                             diplomaPath.toLowerCase().endsWith(".jpeg")) {
-
                         Image diplomaImage = new Image(new File(diplomaPath).toURI().toString());
                         diplomaImageView.setImage(diplomaImage);
                     } else {
-                        // If it's a PDF, try to show a PDF icon
-                        try {
-                            Image pdfIcon = new Image(getClass().getResourceAsStream("/images/pdf-icon.png"));
-                            diplomaImageView.setImage(pdfIcon);
-                        } catch (Exception e) {
-                            System.err.println("PDF icon not found: " + e.getMessage());
-                        }
+                        // If it's a PDF, show a PDF icon
+                        Image pdfIcon = new Image(getClass().getResourceAsStream("/images/pdf-icon.png"));
+                        diplomaImageView.setImage(pdfIcon);
                     }
                 } catch (Exception e) {
                     System.err.println("Error loading diploma image: " + e.getMessage());
                 }
             }
-
-            // Try to load user profile picture if available
-            String profilePicturePath = currentMedecin.getDiploma();
+            String profilePicturePath = currentMedecin.getProfilePicture(); // Replace with actual getter
             if (profilePicturePath != null && !profilePicturePath.isEmpty() && profileImageView != null) {
                 try {
                     File profilePictureFile = new File(profilePicturePath);
@@ -142,31 +133,26 @@ public class MedecinProfileController extends BaseProfileController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Sélectionner votre diplôme");
 
-        // Set extension filters
         FileChooser.ExtensionFilter pdfFilter =
                 new FileChooser.ExtensionFilter("Documents PDF (*.pdf)", "*.pdf");
         FileChooser.ExtensionFilter imageFilter =
                 new FileChooser.ExtensionFilter("Images (*.png, *.jpg, *.jpeg)", "*.png", "*.jpg", "*.jpeg");
         fileChooser.getExtensionFilters().addAll(pdfFilter, imageFilter);
 
-        // Show open file dialog
         File file = fileChooser.showOpenDialog(specialiteField.getScene().getWindow());
 
         if (file != null) {
-            // Check file size (max 5MB)
             long fileSize = file.length();
-            long maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            long maxSize = 5 * 1024 * 1024;
 
             if (fileSize > maxSize) {
                 showMessage("Le fichier est trop volumineux (max 5MB)", "danger");
                 return;
             }
 
-            // Update the UI
             selectedDiplomaFile = file;
             diplomaPathLabel.setText(file.getName());
 
-            // Preview the image if possible
             if (file.getName().toLowerCase().endsWith(".png") ||
                     file.getName().toLowerCase().endsWith(".jpg") ||
                     file.getName().toLowerCase().endsWith(".jpeg")) {
@@ -177,7 +163,6 @@ public class MedecinProfileController extends BaseProfileController {
                     System.err.println("Error loading preview: " + e.getMessage());
                 }
             } else {
-                // If it's a PDF, show a PDF icon
                 try {
                     Image pdfIcon = new Image(getClass().getResourceAsStream("/images/pdf-icon.png"));
                     diplomaImageView.setImage(pdfIcon);
@@ -192,14 +177,12 @@ public class MedecinProfileController extends BaseProfileController {
     protected boolean validateFields() {
         boolean baseFieldsValid = super.validateFields();
         boolean medecinFieldsValid = validateMedecinFields();
-
         return baseFieldsValid && medecinFieldsValid;
     }
 
     private boolean validateMedecinFields() {
         boolean isValid = true;
 
-        // Validate specialite field
         if (specialiteField.getText() == null || specialiteField.getText().trim().isEmpty()) {
             specialiteField.setStyle("-fx-border-color: red;");
             if (specialiteErrorLabel != null) {
@@ -223,7 +206,6 @@ public class MedecinProfileController extends BaseProfileController {
         if (currentMedecin != null) {
             currentMedecin.setSpecialite(specialiteField.getText().trim());
 
-            // Update diploma path if a new file was selected
             if (selectedDiplomaFile != null) {
                 try {
                     String diplomaPath = saveDiplomaFile();
@@ -241,10 +223,8 @@ public class MedecinProfileController extends BaseProfileController {
         if (currentMedecin != null) {
             try {
                 medecinService.update(currentMedecin);
-
-                // Update the Overview tab display labels after saving
+                SessionManager.getInstance().setCurrentUser(currentMedecin, "medecin");
                 updateDisplayLabels();
-
                 showMessage("Profil médecin mis à jour avec succès", "success");
             } catch (Exception e) {
                 showMessage("Erreur lors de la mise à jour du profil: " + e.getMessage(), "danger");
@@ -258,18 +238,15 @@ public class MedecinProfileController extends BaseProfileController {
             return currentMedecin.getDiploma();
         }
 
-        // Create directory if it doesn't exist
         Path uploadDir = Paths.get("uploads", "diplomas");
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
 
-        // Generate a unique filename to avoid conflicts
         String originalFilename = selectedDiplomaFile.getName();
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
 
-        // Save the file to the uploads directory
         Path targetPath = uploadDir.resolve(uniqueFilename);
         Files.copy(selectedDiplomaFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -280,7 +257,6 @@ public class MedecinProfileController extends BaseProfileController {
     private void showDiplomaDetails() {
         if (currentMedecin != null && currentMedecin.getDiploma() != null) {
             try {
-                // Try to open the file with the default system application
                 File diplomaFile = new File(currentMedecin.getDiploma());
                 if (diplomaFile.exists()) {
                     java.awt.Desktop.getDesktop().open(diplomaFile);
@@ -296,24 +272,20 @@ public class MedecinProfileController extends BaseProfileController {
         }
     }
 
-    // Method to handle profile picture upload
     @FXML
     private void handleUploadProfilePicture() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Sélectionner une photo de profil");
 
-        // Set extension filters for images
         FileChooser.ExtensionFilter imageFilter =
                 new FileChooser.ExtensionFilter("Images (*.png, *.jpg, *.jpeg)", "*.png", "*.jpg", "*.jpeg");
         fileChooser.getExtensionFilters().add(imageFilter);
 
-        // Show open file dialog
         File file = fileChooser.showOpenDialog(profileImageView.getScene().getWindow());
 
         if (file != null) {
-            // Check file size (max 2MB)
             long fileSize = file.length();
-            long maxSize = 2 * 1024 * 1024; // 2MB in bytes
+            long maxSize = 2 * 1024 * 1024;
 
             if (fileSize > maxSize) {
                 showMessage("La photo est trop volumineuse (max 2MB)", "danger");
@@ -321,25 +293,21 @@ public class MedecinProfileController extends BaseProfileController {
             }
 
             try {
-                // Create upload directory if it doesn't exist
                 Path uploadDir = Paths.get("uploads", "profiles");
                 if (!Files.exists(uploadDir)) {
                     Files.createDirectories(uploadDir);
                 }
 
-                // Generate a unique filename
                 String originalFilename = file.getName();
                 String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
 
-                // Save the file
                 Path targetPath = uploadDir.resolve(uniqueFilename);
                 Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-                // Update the model
-                currentMedecin.setDiploma(targetPath.toString());
+                // Update the model (assuming Medecin has a profilePicture field)
+                currentMedecin.setProfilePicture(targetPath.toString()); // Replace with actual setter
 
-                // Update the UI
                 Image profileImage = new Image(file.toURI().toString());
                 profileImageView.setImage(profileImage);
 
@@ -351,15 +319,11 @@ public class MedecinProfileController extends BaseProfileController {
         }
     }
 
-    /**
-     * Navigate to the recommendations page
-     */
     @FXML
     private void navigateToRecommendations() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MedecinRecommendations.fxml"));
             Parent root = loader.load();
-
             Scene scene = new Scene(root);
             Stage stage = (Stage) fullNameLabel.getScene().getWindow();
             stage.setScene(scene);
@@ -370,24 +334,13 @@ public class MedecinProfileController extends BaseProfileController {
         }
     }
 
-    /**
-     * Navigate to the planning page
-     */
     @FXML
     private void navigateToPlanning() {
         try {
-            // Set the current user in session manager
             if (currentMedecin != null) {
                 SessionManager.getInstance().setCurrentUser(currentMedecin, "medecin");
-
-                // Load the planning view
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/planning-view.fxml"));
                 Parent root = loader.load();
-
-                // Get the controller
-                PlanningViewController controller = loader.getController();
-
-                // Create new scene and show it
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) fullNameLabel.getScene().getWindow();
                 stage.setScene(scene);
@@ -401,20 +354,13 @@ public class MedecinProfileController extends BaseProfileController {
         }
     }
 
-    /**
-     * Navigate to products page
-     */
     @FXML
     public void redirectProduit(javafx.event.ActionEvent event) {
         try {
             if (currentMedecin != null) {
                 SessionManager.getInstance().setCurrentUser(currentMedecin, "medecin");
-
-                // Load the product view
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/produitview.fxml"));
                 Parent root = loader.load();
-
-                // Create new scene and show it
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
