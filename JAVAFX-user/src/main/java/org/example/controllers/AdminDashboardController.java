@@ -86,9 +86,9 @@ public class AdminDashboardController implements Initializable {
     @FXML private Label detailVerificationLabel;
     @FXML private Button verifyDiplomaButton;
     @FXML private HBox verificationHBox;
-    private static final String TWILIO_ACCOUNT_SID = "AC10f70f27747b41922e66438d7505dccc";
-    private static final String TWILIO_AUTH_TOKEN = "0b82b2a71654b5a329594b5ba32a6e07";
-    private static final String TWILIO_WHATSAPP_NUMBER = "whatsapp:+14155238886";
+    private static final String TWILIO_ACCOUNT_SID = "git";
+    private static final String TWILIO_AUTH_TOKEN = "git";
+    private static final String TWILIO_WHATSAPP_NUMBER = "git";
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Check if user is logged in and is an admin
