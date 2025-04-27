@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controller.RendezVousViewController"
+            prefHeight="700.0" prefWidth="1000.0"
+            style="-fx-background-color: #f8f9fa;">
+
+    <!-- EN-TÊTE -->
+    <top>
+        <VBox spacing="5">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+            <Label text="Liste des Rendez-vous"
+                   style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #343a40;"/>
+        </VBox>
+    </top>
+
+    <!-- CENTRE -->
+    <center>
+        <VBox spacing="15">
+            <padding>
+                <Insets left="20" right="20" bottom="10"/>
+            </padding>
+
+            <!-- BARRE DE RECHERCHE -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="🔍 Rechercher :" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="txtRecherche"
+                           promptText="Tapez pour rechercher par date, statut, description..."
+                           prefWidth="300"
+                           style="-fx-padding: 6 10;"/>
+            </HBox>
+
+            <!-- TABLEAU -->
+            <TableView fx:id="rendezVousTable"
+                       VBox.vgrow="ALWAYS"
+                       style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 5;">
+                <columns>
+                    <TableColumn fx:id="colDateHeure" text="Date et Heure" prefWidth="150"/>
+                    <TableColumn fx:id="colStatut" text="Statut" prefWidth="120"/>
+                    <TableColumn fx:id="colDescription" text="Description" prefWidth="250"/>
+                    <TableColumn fx:id="colPlanning" text="Planning du Médecin" prefWidth="200"/>
+                    <TableColumn fx:id="colActions" text="Actions" prefWidth="230"/>
+                </columns>
+                <placeholder>
+                    <Label text="Aucun rendez-vous disponible"
+                           style="-fx-font-style: italic; -fx-text-fill: #6c757d;"/>
+                </placeholder>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                </columnResizePolicy>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- BAS -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="10" right="20" bottom="20" left="20"/>
+            </padding>
+            <Button fx:id="btnAjouter"
+                    text="Créer un nouveau rendez-vous"
+                    style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 15;">
+                <graphic>
+                    <Label text="📝"
+                           style="-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 14;"/>
+                </graphic>
+            </Button>
+        </HBox>
+    </bottom>
+
+</BorderPane>
