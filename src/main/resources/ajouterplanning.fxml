@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controller.AjouterPlanningController"
+      prefHeight="450.0" prefWidth="500.0"
+      spacing="10"
+      style="-fx-background-color: white;">
+
+    <!-- En-tête stylisé -->
+    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #007bff; -fx-padding: 15;">
+        <Label text="📅" style="-fx-font-size: 24px; -fx-text-fill: white;"/>
+        <Label text="Ajouter un Nouveau Planning" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+    </HBox>
+
+    <!-- Formulaire -->
+    <VBox spacing="15" style="-fx-padding: 20 30;">
+        <Label text="Jour de la semaine" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="cmbJour" promptText="Sélectionnez un jour" prefWidth="400"/>
+
+        <Label text="Heure de début" style="-fx-font-weight: bold; -fx-padding: 10 0 0 0;"/>
+        <ComboBox fx:id="cmbHeureDebut" promptText="Sélectionnez l'heure de début" prefWidth="400"/>
+
+        <Label text="Heure de fin" style="-fx-font-weight: bold; -fx-padding: 10 0 0 0;"/>
+        <ComboBox fx:id="cmbHeureFin" promptText="Sélectionnez l'heure de fin" prefWidth="400"/>
+    </VBox>
+
+    <!-- Zone des boutons -->
+    <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 20 30;">
+        <Button fx:id="btnAnnuler" text="Annuler" style="-fx-padding: 8 15;"/>
+        <Button fx:id="btnEnregistrer" text="Enregistrer"
+                style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;"/>
+    </HBox>
+</VBox>

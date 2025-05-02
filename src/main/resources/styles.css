@@ -1,0 +1,57 @@
+/* Styles pour la table */
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 1px;
+}
+
+.table-view .column-header {
+    -fx-background-color: #f8f9fa;
+    -fx-padding: 10px;
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #495057;
+}
+
+.table-view .table-row-cell {
+    -fx-border-color: #dee2e6;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 5 0;
+}
+
+.table-view .table-row-cell:even {
+    -fx-background-color: #f8f9fa;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: #e9ecef;
+}
+
+/* Styles pour les boutons */
+.button-modifier {
+    -fx-background-color: #ffc107;
+    -fx-text-fill: #212529;
+    -fx-font-weight: bold;
+    -fx-padding: 5 10;
+    -fx-background-radius: 3px;
+}
+
+.button-supprimer {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 5 10;
+    -fx-background-radius: 3px;
+}
+
+.button-ajouter {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
