@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="789.0" prefWidth="945.0" style="-fx-background-color: linear-gradient(to bottom, #f8f9fa, #e6f5f5);" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.AjouterSuivController">
+    <top>
+        <!-- Header (unchanged as per requirement) -->
+        <HBox alignment="CENTER" prefHeight="53.0" prefWidth="923.0" style="-fx-background-color: linear-gradient(to right, #3fbbc0, #5ce1e6);" BorderPane.alignment="CENTER">
+            <children>
+                <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Nouveau Suivi Médical">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Text>
+            </children>
+        </HBox>
+    </top>
+
+    <right>
+        <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="856.0" spacing="25.0" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Informations du traitement - Enhanced Card style -->
+                <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="147.0" prefWidth="646.0" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(48,180,180,0.3), 15, 0.2, 0, 5);">
+                    <children>
+                        <Text fill="#3fbbc0" strokeType="OUTSIDE" strokeWidth="0.0" text="Informations du Traitement">
+                            <font>
+                                <Font name="System Bold" size="18.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets bottom="20.0" top="20.0" />
+                            </VBox.margin>
+                        </Text>
+
+                        <HBox alignment="CENTER" spacing="30.0">
+                            <children>
+                                <VBox alignment="TOP_CENTER" prefWidth="200.0">
+                                    <children>
+                                        <Label style="-fx-text-fill: #636363; -fx-font-weight: bold;" text="NOM">
+                                            <font>
+                                                <Font name="Segoe UI" size="13.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="nomPatientLabel" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="34.0" prefWidth="100.0" style="-fx-text-fill: #444444; -fx-font-size: 15px;" text="--">
+                                            <font>
+                                                <Font name="Segoe UI" size="15.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                                <VBox alignment="TOP_CENTER" prefWidth="200.0">
+                                    <children>
+                                        <Label style="-fx-text-fill: #636363; -fx-font-weight: bold;" text="PRÉNOM">
+                                            <font>
+                                                <Font name="Segoe UI" size="13.0" />
+                                            </font>
+                                        </Label>
+                                        <Label fx:id="prenomPatientLabel" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="28.0" prefWidth="100.0" style="-fx-text-fill: #444444; -fx-font-size: 15px;" text="--">
+                                            <font>
+                                                <Font name="Segoe UI" size="15.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </VBox>
+                                <VBox alignment="TOP_CENTER" prefWidth="200.0">
+                                    <children>
+                                        <Label style="-fx-text-fill: #636363; -fx-font-weight: bold;" text="BILAN">
+                                            <font>
+                                                <Font name="Segoe UI" size="13.0" />
+                                            </font>
+                                        </Label>
+                                        <ImageView fx:id="bilanImageView" fitHeight="70.0" fitWidth="160.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0.3, 0, 3); -fx-background-radius: 10;" />
+                                    </children>
+                                </VBox>
+                            </children>
+                            <VBox.margin>
+                                <Insets bottom="20.0" />
+                            </VBox.margin>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                    </VBox.margin>
+                </VBox>
+
+                <!-- Date and AI Analysis Section -->
+                <HBox alignment="CENTER_LEFT" prefHeight="46.0" prefWidth="731.0" spacing="25.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0.1, 0, 3);">
+                    <children>
+                        <Label prefWidth="100.0" style="-fx-text-fill: #444444; -fx-font-weight: bold;" text="Date:">
+                            <font>
+                                <Font name="Segoe UI" size="14.0" />
+                            </font>
+                        </Label>
+                        <DatePicker fx:id="datePicker" prefHeight="40.0" prefWidth="320.0" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-size: 14px;" />
+                        <Button fx:id="analyzeWithAIButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#analyzeWithAI" prefHeight="46.0" prefWidth="183.0" style="-fx-background-color: linear-gradient(to right, #3fbbc0, #5ce1e6); -fx-text-fill: white; -fx-background-radius: 25; -fx-effect: dropshadow(gaussian, rgba(48,180,180,0.4), 12, 0.2, 0, 3); -fx-font-weight: bold; -fx-font-size: 14px;" text="Analyser avec AI">
+                            <font>
+                                <Font name="Segoe UI" size="14.0" />
+                            </font>
+                            <graphic>
+                                <Text fill="white" style="-fx-font-size: 18;" text="🔍">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Text>
+                            </graphic>
+                            <padding>
+                                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                            </padding>
+                        </Button>
+                    </children>
+                    <padding>
+                        <Insets bottom="15.0" left="25.0" right="25.0" top="15.0" />
+                    </padding>
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" />
+                    </VBox.margin>
+                </HBox>
+
+                <!-- Comment Area -->
+                <VBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="178.0" prefWidth="630.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0.1, 0, 3);">
+                    <children>
+                        <Label style="-fx-text-fill: #444444; -fx-font-weight: bold;" text="Commentaire:">
+                            <font>
+                                <Font name="Segoe UI" size="14.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets left="25.0" />
+                            </VBox.margin>
+                        </Label>
+                        <TextArea fx:id="commentaireArea" prefHeight="180.0" prefWidth="650.0" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-size: 14px;" wrapText="true">
+                            <VBox.margin>
+                                <Insets bottom="15.0" left="25.0" right="25.0" />
+                            </VBox.margin>
+                        </TextArea>
+                    </children>
+                    <padding>
+                        <Insets bottom="15.0" left="25.0" right="25.0" top="15.0" />
+                    </padding>
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" />
+                    </VBox.margin>
+                </VBox>
+
+                  <!-- Action Buttons -->
+                  <HBox alignment="CENTER" prefHeight="50.0" prefWidth="748.0" spacing="25.0">
+                      <children>
+                          <Button fx:id="ajouterButton" mnemonicParsing="false" onAction="#ajouterSuivi" prefHeight="45.0" prefWidth="142.0" style="-fx-background-color: linear-gradient(to right, #3fbbc0, #5ce1e6); -fx-text-fill: white; -fx-background-radius: 25; -fx-effect: dropshadow(gaussian, rgba(48,180,180,0.4), 12, 0.2, 0, 3); -fx-font-weight: bold; -fx-font-size: 14px;" text="Enregistrer">
+                              <font>
+                                  <Font name="Segoe UI" size="14.0" />
+                              </font>
+                          </Button>
+                          <Button fx:id="retourButton" mnemonicParsing="false" onAction="#annuler" prefHeight="45.0" prefWidth="160.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #d1d3e2; -fx-border-radius: 25; -fx-background-radius: 25; -fx-text-fill: #444444; -fx-font-size: 14px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0.1, 0, 1);" text="Retour à la liste">
+                              <font>
+                                  <Font name="Segoe UI" size="14.0" />
+                              </font>
+                          </Button>
+                      </children>
+                  </HBox>
+
+                <!-- AI Progress and Action Buttons -->
+                <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80.0" prefWidth="700.0">
+                    <children>
+                        <!-- Progress Indicator -->
+                        <HBox fx:id="aiProgressContainer" alignment="CENTER" spacing="15.0" style="-fx-background-color: linear-gradient(to right, #3fbbc0, #5ce1e6); -fx-background-radius: 25; -fx-effect: dropshadow(gaussian, rgba(48,180,180,0.4), 12, 0.2, 0, 3); -fx-min-width: 300; -fx-min-height: 50;" visible="false">
+                            <children>
+                                <ProgressIndicator fx:id="aiProgressIndicator" prefHeight="35.0" prefWidth="35.0" style="-fx-progress-color: white;" />
+                                <Label fx:id="aiProgressLabel" style="-fx-text-fill: white; -fx-font-weight: bold;" text="Analyse en cours...">
+                                    <font>
+                                        <Font name="Segoe UI" size="16.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                            <padding>
+                                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                            </padding>
+                        </HBox>
+                    </children>
+                    <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="20.0" />
+                    </VBox.margin>
+                </StackPane>
+            </children>
+            <padding>
+                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+            </padding>
+        </VBox>
+    </right>
+</BorderPane>
