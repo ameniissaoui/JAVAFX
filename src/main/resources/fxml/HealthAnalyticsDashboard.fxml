@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/13"
+            fx:controller="org.example.controllers.HealthAnalyticsDashboardController"
+            stylesheets="/css/styles.css,/css/health-dashboard.css">
+
+    <top>
+        <HBox styleClass="top-bar" alignment="CENTER_LEFT" prefHeight="50">
+            <padding><Insets left="15" right="15"/></padding>
+            <Label text="Tableau de bord santé" styleClass="dashboard-title" textFill="white">
+                <font><Font name="System Bold" size="18"/></font>
+            </Label>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="dashboard-scroll" hbarPolicy="NEVER">
+            <VBox styleClass="dashboard-content" spacing="12">
+                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+                <!-- No Data View -->
+                <VBox fx:id="noDataView" spacing="10" visible="false" styleClass="data-empty-container" alignment="CENTER">
+                    <padding><Insets top="20" bottom="20"/></padding>
+                    <Label text="Aucune donnée disponible pour l'instant." styleClass="empty-text"/>
+                    <Button text="Créer une Demande" onAction="#handleCreateDemande" styleClass="cta-button"/>
+                </VBox>
+
+                <!-- Data View -->
+                <VBox fx:id="dataView" spacing="12" visible="true">
+
+                    <!-- Health Score -->
+                    <GridPane styleClass="health-card" hgap="10" vgap="5">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="100"/>
+                        </columnConstraints>
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        
+                        <Label text="Score de santé" styleClass="card-title" 
+                              GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT" 
+                             GridPane.rowIndex="1" GridPane.columnIndex="0">
+                            <ProgressBar fx:id="healthScoreProgress" prefWidth="240" styleClass="health-progress"/>
+                            <Label fx:id="healthScoreLabel" text="58" styleClass="score-value"/>
+                            <Label fx:id="healthScoreDescription" text="À Améliorer" styleClass="score-description"/>
+                        </HBox>
+                    </GridPane>
+
+                    <!-- Charts Toggle Buttons -->
+                    <HBox spacing="5" alignment="CENTER" styleClass="toggle-container">
+                        <fx:define>
+                            <ToggleGroup fx:id="chartToggle"/>
+                        </fx:define>
+                        <ToggleButton fx:id="waterToggle" text="Eau" toggleGroup="$chartToggle" 
+                                     styleClass="data-toggle" selected="true"/>
+                        <ToggleButton fx:id="activityToggle" text="Activité" toggleGroup="$chartToggle" 
+                                     styleClass="data-toggle"/>
+                        <ToggleButton fx:id="mealToggle" text="Repas" toggleGroup="$chartToggle" 
+                                     styleClass="data-toggle"/>
+                        <ToggleButton fx:id="calorieToggle" text="Calories" toggleGroup="$chartToggle" 
+                                     styleClass="data-toggle"/>
+                    </HBox>
+
+                    <!-- Charts -->
+                    <GridPane styleClass="health-card" hgap="10" vgap="5">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="100"/>
+                        </columnConstraints>
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        
+                        <VBox spacing="0" GridPane.rowIndex="0" GridPane.columnIndex="0">
+                            <LineChart fx:id="waterChart" title="Tendance de la consommation d'eau" 
+                                      legendVisible="false" styleClass="data-chart" animated="true"
+                                      prefHeight="220">
+                                <xAxis>
+                                    <CategoryAxis label="Date" tickLabelFill="#555555" animated="false"/>
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis label="Litres" tickLabelFill="#555555" tickUnit="0.5" lowerBound="0" upperBound="3"/>
+                                </yAxis>
+                            </LineChart>
+
+                            <LineChart fx:id="activityChart" title="Durée d'activité" visible="false" 
+                                      legendVisible="false" styleClass="data-chart" animated="true"
+                                      prefHeight="220">
+                                <xAxis>
+                                    <CategoryAxis label="Date" tickLabelFill="#555555" animated="false"/>
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis label="Minutes" tickLabelFill="#555555" tickUnit="15" lowerBound="0" upperBound="120"/>
+                                </yAxis>
+                            </LineChart>
+
+                            <LineChart fx:id="mealChart" title="Nombre de repas" visible="false" 
+                                      legendVisible="false" styleClass="data-chart" animated="true"
+                                      prefHeight="220">
+                                <xAxis>
+                                    <CategoryAxis label="Date" tickLabelFill="#555555" animated="false"/>
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis label="Repas" tickLabelFill="#555555" tickUnit="1" lowerBound="0" upperBound="5"/>
+                                </yAxis>
+                            </LineChart>
+
+                            <LineChart fx:id="calorieChart" title="Calories" visible="false" 
+                                      legendVisible="false" styleClass="data-chart" animated="true"
+                                      prefHeight="220">
+                                <xAxis>
+                                    <CategoryAxis label="Date" tickLabelFill="#555555" animated="false"/>
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis label="Calories" tickLabelFill="#555555" tickUnit="500" lowerBound="0" upperBound="3000"/>
+                                </yAxis>
+                            </LineChart>
+                        </VBox>
+                    </GridPane>
+
+                    <!-- Adherence - Simple version without chart-->
+                    <GridPane styleClass="health-card" hgap="10" vgap="5">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="100"/>
+                        </columnConstraints>
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        
+                        <Label text="Adhérence aux recommandations" styleClass="card-title" 
+                              GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label fx:id="recommendationAdherenceLabel" text="Vous avez suivi 0% des recommandations" 
+                              GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="adherence-label"/>
+                        
+                        <!-- Recommendation progress bars -->
+                        <VBox spacing="8" GridPane.rowIndex="2" GridPane.columnIndex="0">
+                            <padding><Insets top="5" bottom="5"/></padding>
+                            
+                            <!-- Water recommendation -->
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label text="Eau:" styleClass="recommendation-label"/>
+                                <ProgressBar progress="0.2" prefWidth="200" styleClass="water-progress"/>
+                                <Label text="20%" styleClass="recommendation-value"/>
+                            </HBox>
+                            
+                            <!-- Activity recommendation -->
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label text="Activité:" styleClass="recommendation-label"/>
+                                <ProgressBar progress="0.0" prefWidth="200" styleClass="activity-progress"/>
+                                <Label text="0%" styleClass="recommendation-value"/>
+                            </HBox>
+                            
+                            <!-- Meal recommendation -->
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label text="Repas:" styleClass="recommendation-label"/>
+                                <ProgressBar progress="0.0" prefWidth="200" styleClass="meal-progress"/>
+                                <Label text="0%" styleClass="recommendation-value"/>
+                            </HBox>
+                        </VBox>
+                    </GridPane>
+
+                    <!-- Grid for Demandes -->
+                    <GridPane styleClass="health-card" hgap="10" vgap="5">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="100"/>
+                        </columnConstraints>
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        
+                        <Label text="Mes dernières demandes" styleClass="card-title" 
+                              GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <GridPane fx:id="demandesGrid" hgap="10" vgap="10" 
+                                 GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    </GridPane>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" styleClass="footer" alignment="CENTER">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <ComboBox fx:id="timeRangeComboBox" prefWidth="160" promptText="Période"/>
+            <Button text="Voir Toutes les Demandes" onAction="#handleViewAllDemandes" styleClass="cta-button"/>
+            <Button text="Retour" onAction="#handleBack" styleClass="back-button"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

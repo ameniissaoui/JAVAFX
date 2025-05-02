@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="700.0" prefWidth="1000.0" stylesheets="@../css/analytics-styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.HealthAnalyticsDashboardController">
+   <top>
+      <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="analytics-navigation-bar" BorderPane.alignment="CENTER">
+         <children>
+            <Label styleClass="analytics-title" text="Tableau de Bord Santé" />
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+               <children>
+                  <ComboBox fx:id="timeRangeComboBox" prefWidth="150.0" promptText="Période" styleClass="analytics-filter-combobox" />
+                  <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" styleClass="analytics-button" text="Retour">
+                     <graphic>
+                        <Label text="←" style="-fx-font-size: 18px;"/>
+                     </graphic>
+                  </Button>
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+         </padding>
+      </HBox>
+   </top>
+   <center>
+      <ScrollPane fitToWidth="true" styleClass="analytics-scrollpane" BorderPane.alignment="CENTER">
+         <content>
+            <VBox spacing="25.0" styleClass="analytics-container">
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+               <children>
+                  <!-- Health Score Section -->
+                  <GridPane hgap="20.0" styleClass="analytics-section">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="250.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <VBox alignment="CENTER" spacing="15.0" styleClass="analytics-card">
+                           <padding>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                           </padding>
+                           <children>
+                              <Label styleClass="analytics-subtitle" text="Score de Santé" />
+                              <Label fx:id="healthScoreLabel" styleClass="health-score" text="58">
+                                 <font>
+                                    <Font size="48.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="healthScoreDescription" styleClass="health-score-label" text="À Améliorer" />
+                              <HBox alignment="CENTER" spacing="5.0">
+                                 <children>
+                                    <ProgressBar fx:id="healthScoreProgress" prefWidth="250.0" progress="0.58" styleClass="analytics-progress-bar" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="10.0" styleClass="analytics-card" GridPane.columnIndex="1">
+                           <padding>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                           </padding>
+                           <children>
+                              <Label styleClass="analytics-subtitle" text="Suivi des Recommandations" />
+                              <PieChart fx:id="recommendationAdherenceChart" legendVisible="true" prefHeight="180.0" prefWidth="300.0" styleClass="recommendation-adherence" title="" />
+                              <Label fx:id="recommendationAdherenceLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" styleClass="health-score-label" text="Vous avez suivi 0% des recommandations" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </GridPane>
+                  
+                  <!-- Trends Section -->
+                  <VBox spacing="15.0" styleClass="analytics-section">
+                     <padding>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                     </padding>
+                     <children>
+                        <Label styleClass="analytics-subtitle" text="Tendances de votre Mode de Vie" />
+                        <HBox alignment="CENTER" spacing="15.0">
+                           <children>
+                              <ToggleButton fx:id="waterToggle" mnemonicParsing="false" selected="true" styleClass="analytics-toggle-button" text="Eau">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="chartToggle" />
+                                 </toggleGroup>
+                                 <graphic>
+                                    <Label text="💧" styleClass="icon-water" />
+                                 </graphic>
+                              </ToggleButton>
+                              <ToggleButton fx:id="activityToggle" mnemonicParsing="false" styleClass="analytics-toggle-button" text="Activité" toggleGroup="$chartToggle">
+                                 <graphic>
+                                    <Label text="🏃" styleClass="icon-activity" />
+                                 </graphic>
+                              </ToggleButton>
+                              <ToggleButton fx:id="mealToggle" mnemonicParsing="false" styleClass="analytics-toggle-button" text="Repas" toggleGroup="$chartToggle">
+                                 <graphic>
+                                    <Label text="🍴" styleClass="icon-meal" />
+                                 </graphic>
+                              </ToggleButton>
+                              <ToggleButton fx:id="calorieToggle" mnemonicParsing="false" styleClass="analytics-toggle-button" text="Calories" toggleGroup="$chartToggle">
+                                 <graphic>
+                                    <Label text="🔥" styleClass="icon-meal" />
+                                 </graphic>
+                              </ToggleButton>
+                           </children>
+                        </HBox>
+                        <StackPane styleClass="analytics-card">
+                           <padding>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                           </padding>
+                           <children>
+                              <LineChart fx:id="waterChart" animated="true" styleClass="analytics-chart" title="Consommation d'Eau (Litres)">
+                                <xAxis>
+                                  <CategoryAxis side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis side="LEFT" />
+                                </yAxis>
+                              </LineChart>
+                              <BarChart fx:id="activityChart" animated="true" styleClass="analytics-chart" title="Durée d'Activité (Minutes)" visible="false">
+                                <xAxis>
+                                  <CategoryAxis side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis side="LEFT" />
+                                </yAxis>
+                              </BarChart>
+                              <PieChart fx:id="mealChart" animated="true" styleClass="analytics-chart" title="Répartition des Repas" visible="false" />
+                              <BarChart fx:id="calorieChart" animated="true" styleClass="analytics-chart" title="Consommation de Calories" visible="false">
+                                <xAxis>
+                                  <CategoryAxis side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis side="LEFT" />
+                                </yAxis>
+                              </BarChart>
+                           </children>
+                        </StackPane>
+                     </children>
+                  </VBox>
+                  
+                  <!-- Health Summary Section -->
+                  <GridPane hgap="20.0" styleClass="analytics-section">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="200.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <VBox alignment="CENTER" spacing="15.0" styleClass="analytics-card">
+                           <padding>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                           </padding>
+                           <children>
+                              <Label styleClass="analytics-subtitle" text="Objectifs Quotidiens" />
+                              <GridPane>
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <Label text="Eau:" />
+                                    <Label text="2.0 L" GridPane.columnIndex="1" />
+                                    <Label text="Activité:" GridPane.rowIndex="1" />
+                                    <Label text="30 min" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label text="Repas:" GridPane.rowIndex="2" />
+                                    <Label text="3 par jour" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label text="Calories:" GridPane.rowIndex="3" />
+                                    <Label text="2000 kcal" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                 </children>
+                              </GridPane>
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="10.0" styleClass="analytics-card" GridPane.columnIndex="1">
+                           <padding>
+                              <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                           </padding>
+                           <children>
+                              <Label styleClass="analytics-subtitle" text="Comparaison Hebdomadaire" />
+                              <BarChart fx:id="weeklyComparisonChart" animated="true" legendVisible="true" prefHeight="180.0">
+                                <xAxis>
+                                  <CategoryAxis label="Activités" side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis label="% de l'objectif" side="LEFT" />
+                                </yAxis>
+                              </BarChart>
+                           </children>
+                        </VBox>
+                     </children>
+                  </GridPane>
+               </children>
+            </VBox>
+         </content>
+      </ScrollPane>
+   </center>
+</BorderPane>
