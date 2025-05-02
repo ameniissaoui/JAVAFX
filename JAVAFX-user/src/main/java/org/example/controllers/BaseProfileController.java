@@ -7,25 +7,36 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.models.User;
 import org.example.models.Admin;
 import org.example.models.Patient;
 import org.example.models.Medecin;
+import org.example.services.UserService;
 import org.example.util.SessionManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.prefs.Preferences;
 
 public abstract class BaseProfileController implements Initializable {
-    @FXML protected Label usernameField;  // Changed from TextField to Label
+    @FXML protected Label usernameField;
     @FXML protected TextField nomField;
     @FXML protected TextField prenomField;
     @FXML protected TextField emailField;
@@ -34,16 +45,20 @@ public abstract class BaseProfileController implements Initializable {
     @FXML protected DatePicker dateNaissancePicker;
     @FXML protected TextField telephoneField;
     @FXML protected Label messageLabel;
+    @FXML protected Label messageLabell;
     @FXML public Button submitButton;
-    @FXML private Label fullNameLabel;
+    @FXML public Label fullNameLabel;
     @FXML private Button historique;
     @FXML private Label nomDisplayLabel;
     @FXML private Label prenomDisplayLabel;
     @FXML private Label emailDisplayLabel;
     @FXML private Label telephoneDisplayLabel;
     @FXML private Label dateNaissanceDisplayLabel;
+    @FXML protected ImageView profileImageView; // Added for profile picture
     protected User currentUser;
     protected String userType;
+    @FXML protected PasswordField currentPasswordField;
+    protected UserService<?> userService;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -51,11 +66,13 @@ public abstract class BaseProfileController implements Initializable {
         System.out.println("nomField: " + nomField);
         System.out.println("prenomField: " + prenomField);
         System.out.println("emailField: " + emailField);
+        System.out.println("currentPasswordField: " + currentPasswordField);
         System.out.println("passwordField: " + passwordField);
         System.out.println("confirmPasswordField: " + confirmPasswordField);
         System.out.println("dateNaissancePicker: " + dateNaissancePicker);
         System.out.println("telephoneField: " + telephoneField);
         System.out.println("messageLabel: " + messageLabel);
+        System.out.println("profileImageView: " + profileImageView);
 
         // Check if user is already in session
         if (SessionManager.getInstance().isLoggedIn()) {
@@ -65,11 +82,51 @@ public abstract class BaseProfileController implements Initializable {
         }
 
         historique.setOnAction(event -> handleHistoRedirect());
+        if (messageLabell != null) {
+            messageLabell.setVisible(false);
+        }
+
+        // Load profile picture if available
+        if (currentUser != null && currentUser.getImage() != null && !currentUser.getImage().isEmpty()) {
+            try {
+                File imageFile = new File(currentUser.getImage());
+                if (imageFile.exists() && profileImageView != null) {
+                    Image image = new Image(imageFile.toURI().toString());
+                    profileImageView.setImage(image);
+
+                    // Apply circular clip to the image view
+                    Circle clip = new Circle(profileImageView.getFitWidth() / 2,
+                            profileImageView.getFitHeight() / 2,
+                            Math.min(profileImageView.getFitWidth(), profileImageView.getFitHeight()) / 2);
+                    profileImageView.setClip(clip);
+
+                    // Ensure the image preserves ratio and fits properly
+                    profileImageView.setPreserveRatio(true);
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading profile image: " + e.getMessage());
+            }
+        } else if (profileImageView != null) {
+            try {
+                Image defaultImage = new Image(getClass().getResourceAsStream("/images/avatar_paceholder.jpg"));
+                profileImageView.setImage(defaultImage);
+
+                // Apply circular clip to the default image view
+                Circle clip = new Circle(profileImageView.getFitWidth() / 2,
+                        profileImageView.getFitHeight() / 2,
+                        Math.min(profileImageView.getFitWidth(), profileImageView.getFitHeight()) / 2);
+                profileImageView.setClip(clip);
+
+                // Ensure the image preserves ratio and fits properly
+                profileImageView.setPreserveRatio(true);
+            } catch (Exception e) {
+                System.err.println("Could not load default profile image: " + e.getMessage());
+            }
+        }
     }
 
     public void handleHistoRedirect() {
         try {
-            // Check if user is logged in
             if (!SessionManager.getInstance().isLoggedIn()) {
                 showErrorDialog("Erreur", "Vous devez être connecté pour accéder à cette page.");
                 return;
@@ -94,10 +151,11 @@ public abstract class BaseProfileController implements Initializable {
         alert.showAndWait();
     }
 
+    protected abstract void setUserService();
+
     public void setUser(User user) {
         this.currentUser = user;
 
-        // Determine user type based on instance
         if (user instanceof Admin) {
             this.userType = "admin";
         } else if (user instanceof Patient) {
@@ -107,20 +165,98 @@ public abstract class BaseProfileController implements Initializable {
         }
 
         loadUserData();
-
-        // Update session manager with new user and type
         if (user != null) {
             SessionManager.getInstance().setCurrentUser(user, this.userType);
         }
     }
 
-    // Overload for when userType is explicitly provided
+    @FXML
+    protected void handleChangePassword() {
+        if (validatePasswordFields()) {
+            try {
+                userService.updatePassword(currentUser.getId(), passwordField.getText());
+                currentPasswordField.clear();
+                passwordField.clear();
+                confirmPasswordField.clear();
+                showMessage("Mot de passe mis à jour avec succès. Veuillez vous reconnecter.", "success");
+                handleLogout();
+            } catch (Exception e) {
+                showMessage("Erreur lors de la mise à jour du mot de passe: " + e.getMessage(), "danger");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @FXML
+    protected void handleSavePassword() {
+        if (validatePasswordFields()) {
+            currentUser.setMotDePasse(passwordField.getText());
+            saveUser();
+
+            SessionManager.getInstance().setCurrentUser(currentUser, userType);
+
+            currentPasswordField.clear();
+            passwordField.clear();
+            confirmPasswordField.clear();
+
+            showMessage("Mot de passe mis à jour avec succès", "success");
+        }
+    }
+
+    protected boolean validatePasswordFields() {
+        boolean isValid = true;
+
+        if (currentPasswordField.getText() == null || currentPasswordField.getText().isEmpty()) {
+            currentPasswordField.setStyle("-fx-border-color: red;");
+            showMessage("Veuillez entrer votre mot de passe actuel", "danger");
+            isValid = false;
+        } else if (!userService.verifyPassword(currentUser.getId(), currentPasswordField.getText())) {
+            currentPasswordField.setStyle("-fx-border-color: red;");
+            showMessage("Mot de passe actuel incorrect", "danger");
+            isValid = false;
+        } else {
+            currentPasswordField.setStyle("");
+        }
+
+        if (passwordField.getText() == null || passwordField.getText().isEmpty()) {
+            passwordField.setStyle("-fx-border-color: red;");
+            showMessage("Veuillez entrer un nouveau mot de passe", "danger");
+            isValid = false;
+        } else if (passwordField.getText().length() < 8) {
+            passwordField.setStyle("-fx-border-color: red;");
+            showMessage("Le nouveau mot de passe doit contenir au moins 8 caractères", "danger");
+            isValid = false;
+        } else if (!passwordField.getText().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
+            passwordField.setStyle("-fx-border-color: red;");
+            showMessage("Le mot de passe doit contenir des lettres majuscules, minuscules, chiffres et caractères spéciaux", "danger");
+            isValid = false;
+        } else {
+            passwordField.setStyle("");
+        }
+
+        if (confirmPasswordField.getText() == null || confirmPasswordField.getText().isEmpty()) {
+            confirmPasswordField.setStyle("-fx-border-color: red;");
+            showMessage("Veuillez confirmer votre nouveau mot de passe", "danger");
+            isValid = false;
+        } else if (!confirmPasswordField.getText().equals(passwordField.getText())) {
+            confirmPasswordField.setStyle("-fx-border-color: red;");
+            showMessage("Les mots de passe ne correspondent pas", "danger");
+            isValid = false;
+        } else {
+            confirmPasswordField.setStyle("");
+        }
+
+        if (!isValid && messageLabell != null && !messageLabell.isVisible()) {
+            showMessage("Veuillez corriger les champs en rouge", "danger");
+        }
+
+        return isValid;
+    }
+
     public void setUser(User user, String userType) {
         this.currentUser = user;
         this.userType = userType;
         loadUserData();
-
-        // Update session manager
         if (user != null) {
             SessionManager.getInstance().setCurrentUser(user, userType);
         }
@@ -131,22 +267,19 @@ public abstract class BaseProfileController implements Initializable {
             String nom = currentUser.getNom();
             String prenom = currentUser.getPrenom();
 
-            nomField.setText(currentUser.getNom());
-            prenomField.setText(currentUser.getPrenom());
+            nomField.setText(nom);
+            prenomField.setText(prenom);
             emailField.setText(currentUser.getEmail());
-
             nomDisplayLabel.setText(nom);
             prenomDisplayLabel.setText(prenom);
             emailDisplayLabel.setText(currentUser.getEmail());
             telephoneDisplayLabel.setText(currentUser.getTelephone());
-            // Don't set password for security reasons
+
             if (currentUser.getDateNaissance() != null) {
                 LocalDate localDate;
                 if (currentUser.getDateNaissance() instanceof java.sql.Date) {
-                    // Direct conversion for SQL Date
                     localDate = ((java.sql.Date) currentUser.getDateNaissance()).toLocalDate();
                 } else {
-                    // For util.Date, use Instant path
                     localDate = currentUser.getDateNaissance().toInstant()
                             .atZone(java.time.ZoneId.systemDefault())
                             .toLocalDate();
@@ -161,30 +294,23 @@ public abstract class BaseProfileController implements Initializable {
     }
 
     protected void updateDisplayLabels() {
-        // Update all display labels with current values
         nomDisplayLabel.setText(currentUser.getNom());
         prenomDisplayLabel.setText(currentUser.getPrenom());
         emailDisplayLabel.setText(currentUser.getEmail());
         telephoneDisplayLabel.setText(currentUser.getTelephone());
-
-        // Update full name in profile card
         fullNameLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
 
-        // Format date for display
         if (currentUser.getDateNaissance() != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             dateNaissanceDisplayLabel.setText(sdf.format(currentUser.getDateNaissance()));
         }
     }
 
-    @FXML
-    private StackPane contentArea;
+    @FXML private StackPane contentArea;
 
     @FXML
     private void handleEdit() {
-        // Replace the current content in contentArea with editable fields
         VBox editContent = new VBox();
-        // Add editable fields here
         contentArea.getChildren().clear();
         contentArea.getChildren().add(editContent);
     }
@@ -194,10 +320,7 @@ public abstract class BaseProfileController implements Initializable {
         if (validateFields()) {
             updateUserData();
             saveUser();
-
-            // Update the session with the updated user
             SessionManager.getInstance().setCurrentUser(currentUser, userType);
-
             showMessage("Profil mis à jour avec succès", "success");
             updateDisplayLabels();
         }
@@ -206,7 +329,6 @@ public abstract class BaseProfileController implements Initializable {
     protected boolean validateFields() {
         boolean isValid = true;
 
-        // Validate fields similarly to registration validation
         if (nomField.getText() == null || nomField.getText().trim().isEmpty()) {
             nomField.setStyle("-fx-border-color: red;");
             isValid = false;
@@ -228,7 +350,6 @@ public abstract class BaseProfileController implements Initializable {
             emailField.setStyle("");
         }
 
-        // Only validate password if it's being changed
         if (passwordField.getText() != null && !passwordField.getText().isEmpty()) {
             if (passwordField.getText().length() < 8) {
                 passwordField.setStyle("-fx-border-color: red;");
@@ -276,17 +397,13 @@ public abstract class BaseProfileController implements Initializable {
 
             LocalDate localDate = dateNaissancePicker.getValue();
             if (localDate != null) {
-                // Let's examine the User class method parameter type
                 try {
-                    // If it expects java.util.Date
                     java.util.Date utilDate = java.util.Date.from(
                             localDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
                     currentUser.setDateNaissance(utilDate);
                 } catch (Exception e) {
-                    // If the above fails, try with java.sql.Date
                     try {
                         java.sql.Date sqlDate = java.sql.Date.valueOf(localDate);
-                        // This will work if setDateNaissance accepts java.sql.Date
                         currentUser.setDateNaissance(sqlDate);
                     } catch (Exception ex) {
                         showMessage("Erreur lors de la conversion de la date", "danger");
@@ -302,43 +419,21 @@ public abstract class BaseProfileController implements Initializable {
     @FXML
     void redirectProduit(ActionEvent event) {
         try {
-            // Check if user is logged in
             if (!SessionManager.getInstance().isLoggedIn()) {
                 showAlert("Vous devez être connecté pour accéder à cette page.", "error");
                 return;
             }
 
-            URL fxmlLocation = getClass().getResource("/fxml/front/showProduit.fxml");
-            if (fxmlLocation == null) {
-                throw new IllegalStateException("FXML file not found!");
-            }
-
-            FXMLLoader loader = new FXMLLoader(fxmlLocation);
-            Parent root = loader.load();
-
-            Scene scene = new Scene(root);
-            Stage newStage = new Stage();
-            newStage.setScene(scene);
-            newStage.setTitle("Commandes");
-            newStage.setMaximized(true);
-            newStage.show();
-
-            // Get current stage from a component we know exists
-            Stage currentStage = (Stage) nomField.getScene().getWindow();
-            currentStage.close();
+            // Use SceneManager to load the new scene in full screen
+            SceneManager.loadScene("/fxml/front/showProduit.fxml", event);
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error opening commandes view: " + e.getMessage(), "error");
+            showAlert("Error opening produits view: " + e.getMessage(), "error");
         }
     }
 
     private void showAlert(String message, String type) {
-        // You can implement this method to show alerts
-        // This could use JavaFX Alert or a custom alert dialog
-        System.out.println(type.toUpperCase() + ": " + message);
-
-        // Example implementation with JavaFX Alert:
         Alert alert = new Alert(type.equals("error") ? Alert.AlertType.ERROR : Alert.AlertType.INFORMATION);
         alert.setTitle(type.equals("error") ? "Erreur" : "Succès");
         alert.setHeaderText(null);
@@ -348,18 +443,13 @@ public abstract class BaseProfileController implements Initializable {
 
     @FXML
     protected void handleLogout() {
-        // Clear session
         SessionManager.getInstance().clearSession();
 
-        // Clear saved preferences
         Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
-
-        // Use string literals since we don't have direct access to the constants in LoginController
         prefs.remove("savedEmail");
         prefs.remove("savedPassword");
         prefs.putBoolean("rememberMe", false);
 
-        // Navigate back to login screen
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Login.fxml"));
             Parent root = loader.load();
@@ -368,7 +458,6 @@ public abstract class BaseProfileController implements Initializable {
             stage.setScene(scene);
             stage.show();
 
-            // Close current window - using nomField which exists in all profile controllers
             Stage currentStage = (Stage) nomField.getScene().getWindow();
             currentStage.close();
         } catch (IOException e) {
@@ -393,5 +482,61 @@ public abstract class BaseProfileController implements Initializable {
         }
 
         messageLabel.setVisible(true);
+    }
+
+    @FXML
+    protected void handleUploadProfilePicture() {
+        if (profileImageView == null) {
+            showMessage("Erreur: Interface utilisateur non initialisée", "danger");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Sélectionner une photo de profil");
+        FileChooser.ExtensionFilter imageFilter =
+                new FileChooser.ExtensionFilter("Images (*.png, *.jpg, *.jpeg)", "*.png", "*.jpg", "*.jpeg");
+        fileChooser.getExtensionFilters().add(imageFilter);
+
+        File file = fileChooser.showOpenDialog(profileImageView.getScene().getWindow());
+        if (file != null) {
+            long fileSize = file.length();
+            long maxSize = 2 * 1024 * 1024; // 2MB
+
+            if (fileSize > maxSize) {
+                showMessage("La photo est trop volumineuse (max 2MB)", "danger");
+                return;
+            }
+
+            try {
+                Path uploadDir = Paths.get("uploads", "profiles");
+                if (!Files.exists(uploadDir)) {
+                    Files.createDirectories(uploadDir);
+                }
+
+                String originalFilename = file.getName();
+                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
+
+                Path targetPath = uploadDir.resolve(uniqueFilename);
+                Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+                currentUser.setImage(targetPath.toString());
+                saveUser();
+
+                Image profileImage = new Image(file.toURI().toString());
+                profileImageView.setImage(profileImage);
+                // Better centering and clipping
+                double size = Math.min(profileImageView.getFitWidth(), profileImageView.getFitHeight());
+                Circle clip = new Circle(size/2, size/2, size/2);
+                profileImageView.setClip(clip);
+
+                // Ensure image fills the circle properly
+                profileImageView.setPreserveRatio(false);
+                showMessage("Photo de profil mise à jour", "success");
+            } catch (IOException e) {
+                showMessage("Erreur lors de l'enregistrement de la photo: " + e.getMessage(), "danger");
+                e.printStackTrace();
+            }
+        }
     }
 }

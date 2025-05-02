@@ -10,9 +10,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.example.models.Commande;
 import org.example.services.CommandeServices;
+import org.example.services.CartItemServices;
 
 import java.io.IOException;
 import java.net.URL;
@@ -33,22 +35,36 @@ public class EditCommandeController {
     @FXML private Label phoneError;
     @FXML private Label adresseError;
     @FXML private Button submitButton;
+    @FXML private Label cartCountLabel;
+    @FXML private Label cartCountLabel1;
 
     private Commande currentCommande;
     private CommandeServices cs = new CommandeServices();
+    private CartItemServices cartItemServices = new CartItemServices();
 
     @FXML
     void initialize() {
         // Clear errors first
         clearErrors();
 
+        // Update cart count
+        updateCartCount();
+
         // Add listener to maximize the window once the scene is fully loaded
         Platform.runLater(() -> {
             if (nomField.getScene() != null && nomField.getScene().getWindow() != null) {
                 Stage stage = (Stage) nomField.getScene().getWindow();
-                stage.setMaximized(true);
+                maximizeStage(stage);
             }
         });
+    }
+
+    private void maximizeStage(Stage stage) {
+        double screenWidth = Screen.getPrimary().getBounds().getWidth();
+        double screenHeight = Screen.getPrimary().getBounds().getHeight();
+        stage.setMaximized(true);
+        stage.setWidth(screenWidth);
+        stage.setHeight(screenHeight);
     }
 
     public void initData(Commande commande) {
@@ -66,7 +82,7 @@ public class EditCommandeController {
         Platform.runLater(() -> {
             if (nomField.getScene() != null && nomField.getScene().getWindow() != null) {
                 Stage stage = (Stage) nomField.getScene().getWindow();
-                stage.setMaximized(true);
+                maximizeStage(stage);
             }
         });
     }
@@ -332,5 +348,112 @@ public class EditCommandeController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    // Navigation methods from DetailsProduitController
+    @FXML
+    void navigateToHome() {
+        navigateTo("/fxml/front/home.fxml");
+    }
+
+    @FXML
+    void navigateToHistoriques() {
+        navigateTo("/fxml/historiques.fxml");
+    }
+
+    @FXML
+    void redirectToDemande() {
+        navigateTo("/fxml/DemandeDashboard.fxml");
+    }
+
+    @FXML
+    void redirectToRendezVous() {
+        navigateTo("/fxml/rendez-vous-view.fxml");
+    }
+
+    @FXML
+    void redirectProduit() {
+        navigateTo("/fxml/front/showProduit.fxml");
+    }
+
+    @FXML
+    void navigateToTraitement() {
+        navigateTo("/fxml/traitement.fxml");
+    }
+
+    @FXML
+    void viewDoctors() {
+        navigateTo("/fxml/DoctorList.fxml");
+    }
+
+    @FXML
+    void navigateToContact() {
+        navigateTo("/fxml/front/contact.fxml");
+    }
+
+    @FXML
+    void navigateToProfile() {
+        navigateTo("/fxml/front/profile.fxml");
+    }
+
+    @FXML
+    void navigateToFavorites() {
+        navigateTo("/fxml/front/favoris.fxml");
+    }
+
+    @FXML
+    void commande() {
+        navigateTo("/fxml/front/showCartItem.fxml");
+    }
+
+    @FXML
+    void navigateToCommandes() {
+        navigateTo("/fxml/front/ShowCommande.fxml");
+    }
+
+    @FXML
+    void navigateToShop() {
+        navigateTo("/fxml/front/showProduit.fxml");
+    }
+
+    // Helper method for navigation
+    private void navigateTo(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) nomField.getScene().getWindow();
+            stage.setScene(scene);
+            maximizeStage(stage);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Error navigating to page: " + e.getMessage());
+        }
+    }
+
+    // Update cart count
+    private void updateCartCount() {
+        try {
+            org.example.util.SessionManager session = org.example.util.SessionManager.getInstance();
+            Object currentUser = session.getCurrentUser();
+            int count = 0;
+
+            if (currentUser != null) {
+                // Get cart count logic would go here
+                // This is a simplified version
+                count = cartItemServices.showProduit().size();
+            }
+
+            if (cartCountLabel != null) {
+                cartCountLabel.setText(String.valueOf(count));
+            }
+
+            if (cartCountLabel1 != null) {
+                cartCountLabel1.setText(String.valueOf(count));
+            }
+        } catch (Exception e) {
+            System.err.println("Error updating cart count: " + e.getMessage());
+        }
     }
 }

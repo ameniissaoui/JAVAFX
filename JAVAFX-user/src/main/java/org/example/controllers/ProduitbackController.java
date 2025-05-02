@@ -329,9 +329,19 @@ public class ProduitbackController {
 
             Date sqlDate = Date.valueOf(date.getValue());
 
-            // Create product object
-            Produit produit = new Produit(nom.getText(), description.getText(),
-                    prixValue, stockValue, sqlDate, image.getText());
+            // Create product object with createdById
+            // TODO: Replace this with the actual logged-in user's ID (e.g., from session or authentication context)
+            // For now, using a placeholder value that must exist in the user table
+            int createdById = 1; // Replace with a valid ID from the user table, or retrieve dynamically
+            Produit produit = new Produit(
+                    nom.getText(),
+                    description.getText(),
+                    prixValue,
+                    stockValue,
+                    sqlDate,
+                    image.getText(),
+                    createdById
+            );
 
             // Add to database
             ps.addProduit(produit);

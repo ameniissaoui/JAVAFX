@@ -20,7 +20,11 @@ public class AdminService extends UserService<Admin> {
         try {
             conn.setAutoCommit(false);
 
-            // First insert into user table
+            // Set role and image
+            admin.setRole("admin");
+            admin.setImage(null);
+
+            // Insert into user table
             int userId = insertBaseUser(admin);
             if (userId == -1) {
                 conn.rollback();
@@ -28,7 +32,7 @@ public class AdminService extends UserService<Admin> {
             }
             admin.setId(userId);
 
-            // Then insert into admin table
+            // Insert into admin table
             String query = "INSERT INTO admin (user_id) VALUES (?)";
             try (PreparedStatement pst = conn.prepareStatement(query)) {
                 pst.setInt(1, userId);
@@ -56,13 +60,15 @@ public class AdminService extends UserService<Admin> {
         try {
             conn.setAutoCommit(false);
 
+            // Ensure role is correct
+            admin.setRole("admin");
+
             // Update base user information
             updateBaseUser(admin);
 
             // Admin table doesn't have specific attributes to update
             conn.commit();
             System.out.println("Admin mis à jour !");
-
         } catch (SQLException e) {
             try {
                 conn.rollback();
@@ -85,13 +91,13 @@ public class AdminService extends UserService<Admin> {
         try {
             conn.setAutoCommit(false);
 
-            // First delete from admin table
+            // Delete from admin table
             String query = "DELETE FROM admin WHERE user_id = ?";
             try (PreparedStatement pst = conn.prepareStatement(query)) {
                 pst.setInt(1, admin.getId());
                 pst.executeUpdate();
 
-                // Then delete from user table
+                // Delete from user table
                 deleteBaseUser(admin.getId());
 
                 conn.commit();
@@ -114,8 +120,7 @@ public class AdminService extends UserService<Admin> {
     @Override
     public List<Admin> getAll() {
         List<Admin> list = new ArrayList<>();
-        String query = "SELECT u.* FROM user u " +
-                "JOIN admin a ON u.id = a.user_id";
+        String query = "SELECT u.* FROM user u JOIN admin a ON u.id = a.user_id";
         try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(query)) {
 
@@ -129,9 +134,11 @@ public class AdminService extends UserService<Admin> {
                         rs.getDate("dateNaissance"),
                         rs.getString("telephone")
                 );
+                admin.setBanned(rs.getBoolean("banned"));
+                admin.setImage(rs.getString("image"));
+                admin.setRole(rs.getString("role"));
                 list.add(admin);
             }
-
         } catch (SQLException e) {
             System.out.println("Erreur getAll admins: " + e.getMessage());
         }
@@ -140,14 +147,12 @@ public class AdminService extends UserService<Admin> {
 
     @Override
     public Admin getOne(int id) {
-        String query = "SELECT u.* FROM user u " +
-                "JOIN admin a ON u.id = a.user_id " +
-                "WHERE u.id = ?";
+        String query = "SELECT u.* FROM user u JOIN admin a ON u.id = a.user_id WHERE u.id = ?";
         try (PreparedStatement pst = cnx.prepareStatement(query)) {
             pst.setInt(1, id);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Admin(
+                Admin admin = new Admin(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("prenom"),
@@ -156,6 +161,10 @@ public class AdminService extends UserService<Admin> {
                         rs.getDate("dateNaissance"),
                         rs.getString("telephone")
                 );
+                admin.setBanned(rs.getBoolean("banned"));
+                admin.setImage(rs.getString("image"));
+                admin.setRole(rs.getString("role"));
+                return admin;
             }
         } catch (SQLException e) {
             System.out.println("Erreur getOne admin: " + e.getMessage());
@@ -163,14 +172,13 @@ public class AdminService extends UserService<Admin> {
         return null;
     }
 
-    // Add this method to your AdminService class if it's not already there
     public Admin findByEmail(String email) {
         String query = "SELECT u.* FROM user u JOIN admin a ON u.id = a.user_id WHERE u.email = ?";
         try (PreparedStatement pst = cnx.prepareStatement(query)) {
             pst.setString(1, email);
             ResultSet rs = pst.executeQuery();
             if (rs.next()) {
-                return new Admin(
+                Admin admin = new Admin(
                         rs.getInt("id"),
                         rs.getString("nom"),
                         rs.getString("prenom"),
@@ -179,6 +187,10 @@ public class AdminService extends UserService<Admin> {
                         rs.getDate("dateNaissance"),
                         rs.getString("telephone")
                 );
+                admin.setBanned(rs.getBoolean("banned"));
+                admin.setImage(rs.getString("image"));
+                admin.setRole(rs.getString("role"));
+                return admin;
             }
         } catch (SQLException e) {
             System.out.println("Erreur findByEmail: " + e.getMessage());

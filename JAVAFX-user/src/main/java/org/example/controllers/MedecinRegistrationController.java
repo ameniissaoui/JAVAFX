@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+import org.example.services.DiplomaVerificationService;
 
 public class MedecinRegistrationController extends BaseRegistrationController {
 
@@ -30,41 +31,33 @@ public class MedecinRegistrationController extends BaseRegistrationController {
 
     private final MedecinService medecinService = new MedecinService();
     private File selectedDiplomaFile;
+    private final DiplomaVerificationService diplomaVerificationService = new DiplomaVerificationService();
 
     @FXML
     @Override
     protected void initialize() {
         super.initialize();
-        // Additional initialization for medecin-specific fields if needed
     }
 
     @FXML
     protected void handleBrowseDiploma() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Sélectionner votre diplôme");
-
-        // Set extension filters
         FileChooser.ExtensionFilter pdfFilter =
                 new FileChooser.ExtensionFilter("Documents PDF (*.pdf)", "*.pdf");
         FileChooser.ExtensionFilter imageFilter =
                 new FileChooser.ExtensionFilter("Images (*.png, *.jpg, *.jpeg)", "*.png", "*.jpg", "*.jpeg");
         fileChooser.getExtensionFilters().addAll(pdfFilter, imageFilter);
 
-        // Show open file dialog
         File file = fileChooser.showOpenDialog(diplomaPathField.getScene().getWindow());
-
         if (file != null) {
-            // Check file size (max 5MB)
             long fileSize = file.length();
-            long maxSize = 5 * 1024 * 1024; // 5MB in bytes
-
+            long maxSize = 5 * 1024 * 1024; // 5MB
             if (fileSize > maxSize) {
                 diplomaErrorLabel.setText("Le fichier est trop volumineux (max 5MB)");
                 diplomaErrorLabel.setVisible(true);
                 return;
             }
-
-            // Update the UI
             selectedDiplomaFile = file;
             diplomaPathField.setText(file.getName());
             diplomaErrorLabel.setVisible(false);
@@ -75,36 +68,31 @@ public class MedecinRegistrationController extends BaseRegistrationController {
     @FXML
     protected void handleRegistration() {
         try {
-            // First validate base fields
             if (!validateAllFields()) {
                 messageLabel.setText("Veuillez corriger les erreurs dans le formulaire.");
                 messageLabel.setStyle("-fx-text-fill: red;");
                 return;
             }
 
-            // Check if email already exists
             if (medecinService.findByEmail(emailField.getText().trim()) != null) {
                 messageLabel.setText("Cet email est déjà utilisé.");
                 messageLabel.setStyle("-fx-text-fill: red;");
                 return;
             }
 
-            // Save the diploma file to a permanent location and get the path
             String diplomaPath = saveDiplomaFile();
-
-            // Create a new Medecin with the base user info and medecin-specific info
+            boolean isDiplomaValid = diplomaVerificationService.verifyDiploma(diplomaPath);
             Medecin medecin = createMedecinFromFields(diplomaPath);
-
-            // Add the new medecin to the database
+            medecin.setIs_verified(isDiplomaValid);
             medecinService.add(medecin);
-
-            // Show success message
-            messageLabel.setText("Compte médecin créé avec succès !");
+            if (isDiplomaValid) {
+                messageLabel.setText("Compte médecin créé et vérifié avec succès !");
+            } else {
+                messageLabel.setText("Compte créé, mais le diplôme n'a pas pu être vérifié automatiquement. Un administrateur vérifiera votre diplôme.");
+            }
             messageLabel.setStyle("-fx-text-fill: green;");
 
-            // Redirect to login or dashboard after short delay
             redirectToLogin();
-
         } catch (IllegalStateException e) {
             messageLabel.setText("Erreur : " + e.getMessage());
             messageLabel.setStyle("-fx-text-fill: red;");
@@ -115,57 +103,38 @@ public class MedecinRegistrationController extends BaseRegistrationController {
         }
     }
 
-    /**
-     * Saves the diploma file to a permanent location and returns the file path
-     * @return the path to the saved file
-     * @throws IOException if an I/O error occurs
-     */
     private String saveDiplomaFile() throws IOException {
         if (selectedDiplomaFile == null) {
             return "";
         }
 
-        // Create directory if it doesn't exist
         Path uploadDir = Paths.get("uploads", "diplomas");
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
 
-        // Generate a unique filename to avoid conflicts
         String originalFilename = selectedDiplomaFile.getName();
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
 
-        // Save the file to the uploads directory
         Path targetPath = uploadDir.resolve(uniqueFilename);
         Files.copy(selectedDiplomaFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
         return targetPath.toString();
     }
 
-    /**
-     * Validates all fields including medecin-specific fields
-     * @return true if all fields are valid
-     */
     private boolean validateAllFields() {
         boolean baseFieldsValid = validateBaseFields();
         boolean medecinFieldsValid = validateMedecinFields();
-
         return baseFieldsValid && medecinFieldsValid;
     }
 
-    /**
-     * Validates medecin-specific fields
-     * @return true if all medecin-specific fields are valid
-     */
     private boolean validateMedecinFields() {
         boolean isValid = true;
 
-        // Reset error styles
         specialiteErrorLabel.setVisible(false);
         diplomaErrorLabel.setVisible(false);
 
-        // Validate specialite field
         if (specialiteField.getText() == null || specialiteField.getText().trim().isEmpty()) {
             specialiteField.setStyle("-fx-border-color: red;");
             specialiteErrorLabel.setVisible(true);
@@ -174,7 +143,6 @@ public class MedecinRegistrationController extends BaseRegistrationController {
             specialiteField.setStyle("");
         }
 
-        // Validate diploma field
         if (selectedDiplomaFile == null) {
             diplomaPathField.setStyle("-fx-border-color: red;");
             diplomaErrorLabel.setText("Veuillez télécharger votre diplôme");
@@ -187,29 +155,22 @@ public class MedecinRegistrationController extends BaseRegistrationController {
         return isValid;
     }
 
-    /**
-     * Creates a Medecin object from the form fields
-     * @param diplomaPath the path to the saved diploma file
-     * @return a new Medecin object with data from the form
-     * @throws IllegalStateException if validation fails
-     */
     private Medecin createMedecinFromFields(String diplomaPath) throws IllegalStateException {
         try {
-            // Get base user info
             var baseUser = collectBaseUserInfo();
-
-            // Create and return a new Medecin
-            return new Medecin(
-                    baseUser.getId(),
+            Medecin medecin = new Medecin(
                     baseUser.getNom(),
                     baseUser.getPrenom(),
                     baseUser.getEmail(),
                     baseUser.getMotDePasse(),
                     baseUser.getDateNaissance(),
                     baseUser.getTelephone(),
+                    null, // image
+                    "medecin", // role
                     specialiteField.getText().trim(),
                     diplomaPath
             );
+            return medecin;
         } catch (IllegalStateException e) {
             throw e;
         } catch (Exception e) {
@@ -217,16 +178,11 @@ public class MedecinRegistrationController extends BaseRegistrationController {
         }
     }
 
-    /**
-     * Redirects to the login page after successful registration
-     */
     private void redirectToLogin() {
-        // You can add a small delay here if desired
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Login.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-
             Stage stage = (Stage) nomField.getScene().getWindow();
             if (stage != null) {
                 stage.setScene(scene);

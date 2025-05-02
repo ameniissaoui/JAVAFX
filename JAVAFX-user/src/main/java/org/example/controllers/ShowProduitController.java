@@ -1,8 +1,6 @@
 package org.example.controllers;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -12,38 +10,37 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.example.models.Produit;
 import org.example.services.ProduitServices;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class ShowProduitController implements Initializable {
     @FXML
-    private ListView<Produit> listview;
+    private FlowPane flowPane;
     @FXML
     private Button addButton;
     @FXML private Button buttoncommande;
     @FXML private Button profileButton;
     @FXML private Button historique;
     @FXML private Button suivi;
-    @FXML private Button tablesButton; // Add this field
-    @FXML private Button eventButton; // Add this field
-    @FXML private Button acceuil; // Add this field
-
+    @FXML private Button tablesButton;
+    @FXML private Button eventButton;
+    @FXML private Button acceuil;
+    @FXML private TextField searchField;
 
     @FXML
     private ProduitServices ps;
+    private List<Produit> allProducts;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -52,16 +49,11 @@ public class ShowProduitController implements Initializable {
         eventButton.setOnAction(event -> handleeventRedirect());
         historique.setOnAction(event -> handleHistoriqueRedirect());
         suivi.setOnAction(event -> handleSuiviRedirect());
-        buttoncommande.setOnAction(event -> handleCommandeRedirect());
         acceuil.setOnAction(event -> handleAcceuilRedirect());
 
-        // Link the profile button to its handler
-
         try {
-            // Initialize the product service
             ps = new ProduitServices();
-            refreshProductsList();
-            setupListViewCellFactory();
+            refreshProductsList(); // Initial load
 
             // Load add button icon
             try {
@@ -73,26 +65,41 @@ public class ShowProduitController implements Initializable {
                 System.out.println("Could not load add button icon: " + e.getMessage());
             }
 
-            // Maximize the window when shown
-            listview.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            // Maximize the window and adjust FlowPane size
+            flowPane.sceneProperty().addListener((observable, oldScene, newScene) -> {
                 if (newScene != null) {
                     Platform.runLater(() -> {
                         Stage stage = (Stage) newScene.getWindow();
                         if (stage != null) {
                             stage.setMaximized(true);
-                            VBox parent = (VBox) listview.getParent();
-                            listview.prefHeightProperty().bind(parent.heightProperty().subtract(130));
-                            listview.prefWidthProperty().bind(parent.widthProperty());
+                            // Traverse up to find the VBox: FlowPane -> ScrollPane -> VBox
+                            Node scrollPane = flowPane.getParent();
+                            Node parent = scrollPane.getParent();
+                            if (parent instanceof ScrollPane) {
+                                Node vboxParent = parent.getParent();
+                                if (vboxParent instanceof VBox) {
+                                    VBox vbox = (VBox) vboxParent;
+                                    flowPane.prefHeightProperty().bind(vbox.heightProperty().subtract(130));
+                                    flowPane.prefWidthProperty().bind(vbox.widthProperty());
+                                }
+                            }
                         }
                     });
                 }
             });
+
+            // Add search functionality
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                filterProducts(newValue);
+            });
+
         } catch (Exception e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Database Error",
                     "Could not connect to the database. Please ensure the database server is running.");
         }
     }
+
     private void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -100,6 +107,7 @@ public class ShowProduitController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
     private void handleCommandeRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showCommande.fxml"));
@@ -107,11 +115,12 @@ public class ShowProduitController implements Initializable {
             Scene tableScene = new Scene(tableRoot);
             stage.setScene(tableScene);
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     private void handleSuiviRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_suivi_back.fxml"));
@@ -119,11 +128,12 @@ public class ShowProduitController implements Initializable {
             Scene tableScene = new Scene(tableRoot);
             stage.setScene(tableScene);
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             showErrorDialog("Erreur", "Impossible de charger la page des historiques: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     private void handleHistoriqueRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_historique_back.fxml"));
@@ -131,11 +141,12 @@ public class ShowProduitController implements Initializable {
             Scene tableScene = new Scene(tableRoot);
             stage.setScene(tableScene);
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             showErrorDialog("Erreur", "Impossible de charger la page des historiques: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     private void handleeventRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/listevent.fxml"));
@@ -143,11 +154,12 @@ public class ShowProduitController implements Initializable {
             Scene tableScene = new Scene(tableRoot);
             stage.setScene(tableScene);
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     private void handleTablesRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showProduit.fxml"));
@@ -155,167 +167,177 @@ public class ShowProduitController implements Initializable {
             Scene tableScene = new Scene(tableRoot);
             stage.setScene(tableScene);
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     private void handleAcceuilRedirect() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminDashboard.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
-
-            // Get the stage from the acceuil button
             Stage stage = (Stage) acceuil.getScene().getWindow();
-
             stage.setScene(scene);
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             showErrorDialog("Erreur", "Impossible de charger la page d'accueil: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    private void setupListViewCellFactory() {
-        listview.setCellFactory(lv -> new ListCell<Produit>() {
-            private final HBox container = new HBox();
-            private final Label idLabel = new Label();
-            private final Label nameLabel = new Label();
-            private final Label descriptionLabel = new Label();
-            private final Label priceLabel = new Label();
-            private final Label stockLabel = new Label();
-            private final Label dateLabel = new Label();
-            private final ImageView productImage = new ImageView();
-            private final Label imageUrlLabel = new Label();
-            private final VBox imageContainer = new VBox(5);
-            private final Button viewButton = new Button();
-            private final Button editButton = new Button();
-            private final Button deleteButton = new Button();
-            private final HBox actionsContainer = new HBox(10);
 
-            {
-                configureLayout();
-                addActionHandlers();
+    @FXML
+    private void refreshProductsList() {
+        try {
+            allProducts = ps.showProduit();
+            updateProductDisplay(allProducts);
+            searchField.clear(); // Clear search field on refresh
+        } catch (Exception e) {
+            e.printStackTrace();
+            flowPane.getChildren().clear();
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Could not load products from database.");
+        }
+    }
+
+    private void updateProductDisplay(List<Produit> products) {
+        flowPane.getChildren().clear();
+        for (Produit product : products) {
+            flowPane.getChildren().add(createProductCard(product));
+        }
+    }
+
+    private void filterProducts(String searchText) {
+        if (searchText == null || searchText.isEmpty()) {
+            updateProductDisplay(allProducts);
+        } else {
+            List<Produit> filteredProducts = allProducts.stream()
+                    .filter(product -> product.getNom().toLowerCase().contains(searchText.toLowerCase()))
+                    .collect(Collectors.toList());
+            updateProductDisplay(filteredProducts);
+        }
+    }
+
+    private Node createProductCard(Produit product) {
+        VBox card = new VBox(10);
+        card.setStyle("-fx-background-color: white; -fx-border-color: #e9ecef; -fx-border-radius: 5; -fx-padding: 15;");
+        card.setPrefWidth(300);
+        card.setPrefHeight(400);
+
+        // Image
+        ImageView productImage = new ImageView();
+        productImage.setFitHeight(150);
+        productImage.setFitWidth(150);
+        productImage.setPreserveRatio(true);
+        Label imageUrlLabel = new Label();
+        imageUrlLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #6c757d;");
+        imageUrlLabel.setWrapText(true);
+        loadImage(product, productImage, imageUrlLabel);
+
+        // Product Details
+        Label nameLabel = new Label(product.getNom());
+        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16;");
+
+        Label descriptionLabel = new Label("Description: " + product.getDescription());
+        descriptionLabel.setWrapText(true);
+
+        Label priceLabel = new Label("Price: $" + String.format("%.2f", product.getPrix()));
+
+        Label stockLabel = new Label("Stock: " + product.getStock_quantite());
+        int stockQuantity = product.getStock_quantite();
+        if (stockQuantity == 0) {
+            stockLabel.setStyle("-fx-text-fill: #f44336;");
+        } else if (stockQuantity <= 5) {
+            stockLabel.setStyle("-fx-text-fill: #ff9800;");
+        } else {
+            stockLabel.setStyle("-fx-text-fill: #4caf50;");
+        }
+
+        Label dateLabel = new Label("Date: " + product.getDate().toString());
+
+        // Spacer to push actions to the bottom
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        // Actions
+        HBox actionsContainer = new HBox(10);
+        Button viewButton = new Button();
+        Button editButton = new Button();
+        Button deleteButton = new Button();
+
+        try {
+            ImageView viewIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/view.png")));
+            viewIcon.setFitHeight(16);
+            viewIcon.setFitWidth(16);
+            viewButton.setGraphic(viewIcon);
+            viewButton.setStyle("-fx-background-color: #2196f3; -fx-text-fill: white;");
+
+            ImageView editIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/edit.png")));
+            editIcon.setFitHeight(16);
+            editIcon.setFitWidth(16);
+            editButton.setGraphic(editIcon);
+            editButton.setStyle("-fx-background-color: #ff9800; -fx-text-fill: white;");
+
+            ImageView deleteIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/delete.png")));
+            deleteIcon.setFitHeight(16);
+            deleteIcon.setFitWidth(16);
+            deleteButton.setGraphic(deleteIcon);
+            deleteButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
+        } catch (Exception e) {
+            viewButton.setText("👁");
+            editButton.setText("✏");
+            deleteButton.setText("🗑");
+        }
+
+        viewButton.setOnAction(e -> handleView(product));
+        editButton.setOnAction(e -> handleEdit(product));
+        deleteButton.setOnAction(e -> handleDelete(product));
+        actionsContainer.getChildren().addAll(viewButton, editButton, deleteButton);
+
+        // Add all elements to card
+        card.getChildren().addAll(
+                productImage,
+                imageUrlLabel,
+                nameLabel,
+                descriptionLabel,
+                priceLabel,
+                stockLabel,
+                dateLabel,
+                spacer,
+                actionsContainer
+        );
+
+        return card;
+    }
+
+    private void loadImage(Produit product, ImageView productImage, Label imageUrlLabel) {
+        try {
+            String imagePath = "/images/" + product.getImage();
+
+            // First try loading from actual file system (for newly added images)
+            File imageFile = new File("src/main/resources/images/" + product.getImage());
+            if (imageFile.exists()) {
+                Image img = new Image(imageFile.toURI().toString());
+                productImage.setImage(img);
+                imageUrlLabel.setText(product.getImage());
+                return;
             }
 
-            private void configureLayout() {
-                container.setStyle("-fx-background-color: white; -fx-border-color: #e9ecef; -fx-border-width: 0 0 1 0;");
-                container.setPrefHeight(80);
-
-                idLabel.setPrefWidth(70);
-                nameLabel.setPrefWidth(150);
-                descriptionLabel.setPrefWidth(200);
-                priceLabel.setPrefWidth(100);
-                stockLabel.setPrefWidth(120);
-                dateLabel.setPrefWidth(120);
-
-                productImage.setFitHeight(50);
-                productImage.setFitWidth(50);
-                productImage.setPreserveRatio(true);
-                imageUrlLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #6c757d;");
-                imageUrlLabel.setWrapText(true);
-                imageUrlLabel.setMaxWidth(100);
-                imageContainer.getChildren().addAll(productImage, imageUrlLabel);
-                imageContainer.setPrefWidth(120);
-
-                configureActionButtons();
-                actionsContainer.getChildren().addAll(viewButton, editButton, deleteButton);
-                actionsContainer.setPrefWidth(120);
-
-                container.getChildren().addAll(
-                        idLabel, nameLabel, descriptionLabel, priceLabel,
-                        stockLabel, dateLabel, imageContainer, actionsContainer
-                );
+            // Fallback to resource stream (for bundled images)
+            InputStream imageStream = getClass().getResourceAsStream(imagePath);
+            if (imageStream != null) {
+                Image img = new Image(imageStream);
+                productImage.setImage(img);
+                imageUrlLabel.setText(product.getImage());
+            } else {
+                setPlaceholderImage(productImage);
+                imageUrlLabel.setText("Not found");
             }
-
-            private void configureActionButtons() {
-                try {
-                    ImageView viewIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/view.png")));
-                    viewIcon.setFitHeight(16);
-                    viewIcon.setFitWidth(16);
-                    viewButton.setGraphic(viewIcon);
-                    viewButton.setStyle("-fx-background-color: #2196f3; -fx-text-fill: white;");
-
-                    ImageView editIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/edit.png")));
-                    editIcon.setFitHeight(16);
-                    editIcon.setFitWidth(16);
-                    editButton.setGraphic(editIcon);
-                    editButton.setStyle("-fx-background-color: #ff9800; -fx-text-fill: white;");
-
-                    ImageView deleteIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/delete.png")));
-                    deleteIcon.setFitHeight(16);
-                    deleteIcon.setFitWidth(16);
-                    deleteButton.setGraphic(deleteIcon);
-                    deleteButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
-                } catch (Exception e) {
-                    viewButton.setText("👁");
-                    editButton.setText("✏");
-                    deleteButton.setText("🗑");
-                }
-            }
-
-            private void addActionHandlers() {
-                viewButton.setOnAction(e -> handleView(getItem()));
-                editButton.setOnAction(e -> handleEdit(getItem()));
-                deleteButton.setOnAction(e -> handleDelete(getItem()));
-            }
-
-            @Override
-            protected void updateItem(Produit product, boolean empty) {
-                super.updateItem(product, empty);
-                if (empty || product == null) {
-                    setGraphic(null);
-                } else {
-                    idLabel.setText(String.valueOf(product.getId()));
-                    nameLabel.setText(product.getNom());
-                    descriptionLabel.setText(product.getDescription());
-                    priceLabel.setText(String.format("$%.2f", product.getPrix()));
-
-                    int stockQuantity = product.getStock_quantite();
-                    stockLabel.setText(String.valueOf(stockQuantity));
-                    if (stockQuantity == 0) {
-                        stockLabel.setStyle("-fx-text-fill: #f44336;");
-                    } else if (stockQuantity <= 5) {
-                        stockLabel.setStyle("-fx-text-fill: #ff9800;");
-                    } else {
-                        stockLabel.setStyle("-fx-text-fill: #4caf50;");
-                    }
-
-                    dateLabel.setText(product.getDate().toString());
-                    loadImage(product);
-
-                    setGraphic(container);
-                }
-            }
-
-            private void loadImage(Produit product) {
-                try {
-                    String imagePath = "/images/" + product.getImage();
-                    InputStream imageStream = getClass().getResourceAsStream(imagePath);
-                    if (imageStream != null) {
-                        Image img = new Image(imageStream);
-                        productImage.setImage(img);
-                        imageUrlLabel.setText(product.getImage());
-                    } else {
-                        setPlaceholderImage();
-                        imageUrlLabel.setText("Not found");
-                    }
-                } catch (Exception e) {
-                    setPlaceholderImage();
-                    imageUrlLabel.setText("Error");
-                    e.printStackTrace();
-                }
-            }
-
-            private void setPlaceholderImage() {
-                try {
-                    productImage.setImage(new Image(getClass().getResourceAsStream("/images/product-placeholder.png")));
-                } catch (Exception ex) {
-                    productImage.setImage(null);
-                    productImage.setStyle("-fx-background-color: #e9ecef;");
-                }
-            }
-        });
+        } catch (Exception e) {
+            setPlaceholderImage(productImage);
+            imageUrlLabel.setText("Error");
+            e.printStackTrace();
+        }
     }
 
     private void handleView(Produit product) {
@@ -330,16 +352,26 @@ public class ShowProduitController implements Initializable {
 
         String imageInfo;
         try {
-            String imagePath = "/images/" + product.getImage();
-            InputStream imageStream = getClass().getResourceAsStream(imagePath);
-            if (imageStream != null) {
-                Image img = new Image(imageStream);
+            // First try loading from file system
+            File imageFile = new File("src/main/resources/images/" + product.getImage());
+            if (imageFile.exists()) {
+                Image img = new Image(imageFile.toURI().toString());
                 imageView.setImage(img);
                 imageInfo = String.format("Image File: %s\nDimensions: %.0fx%.0f pixels",
                         product.getImage(), img.getWidth(), img.getHeight());
             } else {
-                setPlaceholderImage(imageView);
-                imageInfo = "Image file not found: " + product.getImage();
+                // Fallback to resource stream
+                String imagePath = "/images/" + product.getImage();
+                InputStream imageStream = getClass().getResourceAsStream(imagePath);
+                if (imageStream != null) {
+                    Image img = new Image(imageStream);
+                    imageView.setImage(img);
+                    imageInfo = String.format("Image File: %s\nDimensions: %.0fx%.0f pixels",
+                            product.getImage(), img.getWidth(), img.getHeight());
+                } else {
+                    setPlaceholderImage(imageView);
+                    imageInfo = "Image file not found: " + product.getImage();
+                }
             }
         } catch (Exception e) {
             setPlaceholderImage(imageView);
@@ -363,12 +395,12 @@ public class ShowProduitController implements Initializable {
             EditProduitController controller = loader.getController();
             controller.initData(product);
 
-            Stage stage = (Stage) listview.getScene().getWindow();
+            Stage stage = (Stage) flowPane.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load edit product form.");
         }
@@ -384,23 +416,12 @@ public class ShowProduitController implements Initializable {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 ps.removeProduit(product);
-                refreshProductsList();
+                allProducts = ps.showProduit();
+                filterProducts(searchField.getText());
                 showAlert(Alert.AlertType.INFORMATION, "Product Deleted", "The product has been successfully deleted.");
             } catch (Exception e) {
                 showAlert(Alert.AlertType.ERROR, "Delete Error", "Could not delete the product. Error: " + e.getMessage());
             }
-        }
-    }
-
-    private void refreshProductsList() {
-        try {
-            List<Produit> produits = ps.showProduit();
-            ObservableList<Produit> observableList = FXCollections.observableArrayList(produits);
-            listview.setItems(observableList);
-        } catch (Exception e) {
-            e.printStackTrace();
-            listview.setItems(FXCollections.observableArrayList(new ArrayList<>()));
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Could not load products from database.");
         }
     }
 
@@ -447,12 +468,12 @@ public class ShowProduitController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/back/addProduit.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) listview.getScene().getWindow();
+            Stage stage = (Stage) flowPane.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load add product form.");
         }

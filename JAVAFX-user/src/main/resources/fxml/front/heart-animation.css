@@ -1,0 +1,56 @@
+/* Heart Button Styles */
+.heart-button {
+    -fx-font-size: 20px;
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+    -fx-cursor: hand;
+}
+
+.heart-inactive {
+    -fx-text-fill: #999999;
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+    -fx-effect: none;
+}
+
+.heart-active {
+    -fx-text-fill: #ff4d4d;
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+    -fx-effect: dropshadow(gaussian, #ff4d4d, 10, 0.5, 0, 0);
+}
+
+.heart-button:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.heart-button:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+/* Animation for active state */
+.heart-active {
+    -fx-animation-name: heartPulse;
+    -fx-animation-duration: 0.3s;
+    -fx-animation-iteration-count: 1;
+}
+
+@keyframes heartPulse {
+    0% {
+        -fx-scale-x: 1.0;
+        -fx-scale-y: 1.0;
+        -fx-effect: none;
+    }
+    50% {
+        -fx-scale-x: 1.4;
+        -fx-scale-y: 1.4;
+        -fx-effect: dropshadow(gaussian, #ff4d4d, 15, 0.7, 0, 0);
+    }
+    100% {
+        -fx-scale-x: 1.2;
+        -fx-scale-y: 1.2;
+        -fx-effect: dropshadow(gaussian, #ff4d4d, 10, 0.5, 0, 0);
+    }
+}

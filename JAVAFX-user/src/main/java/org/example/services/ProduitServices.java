@@ -7,18 +7,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProduitServices implements IServices <Produit> {
+public class ProduitServices implements IServices<Produit> {
     private Connection cnx;
 
     public ProduitServices() {
         try {
-            // Get database connection
             initializeConnection();
 
-            // Test connection immediately
             if (cnx == null || cnx.isClosed()) {
                 System.err.println("Database connection is null or closed after initialization");
-                // Try to reconnect once
                 initializeConnection();
             }
         } catch (SQLException e) {
@@ -44,7 +41,6 @@ public class ProduitServices implements IServices <Produit> {
         }
     }
 
-    // Ensure connection is valid before each operation
     private boolean ensureConnection() {
         try {
             if (cnx == null || cnx.isClosed()) {
@@ -66,7 +62,7 @@ public class ProduitServices implements IServices <Produit> {
             return;
         }
 
-        String req = "INSERT INTO chrono.produit(nom, description, prix, stock_quantite, date, image) VALUES (?, ?, ?, ?, ?, ?)";
+        String req = "INSERT INTO chrono.produit(nom, description, prix, stock_quantite, date, image, created_by_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = cnx.prepareStatement(req)) {
             stmt.setString(1, produit.getNom());
@@ -75,6 +71,7 @@ public class ProduitServices implements IServices <Produit> {
             stmt.setInt(4, produit.getStock_quantite());
             stmt.setDate(5, produit.getDate());
             stmt.setString(6, produit.getImage());
+            stmt.setInt(7, produit.getCreatedById());
 
             int result = stmt.executeUpdate();
             System.out.println("Product added successfully! Rows affected: " + result);
@@ -115,7 +112,7 @@ public class ProduitServices implements IServices <Produit> {
             return;
         }
 
-        String req = "UPDATE chrono.produit SET nom=?, description=?, prix=?, stock_quantite=?, date=?, image=? WHERE id=?";
+        String req = "UPDATE chrono.produit SET nom=?, description=?, prix=?, stock_quantite=?, date=?, image=?, created_by_id=? WHERE id=?";
 
         try (PreparedStatement stmt = cnx.prepareStatement(req)) {
             stmt.setString(1, produit.getNom());
@@ -124,7 +121,8 @@ public class ProduitServices implements IServices <Produit> {
             stmt.setInt(4, produit.getStock_quantite());
             stmt.setDate(5, produit.getDate());
             stmt.setString(6, produit.getImage());
-            stmt.setInt(7, produit.getId());
+            stmt.setInt(7, produit.getCreatedById());
+            stmt.setInt(8, produit.getId());
 
             int rowsUpdated = stmt.executeUpdate();
 
@@ -145,7 +143,7 @@ public class ProduitServices implements IServices <Produit> {
 
         if (!ensureConnection()) {
             System.err.println("Cannot show products: Database connection failed");
-            return produits; // Return empty list
+            return produits;
         }
 
         String req = "SELECT * FROM chrono.produit";
@@ -162,6 +160,8 @@ public class ProduitServices implements IServices <Produit> {
                 p.setStock_quantite(rs.getInt("stock_quantite"));
                 p.setDate(rs.getDate("date"));
                 p.setImage(rs.getString("image"));
+                p.setCreatedById(rs.getInt("created_by_id"));
+
                 produits.add(p);
             }
 
@@ -197,6 +197,7 @@ public class ProduitServices implements IServices <Produit> {
                     p.setStock_quantite(rs.getInt("stock_quantite"));
                     p.setDate(rs.getDate("date"));
                     p.setImage(rs.getString("image"));
+                    p.setCreatedById(rs.getInt("created_by_id"));
                 }
             }
         } catch (SQLException e) {
@@ -207,7 +208,6 @@ public class ProduitServices implements IServices <Produit> {
         return p;
     }
 
-    // Check if connection is working and print connection info
     public boolean testConnection() {
         try {
             if (cnx == null) {
@@ -220,13 +220,11 @@ public class ProduitServices implements IServices <Produit> {
                 return false;
             }
 
-            // Test with a simple query
             try (Statement stmt = cnx.createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT 1")) {
                 if (rs.next()) {
                     System.out.println("Database connection test successful");
 
-                    // Print connection metadata
                     DatabaseMetaData metaData = cnx.getMetaData();
                     System.out.println("Database: " + metaData.getDatabaseProductName() + " " +
                             metaData.getDatabaseProductVersion());

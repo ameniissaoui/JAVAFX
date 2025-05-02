@@ -9,7 +9,10 @@ public class Commande {
     private String adresse;
     private int phone_number;
     private Produit produit;
-
+    private String stripeSessionId;
+    private String paymentStatus;
+    private double totalAmount;
+    private int utilisateurId; // New field for utilisateur_id
 
     public Produit getProduit() {
         return produit;
@@ -65,5 +68,38 @@ public class Commande {
 
     public void setPhone_number(int phone_number) {
         this.phone_number = phone_number;
+    }
+
+    public String getStripeSessionId() {
+        return stripeSessionId;
+    }
+
+    public void setStripeSessionId(String stripeSessionId) {
+        this.stripeSessionId = stripeSessionId;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    // Getter and Setter for utilisateurId
+    public int getUtilisateurId() {
+        return utilisateurId;
+    }
+
+    public void setUtilisateurId(int utilisateurId) {
+        this.utilisateurId = utilisateurId;
     }
 }

@@ -5,10 +5,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.example.models.Produit;
+import org.example.services.ImageGenerationService;
 import org.example.services.ProduitServices;
+import org.example.util.SessionManager;
+import org.example.models.Admin;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +35,7 @@ public class AddProduitController {
     @FXML private DatePicker date;
     @FXML private TextField image;
     @FXML private Button browseButton;
+    @FXML private Button generateImageButton; // Add this button to your FXML
     @FXML private Button saveButton;
     @FXML private Button cancelButton;
 
@@ -41,9 +47,14 @@ public class AddProduitController {
     @FXML private Label dateError;
     @FXML private Label imageError;
 
+    @FXML private ImageView imagePreview;
+    @FXML private VBox imagePreviewContainer;
+    @FXML private Button regenerateButton;
+
     // Define the image directory path
-    private final String IMAGE_DIR = "src/resources/images/";
+    private final String IMAGE_DIR = "src/main/resources/images/";
     private ProduitServices ps = new ProduitServices();
+    private ImageGenerationService imageService;
 
     @FXML
     void initialize() {
@@ -53,8 +64,14 @@ public class AddProduitController {
             directory.mkdirs();
         }
 
+        // Initialize image generation service
+        imageService = new ImageGenerationService(IMAGE_DIR);
+
         // Set current date as default
         date.setValue(LocalDate.now());
+
+        // Make sure the image preview container is initially hidden
+        imagePreviewContainer.setVisible(false);
 
         // Add real-time validation listeners
         setupValidationListeners();
@@ -199,6 +216,105 @@ public class AddProduitController {
     }
 
     @FXML
+    void generateImage() {
+        // Check if product name is valid
+        if (nom.getText().trim().isEmpty() || nom.getText().length() < 3) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez entrer un nom de produit valide avant de générer une image");
+            return;
+        }
+
+        try {
+            // Show loading indicator
+            saveButton.setDisable(true);
+            generateImageButton.setDisable(true);
+            generateImageButton.setText("Génération en cours...");
+
+            // Run in background thread to keep UI responsive
+            new Thread(() -> {
+                String generatedFileName = null;
+
+                try {
+                    // Try with the full API first
+                    generatedFileName = imageService.generateImage(nom.getText(), description.getText());
+                } catch (Exception e) {
+                    // Log the API failure
+                    System.err.println("API image generation failed, using placeholder: " + e.getMessage());
+
+                    try {
+                        // Fallback to placeholder if API fails
+                        generatedFileName = imageService.generatePlaceholderImage(nom.getText());
+                    } catch (Exception placeholderEx) {
+                        // If even the placeholder fails, handle on JavaFX thread
+                        final Exception finalEx = placeholderEx;
+                        javafx.application.Platform.runLater(() -> {
+                            showFieldError(image, imageError, "Échec de la génération d'image");
+                            showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la génération d'image: " + finalEx.getMessage());
+
+                            // Re-enable buttons
+                            saveButton.setDisable(false);
+                            generateImageButton.setDisable(false);
+                            generateImageButton.setText("Générer une Image");
+
+                            finalEx.printStackTrace();
+                        });
+                        return; // Exit the thread if both methods fail
+                    }
+                }
+
+                // If we got here, we have a valid filename
+                final String finalGeneratedFileName = generatedFileName;
+
+                // Update UI on JavaFX thread
+                javafx.application.Platform.runLater(() -> {
+                    image.setText(finalGeneratedFileName);
+                    hideFieldError(image, imageError);
+
+                    // Show the image preview
+                    showImagePreview(finalGeneratedFileName);
+
+                    // Re-enable buttons
+                    saveButton.setDisable(false);
+                    generateImageButton.setDisable(false);
+                    generateImageButton.setText("Générer une Image");
+                });
+            }).start();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la génération d'image: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Add this method to show the image preview
+    private void showImagePreview(String fileName) {
+        try {
+            // Create a File object for the image
+            File imageFile = new File(IMAGE_DIR + fileName);
+
+            // Create an Image object from the file
+            javafx.scene.image.Image img = new javafx.scene.image.Image(imageFile.toURI().toString());
+
+            // Set the image to the ImageView
+            imagePreview.setImage(img);
+
+            // Make the preview container visible
+            imagePreviewContainer.setVisible(true);
+
+            // Show success message
+            showAlert(Alert.AlertType.INFORMATION, "Succès", "Image générée avec succès");
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'afficher l'aperçu de l'image: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Add this method to handle the regenerate button click
+    @FXML
+    void regenerateImage() {
+        // Simply call generateImage again
+        generateImage();
+    }
+
+    @FXML
     void save() {
         boolean isValid = validateForm();
 
@@ -208,13 +324,27 @@ public class AddProduitController {
                 int stockValue = Integer.parseInt(stock_quantite.getText());
                 Date sqlDate = Date.valueOf(date.getValue());
 
+                // Retrieve the current admin from SessionManager
+                SessionManager session = SessionManager.getInstance();
+                Object currentUser = session.getCurrentUser();
+                int createdById;
+
+                if (currentUser instanceof Admin) {
+                    createdById = ((Admin) currentUser).getId();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non authentifié ou non-administrateur");
+                    return;
+                }
+
+                // Create the product object with the admin's ID
                 Produit produit = new Produit(
                         nom.getText(),
                         description.getText(),
                         prixValue,
                         stockValue,
                         sqlDate,
-                        image.getText()  // Store just the filename
+                        image.getText(),
+                        createdById
                 );
 
                 ps.addProduit(produit);
@@ -309,9 +439,9 @@ public class AddProduitController {
     private void navigateBack() {
         try {
             // Get the resource URL correctly
-            URL resourceUrl = getClass().getResource("/back/showProduit.fxml");
+            URL resourceUrl = getClass().getResource("/fxml/back/showProduit.fxml");
             if (resourceUrl == null) {
-                throw new IOException("Resource not found: /back/showProduit.fxml");
+                throw new IOException("Resource not found: /fxml/back/showProduit.fxml");
             }
 
             FXMLLoader loader = new FXMLLoader(resourceUrl);

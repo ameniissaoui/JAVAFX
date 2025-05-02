@@ -9,12 +9,11 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import org.example.models.User;
+import org.example.models.UserDTO;
 
 import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Objects;
 
 public abstract class BaseRegistrationController {
     @FXML protected TextField nomField;
@@ -32,16 +31,17 @@ public abstract class BaseRegistrationController {
     @FXML private Label dateNaissanceErrorLabel;
     @FXML private Label telephoneErrorLabel;
 
-    /**
-     * Validates the base user fields and returns a filled User object.
-     * @return a User object if all fields are valid.
-     * @throws IllegalStateException if any required field is missing or invalid.
-     */
     @FXML
     protected void initialize() {
         System.out.println("CSS loaded: " + getClass().getResource("/css/registration.css"));
     }
-    protected User collectBaseUserInfo() throws IllegalStateException {
+
+    /**
+     * Validates the base user fields and returns a UserDTO with the validated data.
+     * @return a UserDTO object if all fields are valid.
+     * @throws IllegalStateException if any required field is missing or invalid.
+     */
+    protected UserDTO collectBaseUserInfo() throws IllegalStateException {
         if (!validateBaseFields()) {
             throw new IllegalStateException("Validation failed: please check the highlighted fields.");
         }
@@ -57,7 +57,7 @@ public abstract class BaseRegistrationController {
 
             String telephone = telephoneField.getText().trim();
 
-            return new User(0, nom, prenom, email, password, dateNaissance, telephone) {};
+            return new UserDTO(nom, prenom, email, password, dateNaissance, telephone);
         } catch (Exception e) {
             throw new IllegalStateException("Unexpected error during data collection: " + e.getMessage());
         }

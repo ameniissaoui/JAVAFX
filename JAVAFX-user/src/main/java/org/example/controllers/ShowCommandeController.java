@@ -7,13 +7,17 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import org.example.models.Commande;
 import org.example.services.CommandeServices;
@@ -27,7 +31,7 @@ import java.util.ResourceBundle;
 public class ShowCommandeController implements Initializable {
 
     @FXML
-    private ListView<Commande> listview;
+    private VBox cardsContainer;
 
     @FXML
     private Button addButton;
@@ -35,9 +39,9 @@ public class ShowCommandeController implements Initializable {
     @FXML private Button profileButton;
     @FXML private Button historique;
     @FXML private Button suivi;
-    @FXML private Button tablesButton; // Add this field
-    @FXML private Button eventButton; // Add this field
-    @FXML private Button acceuil; // Add this field
+    @FXML private Button tablesButton;
+    @FXML private Button eventButton;
+    @FXML private Button acceuil;
     private CommandeServices cs = new CommandeServices();
 
     @Override
@@ -47,13 +51,9 @@ public class ShowCommandeController implements Initializable {
         eventButton.setOnAction(event -> handleeventRedirect());
         historique.setOnAction(event -> handleHistoriqueRedirect());
         suivi.setOnAction(event -> handleSuiviRedirect());
-        buttoncommande.setOnAction(event -> handleCommandeRedirect());
         acceuil.setOnAction(event -> handleAcceuilRedirect());
-        // Set up the list view first
-        refreshCommandesList();
-        setupListViewCellFactory();
 
-        // Add button image if not already set in FXML
+        // Set up the add button
         try {
             ImageView addIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/plus.png")));
             addIcon.setFitHeight(16);
@@ -64,21 +64,210 @@ public class ShowCommandeController implements Initializable {
             System.out.println("Could not load add button icon: " + e.getMessage());
         }
 
-        // Add a listener to handle stage setup once the scene is available
-        listview.sceneProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                Platform.runLater(() -> {
-                    Stage stage = (Stage) listview.getScene().getWindow();
-                    stage.setMaximized(true);
+        // Wrap cardsContainer in a ScrollPane
+        ScrollPane scrollPane = new ScrollPane(cardsContainer);
+        scrollPane.setFitToWidth(true); // Make content fit the width of the ScrollPane
+        scrollPane.setFitToHeight(false); // Allow vertical scrolling
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // Show vertical scrollbar when needed
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Disable horizontal scrollbar
+        scrollPane.setStyle("-fx-background-color: transparent;"); // Make ScrollPane background transparent
 
-                    // Bind listview size to anchorpane
-                    AnchorPane parent = (AnchorPane) listview.getParent();
-                    listview.prefHeightProperty().bind(parent.heightProperty().subtract(180)); // Adjust for header height
-                    listview.prefWidthProperty().bind(parent.widthProperty().subtract(60));
-                });
-            }
-        });
+        // Ensure the ScrollPane fills the parent container
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        // If cardsContainer is inside another parent (e.g., a BorderPane or another VBox),
+        // replace cardsContainer with scrollPane in the layout
+        if (cardsContainer.getParent() instanceof Pane) {
+            Pane parent = (Pane) cardsContainer.getParent();
+            int index = parent.getChildren().indexOf(cardsContainer);
+            parent.getChildren().remove(cardsContainer);
+            parent.getChildren().add(index, scrollPane);
+        }
+
+        // Load the orders
+        refreshCommandesList();
     }
+
+    private void refreshCommandesList() {
+        // Clear existing cards
+        cardsContainer.getChildren().clear();
+
+        // Get all orders
+        List<Commande> commandes = cs.showProduit();
+
+        // Create a FlowPane to hold all cards with automatic wrapping
+        FlowPane cardsFlow = new FlowPane();
+        cardsFlow.setPrefWidth(cardsContainer.getPrefWidth());
+        cardsFlow.setHgap(20);
+        cardsFlow.setVgap(20);
+        cardsFlow.setPadding(new Insets(10));
+
+        // Add each order as a card
+        for (Commande commande : commandes) {
+            VBox card = createCommandeCard(commande);
+            cardsFlow.getChildren().add(card);
+        }
+
+        // Add the FlowPane to the VBox
+        cardsContainer.getChildren().add(cardsFlow);
+
+        // Ensure the cardsContainer has enough height to trigger scrolling if needed
+        cardsContainer.setMinHeight(Region.USE_COMPUTED_SIZE);
+        cardsContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        cardsContainer.setMaxHeight(Double.MAX_VALUE);
+    }
+
+    private VBox createCommandeCard(Commande commande) {
+        // Card container
+        VBox cardContainer = new VBox();
+        cardContainer.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; " +
+                "-fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);");
+        cardContainer.setPadding(new Insets(15));
+        cardContainer.setSpacing(15);
+        cardContainer.setPrefWidth(350);
+        cardContainer.setMaxWidth(350);
+
+        // Card header with order ID and status
+        HBox headerBox = new HBox();
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setSpacing(15);
+
+        Label orderIdLabel = new Label("Commande #" + commande.getId());
+        orderIdLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+        orderIdLabel.setStyle("-fx-text-fill: #3b82f6;");
+
+        Label statusLabel = new Label();
+        statusLabel.setPadding(new Insets(3, 10, 3, 10));
+
+        // Set status based on payment status
+        String paymentStatus = commande.getPaymentStatus() != null ? commande.getPaymentStatus() : "paid";
+        if (paymentStatus.equals("paid")) {
+            statusLabel.setText("Payée");
+            statusLabel.setStyle("-fx-background-color: #dcfce7; -fx-text-fill: #166534; " +
+                    "-fx-background-radius: 20; -fx-font-size: 12; -fx-font-weight: bold;");
+        } else if (paymentStatus.equals("pending")) {
+            statusLabel.setText("En attente");
+            statusLabel.setStyle("-fx-background-color: #fef3c7; -fx-text-fill: #92400e; " +
+                    "-fx-background-radius: 20; -fx-font-size: 12; -fx-font-weight: bold;");
+        } else {
+            statusLabel.setText("Non payée");
+            statusLabel.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #b91c1c; " +
+                    "-fx-background-radius: 20; -fx-font-size: 12; -fx-font-weight: bold;");
+        }
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        headerBox.getChildren().addAll(orderIdLabel, statusLabel, spacer);
+
+        // Customer info section
+        HBox customerInfoBox = new HBox(20);
+        customerInfoBox.setAlignment(Pos.CENTER_LEFT);
+
+        // Customer icon
+        Region userIcon = new Region();
+        userIcon.setPrefSize(40, 40);
+        userIcon.setStyle("-fx-background-color: #eff6ff; -fx-background-radius: 20; " +
+                "-fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';");
+
+        // Customer details
+        VBox customerDetailsBox = new VBox(5);
+        Label nameLabel = new Label(commande.getNom() + " " + commande.getPrenom());
+        nameLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
+
+        Label emailLabel = new Label(commande.getEmail());
+        emailLabel.setStyle("-fx-text-fill: #64748b;");
+
+        Label phoneLabel = new Label("Tél: " + commande.getPhone_number());
+        phoneLabel.setStyle("-fx-text-fill: #64748b;");
+
+        customerDetailsBox.getChildren().addAll(nameLabel, emailLabel, phoneLabel);
+        customerInfoBox.getChildren().addAll(userIcon, customerDetailsBox);
+
+        // Address section
+        VBox addressBox = new VBox(5);
+        Label addressTitleLabel = new Label("Adresse de livraison");
+        addressTitleLabel.setFont(Font.font("System", FontWeight.BOLD, 13));
+        addressTitleLabel.setStyle("-fx-text-fill: #475569;");
+
+        Label addressLabel = new Label(commande.getAdresse());
+        addressLabel.setStyle("-fx-text-fill: #64748b; -fx-wrap-text: true;");
+        addressLabel.setMaxWidth(300);
+
+        addressBox.getChildren().addAll(addressTitleLabel, addressLabel);
+
+        // Add a separator
+        Separator separator = new Separator();
+        separator.setStyle("-fx-background-color: #e2e8f0;");
+
+        // Content box with customer info and address
+        VBox contentBox = new VBox(15);
+        contentBox.getChildren().addAll(customerInfoBox, new Separator(), addressBox);
+
+        // Footer with action buttons
+        HBox footerBox = new HBox(10);
+        footerBox.setAlignment(Pos.CENTER_RIGHT);
+
+
+
+        // Add button icons
+        try {
+
+        } catch (Exception e) {
+            System.out.println("Could not load button icons: " + e.getMessage());
+        }
+
+
+
+
+
+        // Add all sections to the card
+        cardContainer.getChildren().addAll(headerBox, contentBox, footerBox);
+
+        return cardContainer;
+    }
+
+    private void editCommande(Commande commande) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/back/EditCommande.fxml"));
+            Parent root = loader.load();
+
+            EditCommandeController controller = loader.getController();
+            controller.initData(commande);
+
+            Stage stage = new Stage();
+            stage.setTitle("Modifier la commande");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            // Refresh the list after editing
+            refreshCommandesList();
+
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'ouvrir la fenêtre de modification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteCommande(Commande commande) {
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Confirmation de suppression");
+        confirmDialog.setHeaderText("Êtes-vous sûr de vouloir supprimer cette commande ?");
+        confirmDialog.setContentText("Cette action ne peut pas être annulée.");
+
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                cs.removeProduit(commande);
+                refreshCommandesList();
+                showAlert(Alert.AlertType.INFORMATION, "Succès", "Commande supprimée avec succès");
+            } catch (Exception e) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la suppression: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -86,6 +275,7 @@ public class ShowCommandeController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
     private void handleCommandeRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showCommande.fxml"));
@@ -98,6 +288,7 @@ public class ShowCommandeController implements Initializable {
             e.printStackTrace();
         }
     }
+
     private void handleSuiviRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_suivi_back.fxml"));
@@ -110,6 +301,7 @@ public class ShowCommandeController implements Initializable {
             e.printStackTrace();
         }
     }
+
     private void handleHistoriqueRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_historique_back.fxml"));
@@ -122,18 +314,20 @@ public class ShowCommandeController implements Initializable {
             e.printStackTrace();
         }
     }
+
     private void handleeventRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/listevent.fxml"));
-            Stage stage = (Stage) tablesButton.getScene().getWindow();
+            Stage stage = (Stage) eventButton.getScene().getWindow();
             Scene tableScene = new Scene(tableRoot);
             stage.setScene(tableScene);
             stage.show();
         } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
+            showErrorDialog("Erreur", "Impossible de charger la page des événements: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     private void handleTablesRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showProduit.fxml"));
@@ -146,6 +340,7 @@ public class ShowCommandeController implements Initializable {
             e.printStackTrace();
         }
     }
+
     private void handleAcceuilRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/AdminDashboard.fxml"));
@@ -154,110 +349,15 @@ public class ShowCommandeController implements Initializable {
             stage.setScene(tableScene);
             stage.show();
         } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page d'acceuil': " + e.getMessage());
+            showErrorDialog("Erreur", "Impossible de charger la page d'accueil: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    private void setupListViewCellFactory() {
-        // Your existing cell factory code - unchanged
-        listview.setCellFactory(lv -> new ListCell<Commande>() {
-            private final HBox container = new HBox();
-            private final Label idLabel = new Label();
-            private final Label nomLabel = new Label();
-            private final Label prenomLabel = new Label();
-            private final Label emailLabel = new Label();
-            private final Label adresseLabel = new Label();
-            private final Label phoneLabel = new Label();
-
-            private final Button viewButton = new Button();
-            private final Button editButton = new Button();
-            private final Button deleteButton = new Button();
-            private final HBox actionsContainer = new HBox(10);
-
-            {
-                // Configure layout and styling
-                container.setStyle("-fx-background-color: white; -fx-border-color: #e9ecef; -fx-border-width: 0 0 1 0;");
-                container.setPrefHeight(60);
-
-                // Configure each column with proper alignment
-                idLabel.setPrefWidth(70);
-                idLabel.setStyle("-fx-padding: 10; -fx-font-size: 13;");
-
-                nomLabel.setPrefWidth(120);
-                nomLabel.setStyle("-fx-padding: 10; -fx-font-size: 13;");
-                nomLabel.setMaxWidth(120);
-                nomLabel.setWrapText(true);
-
-                prenomLabel.setPrefWidth(120);
-                prenomLabel.setStyle("-fx-padding: 10; -fx-font-size: 13;");
-                prenomLabel.setMaxWidth(120);
-                prenomLabel.setWrapText(true);
-
-                emailLabel.setPrefWidth(180);
-                emailLabel.setStyle("-fx-padding: 10; -fx-font-size: 13;");
-                emailLabel.setMaxWidth(180);
-                emailLabel.setWrapText(true);
-
-                adresseLabel.setPrefWidth(200);
-                adresseLabel.setStyle("-fx-padding: 10; -fx-font-size: 13;");
-                adresseLabel.setMaxWidth(200);
-                adresseLabel.setWrapText(true);
-
-                phoneLabel.setPrefWidth(150);
-                phoneLabel.setStyle("-fx-padding: 10; -fx-font-size: 13;");
-
-
-
-                // Add buttons to container with proper spacing
-                actionsContainer.setPrefWidth(150);
-                actionsContainer.setStyle("-fx-padding: 10; -fx-alignment: center;");
-
-                // Add all components to the main container
-                container.getChildren().addAll(
-                        idLabel,
-                        nomLabel,
-                        prenomLabel,
-                        emailLabel,
-                        adresseLabel,
-                        phoneLabel
-                );
-
-
-            }
-
-            @Override
-            protected void updateItem(Commande commande, boolean empty) {
-                super.updateItem(commande, empty);
-
-                if (empty || commande == null) {
-                    setGraphic(null);
-                } else {
-                    // Set values
-                    idLabel.setText(String.valueOf(commande.getId()));
-                    nomLabel.setText(commande.getNom());
-                    prenomLabel.setText(commande.getPrenom());
-                    emailLabel.setText(commande.getEmail());
-                    adresseLabel.setText(commande.getAdresse());
-                    phoneLabel.setText(String.valueOf(commande.getPhone_number()));
-
-                    // Alternating row colors
-                    if (getIndex() % 2 == 0) {
-                        container.setStyle("-fx-background-color: white; -fx-border-color: #e9ecef; -fx-border-width: 0 0 1 0;");
-                    } else {
-                        container.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #e9ecef; -fx-border-width: 0 0 1 0;");
-                    }
-
-                    setGraphic(container);
-                }
-            }
-        });
-    }
 
     private void showCommandeDetails(Commande commande) {
-        // Your existing showCommandeDetails method - unchanged
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Order Details");
-        alert.setHeaderText("Order #" + commande.getId());
+        alert.setTitle("Détails de la Commande");
+        alert.setHeaderText("Commande #" + commande.getId());
 
         // Style the alert dialog
         DialogPane dialogPane = alert.getDialogPane();
@@ -266,11 +366,11 @@ public class ShowCommandeController implements Initializable {
 
         // Create content
         String content = String.format(
-                "Customer Information:\n\n" +
-                        "Name: %s %s\n" +
+                "Informations Client:\n\n" +
+                        "Nom: %s %s\n" +
                         "Email: %s\n" +
-                        "Address: %s\n" +
-                        "Phone Number: %d",
+                        "Adresse: %s\n" +
+                        "Téléphone: %d",
                 commande.getNom(),
                 commande.getPrenom(),
                 commande.getEmail(),
@@ -293,20 +393,13 @@ public class ShowCommandeController implements Initializable {
         // Ensure alert is centered on the screen
         Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
         alertStage.setOnShown(e -> {
-            Stage parentStage = (Stage) listview.getScene().getWindow();
+            Stage parentStage = (Stage) cardsContainer.getScene().getWindow();
             alertStage.setX(parentStage.getX() + (parentStage.getWidth() - alertStage.getWidth()) / 2);
             alertStage.setY(parentStage.getY() + (parentStage.getHeight() - alertStage.getHeight()) / 2);
         });
 
         alert.showAndWait();
     }
-
-    private void refreshCommandesList() {
-        List<Commande> commandes = cs.showProduit();
-        ObservableList<Commande> observableList = FXCollections.observableArrayList(commandes);
-        listview.setItems(observableList);
-    }
-
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);

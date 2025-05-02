@@ -144,3 +144,10 @@
     -fx-background-color: transparent;
     -fx-text-fill: #333333;
 }
+.profile-image {
+     -fx-border-radius: 50%;
+     -fx-background-radius: 50%;
+     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 0);
+     -fx-border-color: #cccccc;
+     -fx-border-width: 2;
+ }

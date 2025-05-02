@@ -22,19 +22,22 @@ public class AdminRegistrationController extends BaseRegistrationController {
     @Override
     protected void handleRegistration() {
         try {
-            // Get base user information
-            var baseUser = collectBaseUserInfo();
+            // Validate fields
+            if (!validateBaseFields()) {
+                messageLabel.setText("Veuillez corriger les erreurs dans le formulaire.");
+                messageLabel.setStyle("-fx-text-fill: red;");
+                return;
+            }
 
-            // Create Patient object
-            Admin admin = new Admin(
-                    baseUser.getId(),
-                    baseUser.getNom(),
-                    baseUser.getPrenom(),
-                    baseUser.getEmail(),
-                    baseUser.getMotDePasse(),
-                    baseUser.getDateNaissance(),
-                    baseUser.getTelephone()
-            );
+            // Check if email exists
+            if (adminService.findByEmail(emailField.getText().trim()) != null) {
+                messageLabel.setText("Cet email est déjà utilisé.");
+                messageLabel.setStyle("-fx-text-fill: red;");
+                return;
+            }
+
+            // Create Admin object
+            Admin admin = createAdminFromFields();
 
             // Save to database
             adminService.add(admin);
@@ -54,9 +57,29 @@ public class AdminRegistrationController extends BaseRegistrationController {
             });
             pause.play();
         } catch (IllegalStateException e) {
-            // Show error message
             messageLabel.setText("Registration failed: " + e.getMessage());
             messageLabel.setStyle("-fx-text-fill: red;");
+        }
+    }
+
+    private Admin createAdminFromFields() throws IllegalStateException {
+        try {
+            var baseUser = collectBaseUserInfo();
+            Admin admin = new Admin(
+                    baseUser.getNom(),
+                    baseUser.getPrenom(),
+                    baseUser.getEmail(),
+                    baseUser.getMotDePasse(),
+                    baseUser.getDateNaissance(),
+                    baseUser.getTelephone()
+            );
+            admin.setImage(null); // Ensure image is null
+            admin.setRole("admin"); // Ensure role is set
+            return admin;
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalStateException("Erreur lors de la création de l'admin : " + e.getMessage());
         }
     }
 }

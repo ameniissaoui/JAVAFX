@@ -97,12 +97,18 @@
 
 /* Google Button */
 .btn-google {
+    -fx-alignment: center;
     -fx-background-color: white;
-    -fx-border-color: rgba(0, 0, 0, 0.1);
+    -fx-border-color: #db4437;
     -fx-border-radius: 8px;
+    -fx-text-fill: #db4437;
     -fx-background-radius: 8px;
+    -fx-font-size: 16px;
     -fx-padding: 10px 15px;
     -fx-cursor: hand;
+    -fx-translate-x: 0;
+    -fx-alignment: center;
+    -fx-max-width: infinity;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 2, 0, 0, 0);
 }
 
@@ -189,4 +195,19 @@
 
 .close-button:hover {
     -fx-text-fill: #664d03;
+}
+.alert-message {
+    -fx-font-size: 14px;
+    -fx-text-fill: #d63031; /* Default to danger color */
+}
+.alert-message.success {
+    -fx-text-fill: #155724;
+}
+.alert-message.warning {
+    -fx-text-fill: #856404;
+}
+.face-image-view {
+    -fx-border-color: #005C99;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
 }

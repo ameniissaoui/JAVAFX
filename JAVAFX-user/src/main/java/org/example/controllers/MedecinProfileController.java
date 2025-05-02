@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,7 +11,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.scene.control.Alert;
 import org.example.models.Medecin;
 import org.example.services.MedecinService;
 import org.example.util.SessionManager;
@@ -31,107 +34,216 @@ public class MedecinProfileController extends BaseProfileController {
     @FXML private Label diplomaPathLabel;
     @FXML private ImageView diplomaImageView;
     @FXML private Label specialiteErrorLabel;
-
-    // New fields for the updated design
-    @FXML private ImageView profileImageView;
-    @FXML private Label fullNameLabel;
-    @FXML private Label nomDisplayLabel;
-    @FXML private Label prenomDisplayLabel;
-    @FXML private Label emailDisplayLabel;
-    @FXML private Label telephoneDisplayLabel;
-    @FXML private Label dateNaissanceDisplayLabel;
     @FXML private Button downloadDiplomaButton;
+    @FXML private Label cartCountLabel;
+    @FXML private Label cartCountLabel1;
 
     private final MedecinService medecinService = new MedecinService();
     private File selectedDiplomaFile;
     private Medecin currentMedecin;
 
+    @FXML
+    void initialize() {
+        // Initialize any necessary components
+        updateCartCount();
+
+        // Maximize the stage when the view is loaded
+        javafx.application.Platform.runLater(() -> {
+            if (cartCountLabel != null && cartCountLabel.getScene() != null) {
+                Stage stage = (Stage) cartCountLabel.getScene().getWindow();
+                maximizeStage(stage);
+            }
+        });
+    }
+
+    private void maximizeStage(Stage stage) {
+        double screenWidth = Screen.getPrimary().getBounds().getWidth();
+        double screenHeight = Screen.getPrimary().getBounds().getHeight();
+        stage.setMaximized(true);
+        stage.setWidth(screenWidth);
+        stage.setHeight(screenHeight);
+    }
+
+    private void updateCartCount() {
+        // This would typically fetch the cart count from a service
+        // For now, just set it to 0
+        if (cartCountLabel != null) {
+            cartCountLabel.setText("0");
+        }
+        if (cartCountLabel1 != null) {
+            cartCountLabel1.setText("0");
+        }
+    }
+
+    // Navigation methods from SuccessController
+    @FXML
+    void navigateToHome() {
+        navigateTo("/fxml/front/home.fxml");
+    }
+
+    @FXML
+    void navigateToHistoriques() {
+        navigateTo("/fxml/historiques.fxml");
+    }
+
+    @FXML
+    void redirectToDemande() {
+        navigateTo("/fxml/DemandeDashboard.fxml");
+    }
+
+    @FXML
+    void redirectToRendezVous() {
+        navigateTo("/fxml/rendez-vous-view.fxml");
+    }
+
+    @FXML
+    void redirectProduit() {
+        navigateTo("/fxml/front/showProduit.fxml");
+    }
+
+    @FXML
+    void navigateToTraitement() {
+        navigateTo("/fxml/traitement.fxml");
+    }
+
+    @FXML
+    void viewDoctors() {
+        navigateTo("/fxml/DoctorList.fxml");
+    }
+
+    @FXML
+    void navigateToContact() {
+        navigateTo("/fxml/front/contact.fxml");
+    }
+
+    @FXML
+    void navigateToProfile() {
+        navigateTo("/fxml/front/profile.fxml");
+    }
+
+    @FXML
+    void navigateToFavorites() {
+        navigateTo("/fxml/front/favoris.fxml");
+    }
+
+    @FXML
+    void commande() {
+        navigateTo("/fxml/front/showCartItem.fxml");
+    }
+
+    @FXML
+    void navigateToCommandes() {
+        navigateTo("/fxml/front/ShowCommande.fxml");
+    }
+
+    @FXML
+    void navigateToShop() {
+        navigateTo("/fxml/front/showCartItem.fxml");
+    }
+
+    // Helper method for navigation
+    private void navigateTo(String fxmlPath) {
+        try {
+            System.out.println("Attempting to navigate to " + fxmlPath);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            if (loader.getLocation() == null) {
+                throw new IOException(fxmlPath + " resource not found");
+            }
+            Parent root = loader.load();
+
+            // Get the current stage
+            Stage stage = null;
+            if (cartCountLabel != null && cartCountLabel.getScene() != null) {
+                stage = (Stage) cartCountLabel.getScene().getWindow();
+            } else if (cartCountLabel1 != null && cartCountLabel1.getScene() != null) {
+                stage = (Stage) cartCountLabel1.getScene().getWindow();
+            }
+
+            if (stage == null) {
+                throw new RuntimeException("Cannot get current stage");
+            }
+
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            maximizeStage(stage);
+            stage.show();
+            System.out.println("Successfully navigated to " + fxmlPath);
+        } catch (IOException e) {
+            System.err.println("Error loading " + fxmlPath + ": " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Error navigating to page", e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error during navigation: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Unexpected Error", "An unexpected error occurred", e.getMessage());
+        }
+    }
+
+    private void showAlert(Alert.AlertType alertType, String title, String header, String content) {
+        javafx.application.Platform.runLater(() -> {
+            Alert alert = new Alert(alertType);
+            alert.setTitle(title);
+            alert.setHeaderText(header);
+            alert.setContentText(content);
+            alert.showAndWait();
+        });
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        super.initialize(url, resourceBundle);
-        System.out.println("Initializing MedecinProfileController...");
-
-        // Try to load default profile image
-        try {
-            Image defaultProfileImage = new Image(getClass().getResourceAsStream("/images/default-profile.png"));
-            if (profileImageView != null) {
-                profileImageView.setImage(defaultProfileImage);
-            }
-        } catch (Exception e) {
-            System.err.println("Could not load default profile image: " + e.getMessage());
+        if (!SessionManager.getInstance().isLoggedIn() || !SessionManager.getInstance().isMedecin()) {
+            showMessage("Erreur: Accès non autorisé", "danger");
+            handleLogout();
+            return;
         }
+
+        Medecin medecin = SessionManager.getInstance().getCurrentMedecin();
+        if (medecin != null) {
+            currentMedecin = medecin;
+            currentUser = medecin;
+            loadUserData();
+            loadMedecinData();
+        }
+
+        setUserService();
+        super.initialize(url, resourceBundle);
+
+        // Initialize cart count
+        updateCartCount();
+    }
+
+    @Override
+    protected void setUserService() {
+        this.userService = medecinService;
     }
 
     public void setMedecin(Medecin medecin) {
         this.currentMedecin = medecin;
-        // Call setUser from parent class to handle common fields
         super.setUser(medecin, "medecin");
-        // Load medecin-specific data
         loadMedecinData();
+        setUserService();
     }
 
     private void loadMedecinData() {
         if (currentMedecin != null) {
-            // Set editable fields
             specialiteField.setText(currentMedecin.getSpecialite());
-            //usernameField.setText(currentUser.getNom());
 
-            // Set display labels for overview tab
-            String nom = currentUser.getNom();
-            String prenom = currentUser.getPrenom();
-
-            nomDisplayLabel.setText(nom);
-            prenomDisplayLabel.setText(prenom);
-            emailDisplayLabel.setText(currentUser.getEmail());
-            telephoneDisplayLabel.setText(currentUser.getTelephone());
-
-            // Format date for display
-            if (currentUser.getDateNaissance() != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                dateNaissanceDisplayLabel.setText(sdf.format(currentUser.getDateNaissance()));
-            }
-
-            // Set full name in profile card
-            fullNameLabel.setText(prenom + " " + nom);
-
-            // Load diploma info
             String diplomaPath = currentMedecin.getDiploma();
             if (diplomaPath != null && !diplomaPath.isEmpty()) {
                 diplomaPathLabel.setText(Paths.get(diplomaPath).getFileName().toString());
 
-                // Try to load the diploma preview if it's an image
                 try {
                     if (diplomaPath.toLowerCase().endsWith(".png") ||
                             diplomaPath.toLowerCase().endsWith(".jpg") ||
                             diplomaPath.toLowerCase().endsWith(".jpeg")) {
-
                         Image diplomaImage = new Image(new File(diplomaPath).toURI().toString());
                         diplomaImageView.setImage(diplomaImage);
                     } else {
-                        // If it's a PDF, try to show a PDF icon
-                        try {
-                            Image pdfIcon = new Image(getClass().getResourceAsStream("/images/pdf-icon.png"));
-                            diplomaImageView.setImage(pdfIcon);
-                        } catch (Exception e) {
-                            System.err.println("PDF icon not found: " + e.getMessage());
-                        }
+                        Image pdfIcon = new Image(getClass().getResourceAsStream("/images/pdf-icon.png"));
+                        diplomaImageView.setImage(pdfIcon);
                     }
                 } catch (Exception e) {
                     System.err.println("Error loading diploma image: " + e.getMessage());
-                }
-            }
-
-            // Try to load user profile picture if available
-            String profilePicturePath = currentMedecin.getDiploma();
-            if (profilePicturePath != null && !profilePicturePath.isEmpty() && profileImageView != null) {
-                try {
-                    File profilePictureFile = new File(profilePicturePath);
-                    if (profilePictureFile.exists()) {
-                        Image profileImage = new Image(profilePictureFile.toURI().toString());
-                        profileImageView.setImage(profileImage);
-                    }
-                } catch (Exception e) {
-                    System.err.println("Error loading profile picture: " + e.getMessage());
                 }
             }
         }
@@ -141,32 +253,25 @@ public class MedecinProfileController extends BaseProfileController {
     public void handleBrowseDiploma() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Sélectionner votre diplôme");
-
-        // Set extension filters
         FileChooser.ExtensionFilter pdfFilter =
                 new FileChooser.ExtensionFilter("Documents PDF (*.pdf)", "*.pdf");
         FileChooser.ExtensionFilter imageFilter =
                 new FileChooser.ExtensionFilter("Images (*.png, *.jpg, *.jpeg)", "*.png", "*.jpg", "*.jpeg");
         fileChooser.getExtensionFilters().addAll(pdfFilter, imageFilter);
 
-        // Show open file dialog
         File file = fileChooser.showOpenDialog(specialiteField.getScene().getWindow());
-
         if (file != null) {
-            // Check file size (max 5MB)
             long fileSize = file.length();
-            long maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            long maxSize = 5 * 1024 * 1024;
 
             if (fileSize > maxSize) {
                 showMessage("Le fichier est trop volumineux (max 5MB)", "danger");
                 return;
             }
 
-            // Update the UI
             selectedDiplomaFile = file;
             diplomaPathLabel.setText(file.getName());
 
-            // Preview the image if possible
             if (file.getName().toLowerCase().endsWith(".png") ||
                     file.getName().toLowerCase().endsWith(".jpg") ||
                     file.getName().toLowerCase().endsWith(".jpeg")) {
@@ -177,7 +282,6 @@ public class MedecinProfileController extends BaseProfileController {
                     System.err.println("Error loading preview: " + e.getMessage());
                 }
             } else {
-                // If it's a PDF, show a PDF icon
                 try {
                     Image pdfIcon = new Image(getClass().getResourceAsStream("/images/pdf-icon.png"));
                     diplomaImageView.setImage(pdfIcon);
@@ -192,14 +296,12 @@ public class MedecinProfileController extends BaseProfileController {
     protected boolean validateFields() {
         boolean baseFieldsValid = super.validateFields();
         boolean medecinFieldsValid = validateMedecinFields();
-
         return baseFieldsValid && medecinFieldsValid;
     }
 
     private boolean validateMedecinFields() {
         boolean isValid = true;
 
-        // Validate specialite field
         if (specialiteField.getText() == null || specialiteField.getText().trim().isEmpty()) {
             specialiteField.setStyle("-fx-border-color: red;");
             if (specialiteErrorLabel != null) {
@@ -223,7 +325,6 @@ public class MedecinProfileController extends BaseProfileController {
         if (currentMedecin != null) {
             currentMedecin.setSpecialite(specialiteField.getText().trim());
 
-            // Update diploma path if a new file was selected
             if (selectedDiplomaFile != null) {
                 try {
                     String diplomaPath = saveDiplomaFile();
@@ -241,10 +342,8 @@ public class MedecinProfileController extends BaseProfileController {
         if (currentMedecin != null) {
             try {
                 medecinService.update(currentMedecin);
-
-                // Update the Overview tab display labels after saving
+                SessionManager.getInstance().setCurrentUser(currentMedecin, "medecin");
                 updateDisplayLabels();
-
                 showMessage("Profil médecin mis à jour avec succès", "success");
             } catch (Exception e) {
                 showMessage("Erreur lors de la mise à jour du profil: " + e.getMessage(), "danger");
@@ -258,18 +357,15 @@ public class MedecinProfileController extends BaseProfileController {
             return currentMedecin.getDiploma();
         }
 
-        // Create directory if it doesn't exist
         Path uploadDir = Paths.get("uploads", "diplomas");
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
 
-        // Generate a unique filename to avoid conflicts
         String originalFilename = selectedDiplomaFile.getName();
         String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
         String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
 
-        // Save the file to the uploads directory
         Path targetPath = uploadDir.resolve(uniqueFilename);
         Files.copy(selectedDiplomaFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -280,7 +376,6 @@ public class MedecinProfileController extends BaseProfileController {
     private void showDiplomaDetails() {
         if (currentMedecin != null && currentMedecin.getDiploma() != null) {
             try {
-                // Try to open the file with the default system application
                 File diplomaFile = new File(currentMedecin.getDiploma());
                 if (diplomaFile.exists()) {
                     java.awt.Desktop.getDesktop().open(diplomaFile);
@@ -296,135 +391,13 @@ public class MedecinProfileController extends BaseProfileController {
         }
     }
 
-    // Method to handle profile picture upload
-    @FXML
-    private void handleUploadProfilePicture() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Sélectionner une photo de profil");
-
-        // Set extension filters for images
-        FileChooser.ExtensionFilter imageFilter =
-                new FileChooser.ExtensionFilter("Images (*.png, *.jpg, *.jpeg)", "*.png", "*.jpg", "*.jpeg");
-        fileChooser.getExtensionFilters().add(imageFilter);
-
-        // Show open file dialog
-        File file = fileChooser.showOpenDialog(profileImageView.getScene().getWindow());
-
-        if (file != null) {
-            // Check file size (max 2MB)
-            long fileSize = file.length();
-            long maxSize = 2 * 1024 * 1024; // 2MB in bytes
-
-            if (fileSize > maxSize) {
-                showMessage("La photo est trop volumineuse (max 2MB)", "danger");
-                return;
-            }
-
-            try {
-                // Create upload directory if it doesn't exist
-                Path uploadDir = Paths.get("uploads", "profiles");
-                if (!Files.exists(uploadDir)) {
-                    Files.createDirectories(uploadDir);
-                }
-
-                // Generate a unique filename
-                String originalFilename = file.getName();
-                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-
-                // Save the file
-                Path targetPath = uploadDir.resolve(uniqueFilename);
-                Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-                // Update the model
-                currentMedecin.setDiploma(targetPath.toString());
-
-                // Update the UI
-                Image profileImage = new Image(file.toURI().toString());
-                profileImageView.setImage(profileImage);
-
-                showMessage("Photo de profil mise à jour", "success");
-            } catch (IOException e) {
-                showMessage("Erreur lors de l'enregistrement de la photo: " + e.getMessage(), "danger");
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Navigate to the recommendations page
-     */
     @FXML
     private void navigateToRecommendations() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MedecinRecommendations.fxml"));
-            Parent root = loader.load();
-
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) fullNameLabel.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            showMessage("Erreur de Navigation: " + e.getMessage(), "danger");
-            e.printStackTrace();
-        }
+        navigateTo("/fxml/MedecinRecommendations.fxml");
     }
 
-    /**
-     * Navigate to the planning page
-     */
     @FXML
     private void navigateToPlanning() {
-        try {
-            // Set the current user in session manager
-            if (currentMedecin != null) {
-                SessionManager.getInstance().setCurrentUser(currentMedecin, "medecin");
-
-                // Load the planning view
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/planning-view.fxml"));
-                Parent root = loader.load();
-
-                // Get the controller
-                PlanningViewController controller = loader.getController();
-
-                // Create new scene and show it
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) fullNameLabel.getScene().getWindow();
-                stage.setScene(scene);
-                stage.show();
-            } else {
-                showMessage("Vous devez être connecté pour accéder à cette page.", "danger");
-            }
-        } catch (IOException e) {
-            showMessage("Erreur de Navigation: " + e.getMessage(), "danger");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Navigate to products page
-     */
-    @FXML
-    public void redirectProduit(javafx.event.ActionEvent event) {
-        try {
-            if (currentMedecin != null) {
-                SessionManager.getInstance().setCurrentUser(currentMedecin, "medecin");
-
-                // Load the product view
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/produitview.fxml"));
-                Parent root = loader.load();
-
-                // Create new scene and show it
-                Scene scene = new Scene(root);
-                Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-                stage.setScene(scene);
-                stage.show();
-            } else {
-                showMessage("Vous devez être connecté pour accéder à cette page.", "danger");
-            }
-        } catch (IOException e) {
-            showMessage("Erreur de Navigation: " + e.getMessage(), "danger");
-            e.printStackTrace();
-        }
+        navigateTo("/fxml/planning-view.fxml");
     }
 }
