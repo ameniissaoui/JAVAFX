@@ -1,0 +1,169 @@
+/* modern-table.css */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-padding: 0; /* Ensure no padding around the table */
+    -fx-table-cell-border-color: transparent;
+}
+/* Header styling */
+.table-view .column-header-background {
+    -fx-background-color: white;
+    -fx-padding: 0 -1 0 0; /* Remove right padding */
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0;
+    -fx-background-insets: 0;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: white;
+    -fx-size: 45px;
+    -fx-border-width: 0;
+    -fx-padding: 0 15 0 15;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #64748b;
+    -fx-font-weight: bold;
+    -fx-padding: 10 15;
+    -fx-alignment: CENTER_LEFT;
+    -fx-wrap-text: true;
+}
+
+/* Center align specific columns */
+#typeColumn .label,
+#actionsColumn .label {
+    -fx-alignment: CENTER;
+}
+
+/* Table row styling */
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: #f1f5f9;
+    -fx-border-width: 0 0 1 0;
+    -fx-table-cell-border-color: transparent;
+    -fx-padding: 0;
+    -fx-cell-size: 45px;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: white;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #334155;
+}
+
+/* Cell styling */
+.table-cell {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 15;
+    -fx-text-fill: #334155;
+    -fx-border-width: 0;
+    -fx-wrap-text: true;
+}
+
+/* Specific column alignments */
+#typeColumn .table-cell,
+#actionsColumn .table-cell {
+    -fx-alignment: CENTER;
+}
+
+/* ID column styling */
+.id-column {
+    -fx-alignment: CENTER_LEFT;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: bold;
+}
+
+/* Role styling for different user types */
+.role-cell {
+    -fx-background-radius: 4px;
+    -fx-padding: 5 10;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+    -fx-min-width: 80px;
+}
+
+.role-admin {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #92400e;
+}
+
+.role-medecin {
+    -fx-background-color: #e0f2fe;
+    -fx-text-fill: #0369a1;
+}
+
+.role-patient {
+    -fx-background-color: #dcfce7;
+    -fx-text-fill: #166534;
+}
+
+/* Action buttons container */
+.actions-container {
+    -fx-alignment: CENTER;
+    -fx-spacing: 5;
+    -fx-padding: 0;
+}
+
+/* Icon button styling */
+.action-btn {
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+    -fx-padding: 5;
+    -fx-content-display: graphic-only;
+    -fx-pref-width: 30px;
+    -fx-pref-height: 30px;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+}
+
+.edit-btn {
+    -fx-background-color: #3b82f6;
+}
+
+.edit-btn:hover {
+    -fx-background-color: #2563eb;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 2);
+}
+
+.delete-btn {
+    -fx-background-color: #ef4444;
+}
+
+.delete-btn:hover {
+    -fx-background-color: #dc2626;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 2);
+}
+
+/* Scrollbar styling */
+.table-view .scroll-bar:horizontal,
+.table-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.table-view .scroll-bar:horizontal .track,
+.table-view .scroll-bar:vertical .track {
+    -fx-background-color: #f1f5f9;
+    -fx-border-color: transparent;
+    -fx-background-radius: 2px;
+}
+
+.table-view .scroll-bar:horizontal .thumb,
+.table-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #cbd5e1;
+    -fx-background-radius: 2px;
+}
+
+/* Empty table placeholder */
+.table-view .placeholder .label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 14px;
+    -fx-padding: 20px;
+}
