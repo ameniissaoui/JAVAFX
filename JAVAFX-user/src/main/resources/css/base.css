@@ -1,0 +1,34 @@
+/* General styles */
+.root {
+    -fx-font-family: "Roboto", sans-serif;
+}
+
+/* Hyperlinks */
+.hyperlink {
+    -fx-text-fill: #30b4b4;
+    -fx-font-size: 14px;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #2a9d9d;
+    -fx-underline: true;
+}
+
+/* Buttons */
+.button {
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #2a9d9d;
+}
+
+/* Service boxes */
+.service-box {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.service-box:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}

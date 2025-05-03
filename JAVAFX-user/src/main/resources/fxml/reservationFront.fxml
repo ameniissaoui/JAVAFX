@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<?import javafx.scene.text.Font?>
+<BorderPane prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #f8f9fa;"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.controllers.reservationFrontController">
+
+    <style>
+        /* Styles généraux */
+        .root {
+        -fx-font-family: 'Segoe UI', Arial, sans-serif;
+        -fx-background-color: #f8f9fa;
+        }
+
+        /* Styles pour la barre de navigation */
+        .top-nav-bar {
+        -fx-background-color: white;
+        -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 4, 0, 0, 4);
+        -fx-padding: 10px;
+        }
+
+        .nav-button {
+        -fx-background-color: transparent;
+        -fx-text-fill: #6c757d;
+        -fx-font-size: 13px;
+        -fx-font-weight: bold;
+        -fx-padding: 5px 10px;
+        -fx-cursor: hand;
+        }
+
+        .nav-button:hover {
+        -fx-text-fill: #3fbbc0;
+        }
+
+        .profile-button {
+        -fx-background-color: #3fbbc0;
+        -fx-text-fill: white;
+        -fx-font-weight: bold;
+        -fx-padding: 8px 15px;
+        -fx-background-radius: 20;
+        -fx-cursor: hand;
+        }
+
+        .profile-button:hover {
+        -fx-background-color: #319a9e;
+        }
+
+        /* Styles pour les cartes de réservation */
+        .reservation-card {
+        -fx-background-color: white;
+        -fx-background-radius: 10px;
+        -fx-border-radius: 10px;
+        -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 10);
+        -fx-padding: 15px;
+        }
+
+        /* Styles pour les boutons d'action */
+        .btn-modifier {
+        -fx-background-color: #43ACD1;
+        -fx-text-fill: white;
+        -fx-background-radius: 5;
+        -fx-cursor: hand;
+        }
+
+        .btn-modifier:hover {
+        -fx-background-color: #3899ba;
+        }
+
+        .btn-supprimer {
+        -fx-background-color: #ff6b6b;
+        -fx-text-fill: white;
+        -fx-background-radius: 5;
+        -fx-cursor: hand;
+        }
+
+        .btn-supprimer:hover {
+        -fx-background-color: #e06060;
+        }
+
+        .btn-pdf {
+        -fx-background-color: #2ecc71;
+        -fx-text-fill: white;
+        -fx-background-radius: 5;
+        -fx-cursor: hand;
+        }
+
+        .btn-pdf:hover {
+        -fx-background-color: #27ae60;
+        }
+
+        .btn-qrcode {
+        -fx-background-color: #9b59b6;
+        -fx-text-fill: white;
+        -fx-background-radius: 5;
+        -fx-cursor: hand;
+        }
+
+        .btn-qrcode:hover {
+        -fx-background-color: #8e44ad;
+        }
+
+        /* Styles pour le champ de recherche */
+        .search-field {
+        -fx-background-radius: 20;
+        -fx-border-radius: 20;
+        -fx-font-size: 14px;
+        -fx-padding: 10px;
+        }
+
+        /* Styles pour le ScrollPane */
+        .scroll-pane {
+        -fx-background-color: transparent;
+        -fx-background: transparent;
+        }
+
+        .scroll-pane > .viewport {
+        -fx-background-color: transparent;
+        }
+
+        .flow-pane {
+        -fx-background-color: transparent;
+        }
+    </style>
+
+
+    <top>
+        <!-- Fixed Header Section -->
+        <VBox spacing="0">
+            <!-- Top Bar -->
+            <HBox alignment="CENTER" prefHeight="40.0" style="-fx-background-color: #30b4b4;">
+                <HBox alignment="CENTER_LEFT" prefWidth="600.0" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 0 0 0 20;" text="Lundi- Samedi, 8h à 22h" />
+                </HBox>
+                <HBox alignment="CENTER_RIGHT" minHeight="35.0" prefWidth="600.0" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 0 20 0 0;" text="Appelez-nous maintenant +1 5589 55488 55" />
+                </HBox>
+            </HBox>
+            <HBox prefHeight="80.0" style="-fx-background-color: white; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;">
+                <children>
+                    <!-- Logo on the Left -->
+                    <ImageView fitHeight="78.0" fitWidth="198.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/logo.png" />
+                        </image>
+                        <HBox.margin>
+                            <Insets left="20.0" />
+                        </HBox.margin>
+                    </ImageView>
+                    <!-- Navigation Buttons (Centered) -->
+                    <HBox alignment="CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <children>
+                            <Button fx:id="homeButton" onAction="#navigateToHome" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="ACCUEIL">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                            <Button fx:id="historique" onAction="#navigateToHistoriques" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="HISTORIQUES">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                            <Button fx:id="demandeButton" onAction="#redirectToDemande" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="DEMANDE">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                            <Button fx:id="rendezVousButton" onAction="#redirectToRendezVous" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="RENDEZ-VOUS">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                            <Button fx:id="produitButton" onAction="#redirectProduit" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="PRODUIT">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                            <Button fx:id="traitementButton" onAction="#navigateToTraitement" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="TRAITEMENT">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                            <Button fx:id="medecinButton" onAction="#viewDoctors" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="MÉDECIN">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                            <Button fx:id="eventButton" onAction="#navigateToEvent" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="Evenement">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                            <Button fx:id="reservationButton" onAction="#navigateToReservation" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="Reservation">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                            <Button fx:id="contactButton" onAction="#navigateToContact" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="CONTACT">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                            </Button>
+                        </children>
+                    </HBox>
+                    <!-- Profile and Cart Count (Right) -->
+                    <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <children>
+                            <Button fx:id="profileButton" onAction="#navigateToProfile" prefHeight="30.0" prefWidth="91.0" style="-fx-background-color: #30b4b4; -fx-text-fill: white; -fx-background-radius: 20;" text="Mon Profil">
+                                <font>
+                                    <Font size="14.0" />
+                                </font>
+                                <HBox.margin>
+                                    <Insets right="10.0" />
+                                </HBox.margin>
+                            </Button>
+                            <StackPane styleClass="cart-icon-wrapper">
+                                <children>
+                                    <StackPane styleClass="cart-count-wrapper" translateX="12.0" translateY="-12.0">
+                                        <children>
+                                            <Label fx:id="cartCountLabel1" style="-fx-font-weight: bold;" text="0" textFill="WHITE">
+                                                <font>
+                                                    <Font size="10.0" />
+                                                </font>
+                                            </Label>
+                                        </children>
+                                    </StackPane>
+                                </children>
+                                <HBox.margin>
+                                    <Insets right="20.0" />
+                                </HBox.margin>
+                            </StackPane>
+                        </children>
+                    </HBox>
+                    <!-- Icons (Far Right) -->
+                    <HBox alignment="CENTER_RIGHT" prefWidth="250.0" spacing="15.0" style="-fx-padding: 0 20 0 0;">
+                        <children>
+                            <StackPane />
+                            <StackPane />
+                        </children>
+                    </HBox>
+                </children>
+            </HBox>
+        </VBox>
+    </top>
+
+
+    <!-- Contenu principal -->
+    <center>
+        <VBox alignment="CENTER" spacing="20" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="6.0">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
+
+            <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3fbbc0;" text="Gestion des Réservations" />
+
+            <HBox alignment="CENTER" maxWidth="600" spacing="10">
+                <TextField fx:id="searchField" styleClass="search-field" promptText="Rechercher par nom ou email (tapez pour filtrer)"
+                           style="-fx-font-size: 14px; -fx-padding: 10px; -fx-pref-width: 400px; -fx-background-radius: 20; -fx-border-radius: 20;" />
+            </HBox>
+
+            <!-- Conteneur pour les cartes -->
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="scroll-pane">
+                <FlowPane fx:id="cardsContainer" hgap="20" vgap="20" alignment="CENTER" styleClass="flow-pane">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10" />
+                    </padding>
+                </FlowPane>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

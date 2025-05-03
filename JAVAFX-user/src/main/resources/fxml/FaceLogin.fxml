@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.FaceLoginController">
+    <center>
+        <VBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Face Recognition Login" textAlignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                <VBox fx:id="alertBox" alignment="CENTER_LEFT" spacing="5.0" style="-fx-background-color: #fee8e7; -fx-border-color: #fdd6d3; -fx-padding: 10; -fx-background-radius: 5; -fx-border-radius: 5;">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <children>
+                                <Label fx:id="alertIcon" text="❌" />
+                                <Label fx:id="messageLabel" text="Error message goes here" wrapText="true" />
+                                <Button mnemonicParsing="false" onAction="#closeAlert" style="-fx-background-color: transparent;" text="×">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <ImageView fx:id="cameraView" fitHeight="300.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
+                <Label fx:id="statusLabel" text="Click 'Start Camera' to begin" />
+                <HBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <Button fx:id="startCameraButton" mnemonicParsing="false" onAction="#startCamera" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Start Camera" />
+                        <Button fx:id="captureButton" mnemonicParsing="false" onAction="#captureAndAuthenticate" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Capture" />
+                    </children>
+                </HBox>
+                <Button mnemonicParsing="false" onAction="#backToLogin" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: #f0f0f0;" text="Back to Login" />
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+        </VBox>
+    </center>
+</BorderPane>
