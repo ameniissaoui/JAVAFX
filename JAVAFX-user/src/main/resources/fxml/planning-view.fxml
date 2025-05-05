@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.controllers.PlanningViewController"
+            prefHeight="600.0" prefWidth="900.0"
+            style="-fx-background-color: #f8f9fa;">
+
+    <top>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Label text="Planning du Médecin" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                <Label fx:id="medecinNameLabel" style="-fx-font-size: 16px; -fx-font-style: italic; -fx-text-fill: #6c757d;"/>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#returnToProfile" text="Retour au profil" 
+                        style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="10">
+            <padding>
+                <Insets left="20" right="20" bottom="10"/>
+            </padding>
+            <TableView fx:id="planningTable" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 5;">
+                <columns>
+                    <TableColumn fx:id="colJour" text="Jour" prefWidth="200"/>
+                    <TableColumn fx:id="colHeureDebut" text="Heure de début" prefWidth="200"/>
+                    <TableColumn fx:id="colHeureFin" text="Heure de fin" prefWidth="200"/>
+                    <TableColumn fx:id="colActions" text="Actions" prefWidth="250"/>
+                </columns>
+                <placeholder>
+                    <Label text="Aucun planning disponible" style="-fx-font-style: italic; -fx-text-fill: #6c757d;"/>
+                </placeholder>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                </columnResizePolicy>
+            </TableView>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="10" right="20" bottom="20" left="20"/>
+            </padding>
+            <Button fx:id="btnAjouter" text="Ajouter un planning"
+                    style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 15;">
+                <graphic>
+                    <Label text="+" style="-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 14;"/>
+                </graphic>
+            </Button>
+        </HBox>
+    </bottom>
+</BorderPane>
