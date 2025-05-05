@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.ShowCommandeController">
+
+    <!-- Top section with header and navigation -->
+    <top>
+        <!-- Header with logo, notifications, and user profile -->
+        <VBox>
+            <!-- Main header with logo and user controls -->
+            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0; -fx-padding: 0 15;">
+                <!-- Logo -->
+                <HBox alignment="CENTER_LEFT" spacing="5">
+                    <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
+                        <Image url="@/images/logo.png" />
+                    </ImageView>
+                </HBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- User controls -->
+                <HBox alignment="CENTER_RIGHT" spacing="15">
+                    <!-- Notification icon -->
+                    <Button style="-fx-background-color: transparent;">
+                        <graphic>
+                            <Region prefHeight="20" prefWidth="20" style="-fx-background-color: #64748b; -fx-shape: 'M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z';" />
+                        </graphic>
+                    </Button>
+
+                    <!-- Messages icon -->
+                    <Button style="-fx-background-color: transparent;">
+                        <graphic>
+                            <Region prefHeight="20" prefWidth="20" style="-fx-background-color: #64748b; -fx-shape: 'M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z';" />
+                        </graphic>
+                    </Button>
+
+                    <!-- User profile button -->
+                    <Button style="-fx-background-color: transparent; -fx-padding: 0;">
+                        <graphic>
+                            <HBox alignment="CENTER" spacing="5">
+                                <Label style="-fx-text-fill: #334155;">
+                                    <font>
+                                        <Font name="System" size="14.0" />
+                                    </font>
+                                </Label>
+                            </HBox>
+                        </graphic>
+                    </Button>
+                </HBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Left sidebar with dashboard navigation -->
+    <left>
+        <VBox prefWidth="180" spacing="5" style="-fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0; -fx-padding: 15 10;">
+            <Button fx:id="acceuil" alignment="BASELINE_LEFT" prefWidth="160" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Accueil">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z';" />
+                </graphic>
+            </Button>
+
+            <Button fx:id="suivi" alignment="BASELINE_LEFT" prefWidth="160" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Suivies Médicales">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z';" />
+                </graphic>
+            </Button>
+            <Button fx:id="historique" alignment="BASELINE_LEFT" prefWidth="160" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Historiques">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z';" />
+                </graphic>
+            </Button>
+            <Button fx:id="buttoncommande" alignment="BASELINE_LEFT" prefWidth="160" style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 5; -fx-padding: 10 15;" text="Commande">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #3b82f6; -fx-shape: 'M4 18h17v-6H4v6zM4 5v6h17V5H4z';" />
+                </graphic>
+            </Button>
+
+            <Button fx:id="tablesButton" alignment="BASELINE_LEFT" prefWidth="160" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Produit">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M4 18h17v-6H4v6zM4 5v6h17V5H4z';" />
+                </graphic>
+            </Button>
+
+            <Button fx:id="eventButton" alignment="BASELINE_LEFT" prefWidth="160" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Evenement">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z';" />
+                </graphic>
+            </Button>
+            <Button fx:id="reservationButton" alignment="BASELINE_LEFT" prefWidth="160" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="reservations">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z';" />
+                </graphic>
+            </Button>
+
+            <Label style="-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-padding: 15 0 5 5;" text="PAGES" />
+
+            <Button fx:id="profileButton" alignment="BASELINE_LEFT" prefWidth="160" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Profile">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
+                </graphic>
+            </Button>
+
+            <Button alignment="BASELINE_LEFT" prefWidth="160" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Register">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z';" />
+                </graphic>
+            </Button>
+        </VBox>
+    </left>
+
+    <!-- Main content area with order cards -->
+    <center>
+        <AnchorPane style="-fx-background-color: #f6f9ff;" BorderPane.alignment="CENTER">
+            <!-- Page title and actions -->
+            <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="20.0" spacing="10" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                <Label style="-fx-font-size: 22; -fx-font-weight: bold;" text="Liste des Commandes" textFill="#3b82f6">
+                    <graphic>
+                        <Region prefHeight="24" prefWidth="24" style="-fx-background-color: #3b82f6; -fx-shape: 'M4 18h17v-6H4v6zM4 5v6h17V5H4z';" />
+                    </graphic>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+            </HBox>
+
+            <!-- Card view container - CHANGED to vertical scrolling -->
+            <ScrollPane fitToWidth="true" layoutX="20.0" layoutY="70.0" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="70.0">
+            <content>
+                <VBox fx:id="cardsContainer" spacing="15" style="-fx-background-color: transparent;">
+                    <padding>
+                        <Insets bottom="5" left="5" right="5" top="5" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+        </AnchorPane>
+    </center>
+</BorderPane>

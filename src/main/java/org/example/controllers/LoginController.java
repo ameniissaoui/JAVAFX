@@ -1,0 +1,324 @@
+package org.example.controllers;
+
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import org.example.ChronoSernaApp;
+import org.example.models.Admin;
+import org.example.models.Medecin;
+import org.example.models.Patient;
+import org.example.models.User;
+import org.example.services.*;
+import org.example.util.SessionManager;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class LoginController implements Initializable {
+
+    @FXML private TextField nomField;
+    @FXML private TextField emailField;
+    @FXML private PasswordField passwordField;
+    @FXML private Label messageLabel;
+    @FXML private VBox alertBox;
+    @FXML private Label alertIcon;
+    @FXML private CheckBox rememberMeCheckbox;
+    @FXML private Button googleSignInButton;
+
+    private Preferences prefs;
+    private final String PREF_EMAIL = "savedEmail";
+    private final String PREF_PASSWORD = "savedPassword";
+    private final String PREF_REMEMBER = "rememberMe";
+    private final String SECRET_KEY = "ChronoSerena2025";
+
+    private final GoogleAuthService googleAuthService = new GoogleAuthService();
+    private final UserService<? extends User> userService = new PatientService(); // Fix applied here
+    @FXML private Button faceLoginButton; // New button for face login
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        Platform.runLater(() -> {
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setMaximized(true);
+        });
+        alertBox.setManaged(false);
+        alertBox.setVisible(false);
+        prefs = Preferences.userNodeForPackage(LoginController.class);
+        boolean remembered = prefs.getBoolean(PREF_REMEMBER, false);
+        if (remembered) {
+            String savedEmail = prefs.get(PREF_EMAIL, "");
+            String savedPassword = decrypt(prefs.get(PREF_PASSWORD, ""));
+            emailField.setText(savedEmail);
+            passwordField.setText(savedPassword);
+            rememberMeCheckbox.setSelected(true);
+        }
+    }
+
+    private String encrypt(String data) {
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("danger", "Erreur de chiffrement");
+            return "";
+        }
+    }
+
+    private String decrypt(String encryptedData) {
+        try {
+            if (encryptedData.isEmpty()) return "";
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(encryptedData)), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    @FXML
+    private void handleLogin(ActionEvent event) {
+        String email = emailField.getText();
+        String password = passwordField.getText();
+        if (email == null || email.trim().isEmpty() || password == null || password.isEmpty()) {
+            showAlert("warning", "Veuillez saisir votre email et mot de passe");
+            return;
+        }
+
+        AdminService adminService = new AdminService();
+        Admin admin = adminService.findByEmail(email);
+        if (admin != null && adminService.verifyPassword(admin.getId(), password)) {
+            if (admin.isBanned()) {
+                showAlert("danger", "Votre compte a été suspendu. Veuillez contacter l'administrateur.");
+                return;
+            }
+            SessionManager.getInstance().setCurrentUser(admin, "admin");
+            navigateToProfile("admin", admin);
+            return;
+        }
+
+        MedecinService medecinService = new MedecinService();
+        Medecin medecin = medecinService.findByEmail(email);
+        if (medecin != null && medecinService.verifyPassword(medecin.getId(), password)) {
+            if (medecin.isBanned()) {
+                showAlert("danger", "Votre compte a été suspendu. Veuillez contacter l'administrateur.");
+                return;
+            }
+            if (!medecin.isIs_verified()) {
+                showAlert("warning", "Votre compte est en attente de vérification. Veuillez attendre que votre diplôme soit vérifié par un administrateur.");
+                return;
+            }
+            SessionManager.getInstance().setCurrentUser(medecin, "medecin");
+            navigateToProfile("medecin", medecin);
+            return;
+        }
+
+        PatientService patientService = new PatientService();
+        Patient patient = patientService.findByEmail(email);
+        if (patient != null && patientService.verifyPassword(patient.getId(), password)) {
+            if (patient.isBanned()) {
+                showAlert("danger", "Votre compte a été suspendu. Veuillez contacter l'administrateur.");
+                return;
+            }
+            SessionManager.getInstance().setCurrentUser(patient, "patient");
+            navigateToProfile("patient", patient);
+            return;
+        }
+
+        showAlert("danger", "Email ou mot de passe invalide");
+    }
+
+    @FXML
+    private void handleGoogleSignIn() {
+        try {
+            // Step 1: Initiate Google login and get authorization code
+            String authCode = googleAuthService.initiateLogin();
+            if (authCode == null) {
+                showAlert("danger", "Échec de l'authentification avec Google.");
+                return;
+            }
+
+            // Step 2: Exchange code for access token
+            String accessToken = googleAuthService.exchangeCodeForTokens(authCode);
+            if (accessToken == null) {
+                showAlert("danger", "Échec de la récupération des jetons Google.");
+                return;
+            }
+
+            // Step 3: Get user email
+            String email = googleAuthService.getUserEmail(accessToken);
+            if (email == null) {
+                showAlert("danger", "Échec de la récupération de l'email Google.");
+                return;
+            }
+
+            // Step 4: Store or retrieve user in database
+            User user = userService.getOrCreateUser(email, "patient");
+            if (user == null) {
+                showAlert("danger", "Échec de la création ou récupération de l'utilisateur.");
+                return;
+            }
+
+            // Step 5: Check if user is banned
+            if (user.isBanned()) {
+                showAlert("danger", "Votre compte a été suspendu. Veuillez contacter l'administrateur.");
+                return;
+            }
+
+            // Step 6: Set session and navigate to profile
+            SessionManager.getInstance().setCurrentUser(user, user.getRole().toLowerCase());
+            navigateToProfile(user.getRole().toLowerCase(), user);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("danger", "Erreur lors de la connexion avec Google: " + e.getMessage());
+        }
+    }
+
+    private void showAlert(String type, String message) {
+        alertBox.setManaged(true);
+        alertBox.setVisible(true);
+        messageLabel.setText(message);
+
+        switch (type) {
+            case "danger":
+                alertBox.setStyle("-fx-background-color: #fee8e7; -fx-border-color: #fdd6d3;");
+                messageLabel.setStyle("-fx-text-fill: #d63031;");
+                alertIcon.setText("❌");
+                break;
+            case "warning":
+                alertBox.setStyle("-fx-background-color: #fff3cd; -fx-border-color: #ffeeba;");
+                messageLabel.setStyle("-fx-text-fill: #856404;");
+                alertIcon.setText("⚠️");
+                break;
+            case "success":
+                alertBox.setStyle("-fx-background-color: #d4edda; -fx-border-color: #c3e6cb;");
+                messageLabel.setStyle("-fx-text-fill: #155724;");
+                alertIcon.setText("✅");
+                break;
+        }
+    }
+
+    @FXML
+    private void closeAlert() {
+        alertBox.setManaged(false);
+        alertBox.setVisible(false);
+    }
+
+    public void navigateToProfile(String userType, Object user) {
+        try {
+            // Save preferences if "Remember Me" is checked
+            if (rememberMeCheckbox.isSelected()) {
+                prefs.put(PREF_EMAIL, emailField.getText());
+                prefs.put(PREF_PASSWORD, encrypt(passwordField.getText()));
+                prefs.putBoolean(PREF_REMEMBER, true);
+            } else {
+                prefs.remove(PREF_EMAIL);
+                prefs.remove(PREF_PASSWORD);
+                prefs.putBoolean(PREF_REMEMBER, false);
+            }
+
+            // Determine the FXML path based on user type
+            String fxmlPath;
+            switch (userType) {
+                case "admin":
+                    fxmlPath = "/fxml/AdminDashboard.fxml";
+                    break;
+                case "medecin":
+                    fxmlPath = "/fxml/main_view_medecin.fxml";
+                    break;
+                case "patient":
+                    fxmlPath = "/fxml/main_view_patient.fxml";
+                    break;
+                default:
+                    showAlert("danger", "Type d'utilisateur non reconnu");
+                    return;
+            }
+            // Load the appropriate FXML
+            ReminderNotificationChecker.getInstance();
+
+            // Load the FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+
+            // Get the current stage
+            Stage stage = (Stage) emailField.getScene().getWindow();
+
+            // Create a new scene with screen dimensions
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
+
+            // Preserve stylesheets if needed
+            if (stage.getScene() != null && !stage.getScene().getStylesheets().isEmpty()) {
+                scene.getStylesheets().addAll(stage.getScene().getStylesheets());
+            }
+
+            // Set the new scene
+            stage.setScene(scene);
+
+            // Make sure it's maximized for full screen display
+            stage.setMaximized(true);
+
+            // Show the stage
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("danger", "Erreur lors de la navigation vers le profil");
+        }
+    }
+    @FXML
+    public void openRoleSelection(ActionEvent event) {
+        ChronoSernaApp app = new ChronoSernaApp();
+        SceneManager.loadScene("/fxml/RoleSelection.fxml", event);
+
+    }
+
+    @FXML
+    private void resetPassword() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/ResetPassword.fxml"));
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("danger", "Erreur lors de l'ouverture de la page de réinitialisation");
+        }
+    }
+
+    @FXML
+    private void handleFaceLogin() {
+        try {
+            // Load the face login screen
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/FaceLogin.fxml"));
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("danger", "Erreur lors de l'ouverture de la page de reconnaissance faciale: " + e.getMessage());
+        }
+    }
+}

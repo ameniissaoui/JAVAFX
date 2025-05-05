@@ -1,0 +1,101 @@
+/* Notification Styling */
+
+.notification-icon {
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+
+.notification-count-container {
+    -fx-background-color: #ff4444;
+    -fx-background-radius: 50%;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+    -fx-alignment: center;
+}
+
+.notification-count-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+}
+
+.notification-dropdown {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 5);
+    -fx-background-radius: 8px;
+    -fx-padding: 0;
+}
+
+.notification-header {
+    -fx-background-color: #3fbbc0;
+    -fx-background-radius: 8px 8px 0 0;
+    -fx-padding: 10px;
+}
+
+.notification-header-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.notification-list {
+    -fx-background-color: transparent;
+    -fx-padding: 5px;
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
+}
+
+.notification-item {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-padding: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.notification-item:hover {
+    -fx-background-color: #f5f5f5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);
+}
+
+.notification-item-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: #3fbbc0;
+}
+
+.notification-item-time {
+    -fx-font-size: 11px;
+    -fx-text-fill: #777;
+}
+
+.notification-item-description {
+    -fx-font-size: 12px;
+    -fx-wrap-text: true;
+}
+
+.notification-empty {
+    -fx-alignment: center;
+    -fx-padding: 30px;
+}
+
+.notification-empty-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #999;
+    -fx-font-style: italic;
+}
+
+.mark-all-read-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-border-color: white;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.mark-all-read-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}

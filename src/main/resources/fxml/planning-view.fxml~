@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import java.net.URL?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.controllers.PlanningViewController"
+            prefHeight="600.0" prefWidth="900.0"
+            style="-fx-background-color: #f8f9fa;">
+
+
+
+    <!-- EN-TÊTE -->
+    <top>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+            <Label text="Planning du Médecin"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+        </VBox>
+    </top>
+
+    <!-- CENTRE -->
+    <center>
+        <VBox spacing="10">
+            <padding>
+                <Insets left="20" right="20" bottom="10"/>
+            </padding>
+
+            <!-- Bouton exporter PDF -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Button fx:id="btnExporterPDF"
+                        text="📄 Exporter en PDF"
+<!--                        onAction="#handleExportPDF"-->
+                        style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 12;"/>
+            </HBox>
+
+            <!-- Liste des cartes Planning -->
+            <ListView fx:id="planningListView"
+                      VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-border-color: #dee2e6;
+                             -fx-border-radius: 5; -fx-background-radius: 5;">
+                <placeholder>
+                    <Label text="Aucun planning disponible"
+                           style="-fx-font-style: italic; -fx-text-fill: #6c757d;"/>
+                </placeholder>
+            </ListView>
+        </VBox>
+    </center>
+
+    <!-- BAS : Ajouter -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="10" right="20" bottom="20" left="20"/>
+            </padding>
+            <Button fx:id="btnAjouter"
+                    onAction="#handleAddPlanning"
+                    text="Ajouter un planning"
+                    style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 15;">
+                <graphic>
+                    <Label text="+" style="-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 14;"/>
+                </graphic>
+            </Button>
+        </HBox>
+    </bottom>
+</BorderPane>

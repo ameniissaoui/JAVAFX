@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" styleClass="root" stylesheets="@/css/profile-styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.PatientProfileController">    <!-- Top Navigation Bar -->
+    <top>
+        <VBox spacing="0">
+            <HBox alignment="CENTER" prefHeight="40.0" style="-fx-background-color: #30b4b4;">
+                <HBox alignment="CENTER_LEFT" prefWidth="600.0" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 0 0 0 20;" text="Lundi- Samedi, 8h à 22h" />
+                </HBox>
+                <HBox alignment="CENTER_RIGHT" minHeight="35.0" prefWidth="600.0" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 0 20 0 0;" text="Appelez-nous maintenant +216 28 236 733" />
+                </HBox>
+            </HBox>
+            <HBox prefHeight="80.0" style="-fx-background-color: white; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;">
+                <!-- Logo on the Left -->
+                <HBox alignment="CENTER_LEFT" HBox.hgrow="SOMETIMES" prefWidth="200.0">
+                    <ImageView fitHeight="78.0" fitWidth="198.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/logo.png" />
+                        </image>
+                        <HBox.margin>
+                            <Insets left="20.0" />
+                        </HBox.margin>
+                    </ImageView>
+                </HBox>
+                <!-- Navigation Buttons (Centered) -->
+                <HBox alignment="CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                    <Button onAction="#navigateToAcceuil" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="ACCUEIL">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button fx:id="evenementButton"
+                            onAction="#redirectToEvents"  style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="EVENEMENT">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+
+                    <Button  onAction="#redirectProduit" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="PRODUIT">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button fx:id="historique" onAction="#handleHistoRedirect" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="HISTORIQUES">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button   onAction="#redirectToCalendar" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="CALANDRIER">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button fx:id="demandeButton" onAction="#redirectToDemande" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="DEMANDE">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button fx:id="rendezVousButton" onAction="#redirectToRendezVous" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="RENDEZ-VOUS">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button  onAction="#viewDoctors" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="MÉDECIN">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <StackPane fx:id="notificationIconContainer">
+                        <Button fx:id="notificationButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#showNotifications" prefHeight="33.0" prefWidth="43.0" styleClass="nav-button-icon">
+                            <graphic>
+                                <Label style="-fx-font-size: 16px;" text="🔔" />
+                            </graphic>
+                        </Button>
+                        <StackPane fx:id="notificationCountContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="38.0" prefWidth="20.0" translateX="8.0" translateY="-8.0" visible="false" StackPane.alignment="TOP_RIGHT">
+                            <Circle fill="#ff4444" radius="10" />
+                            <Label fx:id="notificationCountLabel" style="-fx-font-size: 10px; -fx-font-weight: bold;" text="0" textFill="WHITE" />
+                        </StackPane>
+                    </StackPane>
+                    <padding>
+                        <Insets left="10.0" right="10.0" />
+                    </padding>
+                </HBox>
+                <!-- Profile and Cart Count (Right) -->
+                <HBox alignment="CENTER_RIGHT" HBox.hgrow="SOMETIMES" prefWidth="200.0">
+                    <!-- Sidebar Toggle Button -->
+                    <Button fx:id="sidebarToggleButton" onAction="#toggleSidebar" styleClass="sidebar-toggle-button" style="-fx-background-color: transparent;">
+                        <graphic>
+                            <Region prefHeight="24" prefWidth="24" style="-fx-background-color: #30b4b4; -fx-shape: 'M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z';" />
+                        </graphic>
+                        <HBox.margin>
+                            <Insets right="15.0" />
+                        </HBox.margin>
+                    </Button>
+                    <HBox alignment="CENTER_RIGHT" spacing="15">
+                        <Button text="Mon Profile" styleClass="profile-button" onAction="#handleProfileButtonClick" />
+                    </HBox>
+                    <StackPane styleClass="cart-icon-wrapper">
+                        <children>
+                            <StackPane styleClass="cart-count-wrapper" translateX="12.0" translateY="-12.0">
+                                <children>
+                                    <Label fx:id="cartCountLabel1" style="-fx-font-weight: bold;" text="0" textFill="WHITE">
+                                        <font>
+                                            <Font size="10.0" />
+                                        </font>
+                                    </Label>
+                                </children>
+                            </StackPane>
+                        </children>
+                        <HBox.margin>
+                            <Insets right="20.0" left="10.0" />
+                        </HBox.margin>
+                    </StackPane>
+                </HBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Add the sidebar to the left side of the BorderPane -->
+    <left>
+        <AnchorPane fx:id="sidebarContainer" visible="false" prefWidth="0" styleClass="sidebar-container" style="-fx-background-color: white; -fx-border-color: #f0f0f0; -fx-border-width: 0 1 0 0;">
+            <VBox spacing="10" styleClass="sidebar-content" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                <padding>
+                    <Insets top="20.0" right="10.0" bottom="20.0" left="10.0" />
+                </padding>
+                <Label text="Menu" styleClass="sidebar-header" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #30b4b4;">
+                    <VBox.margin>
+                        <Insets bottom="10.0" />
+                    </VBox.margin>
+                </Label>
+
+                <!-- Sidebar Buttons -->
+                <Button fx:id="mesHistoriquesButton" alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="sidebar-button" text="Mes Historiques">
+                    <graphic>
+                        <Label text="📋" />
+                    </graphic>
+                    <padding>
+                        <Insets bottom="10.0" left="15.0" top="10.0" />
+                    </padding>
+                </Button>
+
+                <Button fx:id="mesReservationsButton"
+                        onAction="#redirectToReservations"
+                        styleClass="sidebar-button"
+                        text="Mes Réservations"
+                        prefWidth="200.0"
+                        style="-fx-background-color: #30b4b4; -fx-text-fill: white; -fx-background-radius: 5;">
+
+                <graphic>
+                        <Region prefHeight="18" prefWidth="18" style="-fx-background-color: white; -fx-shape: 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z';" />
+                    </graphic>
+                    <padding>
+                        <Insets top="10.0" right="10.0" bottom="10.0" left="10.0" />
+                    </padding>
+                </Button>
+            </VBox>
+        </AnchorPane>
+    </left>
+
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="30.0" styleClass="modern-content-container" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="40.0" left="40.0" right="40.0" top="30.0" />
+            </padding>
+            <children>
+                <!-- Header with Title and Logout -->
+                <HBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                            <Label styleClass="modern-page-title" text="Mon Profile" textAlignment="CENTER">
+                                <font>
+                                    <Font name="System Bold" size="28.0" />
+                                </font>
+                            </Label>
+                            <Label styleClass="subtitle-text" text="Gérez vos informations personnelles" />
+                        </VBox>
+                        <Button mnemonicParsing="false" onAction="#handleLogout" styleClass="modern-logout-button" text="Déconnexion">
+                            <graphic>
+                                <Region prefHeight="16" prefWidth="16" styleClass="logout-icon" style="-fx-background-color: white; -fx-shape: 'M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z';" />
+                            </graphic>
+                        </Button>
+                    </children>
+                </HBox>
+
+                <!-- Main Content Area with Glass Effect -->
+                <HBox alignment="CENTER" spacing="30.0" styleClass="content-wrapper">
+                    <children>
+                        <!-- Profile Card -->
+                        <VBox alignment="TOP_CENTER" prefWidth="300.0" spacing="20.0" styleClass="modern-card,profile-card">
+                            <padding>
+                                <Insets bottom="30.0" left="25.0" right="25.0" top="30.0" />
+                            </padding>
+                            <children>
+                                <!-- Profile Picture with Gradient Border -->
+                                <StackPane alignment="CENTER" styleClass="profile-image-container">
+                                    <Circle fx:id="profileCircle" radius="70.0" styleClass="profile-circle-gradient" />
+                                    <ImageView fx:id="profileImageView" fitWidth="130.0" fitHeight="130.0" styleClass="modern-profile-image" />
+                                    <Button mnemonicParsing="false" onAction="#handleUploadProfilePicture" styleClass="edit-photo-button">
+                                        <graphic>
+                                            <Region prefHeight="16" prefWidth="16" style="-fx-background-color: white; -fx-shape: 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z';" />
+                                        </graphic>
+                                    </Button>
+                                </StackPane>
+
+                                <!-- Full Name Display -->
+                                <Label fx:id="fullNameLabel" styleClass="modern-profile-name">
+                                    <font>
+                                        <Font name="System Bold" size="22.0" />
+                                    </font>
+                                </Label>
+
+                                <!-- Role Badge -->
+                                <HBox alignment="CENTER" styleClass="role-badge-container">
+                                    <Label styleClass="modern-role-badge" text="Patient">
+                                        <graphic>
+                                            <Region prefHeight="14" prefWidth="14" style="-fx-background-color: white; -fx-shape: 'M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z';" />
+                                        </graphic>
+                                    </Label>
+                                </HBox>
+
+                            </children>
+                        </VBox>
+
+                        <!-- Tabs Container with Glass Effect -->
+                        <VBox styleClass="modern-card,tabs-container" HBox.hgrow="ALWAYS">
+                            <children>
+                                <!-- Modern Tab Navigation -->
+                                <TabPane styleClass="modern-tab-pane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                                    <tabs>
+                                        <!-- Overview Tab -->
+                                        <Tab text="Overview">
+                                            <graphic>
+                                                <Region prefHeight="18" prefWidth="18" styleClass="tab-icon-overview" style="-fx-background-color: #64748b; -fx-shape: 'M12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 10c2.7 0 5.8 1.29 6 2H6c.23-.72 3.31-2 6-2m0-12C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 10c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
+                                            </graphic>
+                                            <content>
+                                                <ScrollPane fitToWidth="true" styleClass="modern-scroll-pane">
+                                                    <VBox spacing="20.0" styleClass="modern-tab-content">
+                                                        <padding>
+                                                            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                                        </padding>
+                                                        <children>
+                                                            <Label styleClass="modern-section-title" text="Détail du profil">
+                                                                <graphic>
+                                                                    <Region prefHeight="16" prefWidth="16" styleClass="section-icon-profile" style="-fx-background-color: #38D1D1; -fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
+                                                                </graphic>
+                                                            </Label>
+
+                                                            <!-- Profile Details with Cards -->
+                                                            <HBox spacing="15.0">
+                                                                <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                                                                    <HBox styleClass="info-card">
+                                                                        <VBox spacing="5.0">
+                                                                            <Label styleClass="info-label" text="Nom" />
+                                                                            <Label fx:id="nomDisplayLabel" styleClass="info-value" />
+                                                                        </VBox>
+                                                                        <Region HBox.hgrow="ALWAYS" />
+                                                                        <Region prefHeight="18" prefWidth="18" styleClass="info-icon-name" style="-fx-background-color: #FF6B6B; -fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
+                                                                    </HBox>
+
+                                                                    <HBox styleClass="info-card">
+                                                                        <VBox spacing="5.0">
+                                                                            <Label styleClass="info-label" text="Email" />
+                                                                            <Label fx:id="emailDisplayLabel" styleClass="info-value" />
+                                                                        </VBox>
+                                                                        <Region HBox.hgrow="ALWAYS" />
+                                                                        <Region prefHeight="18" prefWidth="18" styleClass="info-icon-email" style="-fx-background-color: #4ECDC4; -fx-shape: 'M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z';" />
+                                                                    </HBox>
+
+                                                                    <HBox styleClass="info-card">
+                                                                        <VBox spacing="5.0">
+                                                                            <Label styleClass="info-label" text="Date de naissance" />
+                                                                            <Label fx:id="dateNaissanceDisplayLabel" styleClass="info-value" />
+                                                                        </VBox>
+                                                                        <Region HBox.hgrow="ALWAYS" />
+                                                                        <Region prefHeight="18" prefWidth="18" styleClass="info-icon-date" style="-fx-background-color: #FFD166; -fx-shape: 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z';" />
+                                                                    </HBox>
+                                                                </VBox>
+
+                                                                <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                                                                    <HBox styleClass="info-card">
+                                                                        <VBox spacing="5.0">
+                                                                            <Label styleClass="info-label" text="Prénom" />
+                                                                            <Label fx:id="prenomDisplayLabel" styleClass="info-value" />
+                                                                        </VBox>
+                                                                        <Region HBox.hgrow="ALWAYS" />
+                                                                        <Region prefHeight="18" prefWidth="18" styleClass="info-icon-firstname" style="-fx-background-color: #FF6B6B; -fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
+                                                                    </HBox>
+
+                                                                    <HBox styleClass="info-card">
+                                                                        <VBox spacing="5.0">
+                                                                            <Label styleClass="info-label" text="Téléphone" />
+                                                                            <Label fx:id="telephoneDisplayLabel" styleClass="info-value" />
+                                                                        </VBox>
+                                                                        <Region HBox.hgrow="ALWAYS" />
+                                                                        <Region prefHeight="18" prefWidth="18" styleClass="info-icon-phone" style="-fx-background-color: #06D6A0; -fx-shape: 'M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z';" />
+                                                                    </HBox>
+
+                                                                    <HBox styleClass="info-card">
+                                                                        <VBox spacing="5.0">
+                                                                            <Label styleClass="info-label" text="Statut" />
+                                                                            <Label text="Actif" styleClass="info-value" />
+                                                                        </VBox>
+                                                                        <Region HBox.hgrow="ALWAYS" />
+                                                                        <Region prefHeight="18" prefWidth="18" styleClass="info-icon-status" style="-fx-background-color: #06D6A0; -fx-shape: 'M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z';" />
+                                                                    </HBox>
+                                                                </VBox>
+                                                            </HBox>
+                                                        </children>
+                                                    </VBox>
+                                                </ScrollPane>
+                                            </content>
+                                        </Tab>
+
+                                        <!-- Modifier Tab -->
+                                        <Tab text="Modifier">
+                                            <graphic>
+                                                <Region prefHeight="18" prefWidth="18" styleClass="tab-icon-edit" style="-fx-background-color: #64748b; -fx-shape: 'M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z';" />
+                                            </graphic>
+                                            <content>
+                                                <ScrollPane fitToWidth="true" styleClass="modern-scroll-pane">
+                                                    <VBox spacing="20.0" styleClass="modern-tab-content">
+                                                        <padding>
+                                                            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                                        </padding>
+                                                        <children>
+                                                            <Label fx:id="messageLabel" alignment="CENTER" styleClass="modern-success-message" visible="false">
+                                                                <font>
+                                                                    <Font size="14.0" />
+                                                                </font>
+                                                            </Label>
+
+                                                            <!-- Modern Form Layout -->
+                                                            <HBox spacing="20.0">
+                                                                <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                                                                    <VBox styleClass="modern-form-group">
+                                                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                                                            <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #FF6B6B; -fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
+                                                                            <Label styleClass="modern-form-label" text="Nom" />
+                                                                        </HBox>
+                                                                        <TextField fx:id="nomField" styleClass="modern-text-field" />
+                                                                    </VBox>
+
+                                                                    <VBox styleClass="modern-form-group">
+                                                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                                                            <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #4ECDC4; -fx-shape: 'M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z';" />
+                                                                            <Label styleClass="modern-form-label" text="Email" />
+                                                                        </HBox>
+                                                                        <TextField fx:id="emailField" styleClass="modern-text-field" />
+                                                                    </VBox>
+
+                                                                    <VBox styleClass="modern-form-group">
+                                                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                                                            <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #FFD166; -fx-shape: 'M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z';" />
+                                                                            <Label styleClass="modern-form-label" text="Date de naissance" />
+                                                                        </HBox>
+                                                                        <DatePicker fx:id="dateNaissancePicker" styleClass="modern-date-picker" />
+                                                                    </VBox>
+                                                                </VBox>
+
+                                                                <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                                                                    <VBox styleClass="modern-form-group">
+                                                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                                                            <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #FF6B6B; -fx-shape: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z';" />
+                                                                            <Label styleClass="modern-form-label" text="Prénom" />
+                                                                        </HBox>
+                                                                        <TextField fx:id="prenomField" styleClass="modern-text-field" />
+                                                                    </VBox>
+
+                                                                    <VBox styleClass="modern-form-group">
+                                                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                                                            <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #06D6A0; -fx-shape: 'M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z';" />
+                                                                            <Label styleClass="modern-form-label" text="Téléphone" />
+                                                                        </HBox>
+                                                                        <TextField fx:id="telephoneField" styleClass="modern-text-field" />
+                                                                    </VBox>
+                                                                </VBox>
+                                                            </HBox>
+
+                                                            <HBox alignment="CENTER_RIGHT">
+                                                                <Button defaultButton="true" mnemonicParsing="false" onAction="#handleSave" styleClass="modern-primary-button" text="Enregistrer les modifications">
+                                                                    <graphic>
+                                                                        <Region prefHeight="16" prefWidth="16" style="-fx-background-color: white; -fx-shape: 'M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z';" />
+                                                                    </graphic>
+                                                                </Button>
+                                                            </HBox>
+                                                        </children>
+                                                    </VBox>
+                                                </ScrollPane>
+                                            </content>
+                                        </Tab>
+
+                                        <!-- Password Tab -->
+                                        <Tab text="Mot De Passe">
+                                            <graphic>
+                                                <Region prefHeight="18" prefWidth="18" styleClass="tab-icon-password" style="-fx-background-color: #64748b; -fx-shape: 'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z';" />
+                                            </graphic>
+                                            <content>
+                                                <ScrollPane fitToWidth="true" styleClass="modern-scroll-pane">
+                                                    <VBox spacing="20.0" styleClass="modern-tab-content">
+                                                        <padding>
+                                                            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                                                        </padding>
+                                                        <children>
+                                                            <Label styleClass="modern-section-title" text="Modifier votre mot de passe">
+                                                                <graphic>
+                                                                    <Region prefHeight="16" prefWidth="16" styleClass="section-icon-password" style="-fx-background-color: #F72585; -fx-shape: 'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z';" />
+                                                                </graphic>
+                                                            </Label>
+
+                                                            <Label fx:id="messageLabell" alignment="CENTER" styleClass="modern-message-label" visible="false">
+                                                                <font>
+                                                                    <Font size="14.0" />
+                                                                </font>
+                                                            </Label>
+
+                                                            <VBox spacing="15.0" styleClass="password-form-container">
+                                                                <VBox styleClass="modern-form-group">
+                                                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                                                        <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #7209B7; -fx-shape: 'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z';" />
+                                                                        <Label styleClass="modern-form-label" text="Mot de passe actuel" />
+                                                                    </HBox>
+                                                                    <PasswordField fx:id="currentPasswordField" styleClass="modern-text-field" promptText="Entrez votre mot de passe actuel" />
+                                                                </VBox>
+
+                                                                <VBox styleClass="modern-form-group">
+                                                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                                                        <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #4361EE; -fx-shape: 'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z';" />
+                                                                        <Label styleClass="modern-form-label" text="Nouveau mot de passe" />
+                                                                    </HBox>
+                                                                    <PasswordField fx:id="passwordField" styleClass="modern-text-field" promptText="Entrez votre nouveau mot de passe" />
+                                                                </VBox>
+
+                                                                <VBox styleClass="modern-form-group">
+                                                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                                                        <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #3A0CA3; -fx-shape: 'M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z';" />
+                                                                        <Label styleClass="modern-form-label" text="Confirmer le mot de passe" />
+                                                                    </HBox>
+                                                                    <PasswordField fx:id="confirmPasswordField" styleClass="modern-text-field" promptText="Confirmez votre nouveau mot de passe" />
+                                                                </VBox>
+
+                                                                <HBox alignment="CENTER_RIGHT">
+                                                                    <Button defaultButton="true" mnemonicParsing="false" onAction="#handleChangePassword" styleClass="modern-primary-button" text="Mettre à jour le mot de passe">
+                                                                        <graphic>
+                                                                            <Region prefHeight="16" prefWidth="16" style="-fx-background-color: white; -fx-shape: 'M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z';" />
+                                                                        </graphic>
+                                                                    </Button>
+                                                                </HBox>
+                                                            </VBox>
+                                                        </children>
+                                                    </VBox>
+                                                </ScrollPane>
+                                            </content>
+                                        </Tab>
+                                    </tabs>
+                                </TabPane>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,144 @@
+/* ChatBot Styling */
+
+.chat-bubble {
+    -fx-background-color: #4ECDC4;
+    -fx-background-radius: 30px;
+    -fx-min-width: 60px;
+    -fx-min-height: 60px;
+    -fx-max-width: 60px;
+    -fx-max-height: 60px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.chat-bubble:hover {
+    -fx-background-color: #3db6ad;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 3);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.chat-bubble .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 24px;
+    -fx-fill: white;
+}
+
+.chat-dialog {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);
+    -fx-padding: 10px;
+}
+
+.chat-header {
+    -fx-background-color: #4ECDC4;
+    -fx-background-radius: 10px 10px 0 0;
+    -fx-padding: 10px 15px;
+}
+
+.chat-header-text {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+/* Gemini powered badge */
+.gemini-badge {
+    -fx-background-color: #8e44ad;
+    -fx-background-radius: 20px;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 3px 8px;
+}
+
+.chat-close-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.chat-close-btn:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.chat-input-area {
+    -fx-background-color: #f5f5f5;
+    -fx-background-radius: 0 0 10px 10px;
+    -fx-padding: 10px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.chat-text-field {
+    -fx-background-color: white;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1px;
+    -fx-padding: 8px 15px;
+}
+
+.chat-send-btn {
+    -fx-background-color: #4ECDC4;
+    -fx-background-radius: 20px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.chat-send-btn:hover {
+    -fx-background-color: #3db6ad;
+}
+
+.chat-messages {
+    -fx-background-color: white;
+    -fx-padding: 10px;
+}
+
+.message-bubble {
+    -fx-background-radius: 15px;
+    -fx-padding: 10px 15px;
+    -fx-max-width: 280px;
+    -fx-wrap-text: true;
+}
+
+.user-message {
+    -fx-background-color: #4ECDC4;
+    -fx-text-fill: white;
+    -fx-background-radius: 15px 15px 0 15px;
+}
+
+.bot-message {
+    -fx-background-color: #f1f1f1;
+    -fx-background-radius: 15px 15px 15px 0;
+}
+
+.timestamp {
+    -fx-font-size: 10px;
+    -fx-text-fill: #999999;
+    -fx-padding: 2px 0 0 0;
+}
+
+.typing-indicator {
+    -fx-font-style: italic;
+    -fx-text-fill: #999999;
+    -fx-font-size: 12px;
+}
+
+/* Loading animation */
+.loading-dots {
+    -fx-background-color: #4ECDC4;
+    -fx-background-radius: 50%;
+    -fx-min-width: 8px;
+    -fx-min-height: 8px;
+    -fx-max-width: 8px;
+    -fx-max-height: 8px;
+    -fx-spacing: 4px;
+} 

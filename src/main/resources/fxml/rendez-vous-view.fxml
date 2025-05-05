@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.controllers.RendezVousViewController"
+            prefHeight="700.0" prefWidth="1000.0"
+            style="-fx-background-color: #f8f9fa;">
+
+    <!-- EN-TÊTE -->
+    <top>
+        <VBox spacing="5">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="btnRetour"
+                        text="⟵ Retour"
+                        style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 15;"/>
+                <Label text="Liste des Rendez-vous"
+                       style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #343a40;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- CENTRE -->
+    <center>
+        <VBox spacing="15">
+            <padding>
+                <Insets left="20" right="20" bottom="10"/>
+            </padding>
+
+            <!-- BARRE DE RECHERCHE -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="🔍 Rechercher :" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="txtRecherche"
+                           promptText="Tapez pour rechercher par date, statut, description..."
+                           prefWidth="300"
+                           style="-fx-padding: 6 10;"/>
+            </HBox>
+
+            <!-- LISTE DES RENDEZ-VOUS -->
+            <ListView fx:id="rendezVousListView"
+                      VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 5; -fx-background-radius: 5;">
+                <placeholder>
+                    <Label text="Aucun rendez-vous disponible"
+                           style="-fx-font-style: italic; -fx-text-fill: #6c757d;"/>
+                </placeholder>
+            </ListView>
+        </VBox>
+    </center>
+
+    <!-- BAS -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="10" right="20" bottom="20" left="20"/>
+            </padding>
+            <Button fx:id="btnAjouter"
+                    text="Créer un nouveau rendez-vous"
+                    style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 15;">
+                <graphic>
+                    <Label text="📝"
+                           style="-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 14;"/>
+                </graphic>
+            </Button>
+        </HBox>
+    </bottom>
+
+</BorderPane>
