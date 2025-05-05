@@ -1,0 +1,192 @@
+/* main.css */
+
+/* Root styles */
+.root {
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-background-color: white;
+}
+
+/* Header styles */
+.header {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+}
+
+.topbar {
+    -fx-background-color: #0194fe;
+    -fx-text-fill: white;
+}
+
+.topbar .label {
+    -fx-text-fill: white;
+}
+
+.topbar .icon {
+    -fx-font-size: 14px;
+}
+
+.branding {
+    -fx-background-color: white;
+    -fx-alignment: center-left;
+    -fx-spacing: 10;
+}
+
+.cta-btn {
+    -fx-background-color: #0194fe;
+    -fx-text-fill: white;
+    -fx-padding: 8 16;
+    -fx-background-radius: 25;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.cta-btn:hover {
+    -fx-background-color: #0177ca;
+}
+
+/* Hero section styles */
+.hero-section {
+    -fx-min-height: 500px;
+    -fx-pref-height: 500px;
+}
+
+.hero-content {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-padding: 30;
+    -fx-spacing: 20;
+}
+
+.hero-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.hero-text {
+    -fx-fill: white;
+    -fx-font-size: 16px;
+}
+
+.btn-get-started {
+    -fx-background-color: #0194fe;
+    -fx-text-fill: white;
+    -fx-padding: 10 20;
+    -fx-background-radius: 25;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.btn-get-started:hover {
+    -fx-background-color: #0177ca;
+}
+
+.carousel-control {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+    -fx-text-fill: white;
+    -fx-background-radius: 50%;
+    -fx-padding: 0 10;
+    -fx-font-size: 20px;
+    -fx-cursor: hand;
+}
+
+.carousel-control:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.5);
+}
+
+.carousel-indicators {
+    -fx-padding: 20 0 0 0;
+}
+
+.indicator {
+    -fx-background-color: white;
+    -fx-opacity: 0.5;
+    -fx-padding: 0;
+    -fx-background-radius: 50%;
+    -fx-min-width: 10px;
+    -fx-min-height: 10px;
+    -fx-max-width: 10px;
+    -fx-max-height: 10px;
+    -fx-cursor: hand;
+}
+
+.indicator:selected {
+    -fx-opacity: 1.0;
+}
+
+/* Main content styles */
+.main-scrollpane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.main-scrollpane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Footer styles */
+.footer {
+    -fx-background-color: #f7f9fb;
+    -fx-padding: 20;
+}
+
+.footer-top {
+    -fx-padding: 20;
+}
+
+.sitename {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0194fe;
+}
+
+.footer-contact {
+    -fx-padding: 10 0;
+}
+
+.social-links {
+    -fx-padding: 10 0;
+}
+
+.social-icon {
+    -fx-background-color: #0194fe;
+    -fx-text-fill: white;
+    -fx-background-radius: 50%;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+}
+
+.social-icon:hover {
+    -fx-background-color: #0177ca;
+}
+
+.footer-section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+}
+
+.footer-links {
+    -fx-spacing: 8;
+}
+
+.hyperlink {
+    -fx-text-fill: #555;
+    -fx-border-width: 0;
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #0194fe;
+}
+
+.copyright {
+    -fx-padding: 20 0;
+    -fx-border-color: transparent transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-style: solid;
+}
