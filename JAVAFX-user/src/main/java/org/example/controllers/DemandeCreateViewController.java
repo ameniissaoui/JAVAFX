@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
+import javafx.stage.Screen;
 import org.example.util.MainFX;
 import org.example.services.DemandeDAO;
 import javafx.collections.FXCollections;
@@ -28,6 +31,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
 import org.example.models.Demande;
 import org.example.util.SessionManager;
+import org.example.models.Patient;
 
 public class DemandeCreateViewController implements Initializable {
 
@@ -36,7 +40,8 @@ public class DemandeCreateViewController implements Initializable {
     
     @FXML
     private ToggleGroup repasToggleGroup;
-    
+    @FXML private Button historique; // Added missing Button declaration
+    @FXML private Button profileButton;
     @FXML
     private RadioButton repas1RadioButton;
     
@@ -145,7 +150,13 @@ public class DemandeCreateViewController implements Initializable {
         if (validateFields()) {
             try {
                 // Get patient ID from session
-                //int patientId = SessionManager.getCurrentPatientId();
+                Patient currentPatient = SessionManager.getInstance().getCurrentPatient();
+                if (currentPatient == null) {
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté", 
+                            "Vous devez être connecté en tant que patient pour créer une demande.");
+                    return;
+                }
+                int patientId = currentPatient.getId();
                 
                 // Create new Demande object from form data
                 Demande demande = new Demande();
@@ -191,9 +202,9 @@ public class DemandeCreateViewController implements Initializable {
                 }
                 
                 // Set the patient ID from the session
-               // demande.setPatient_id(patientId);
+                demande.setPatient_id(patientId);
                 
-                //System.out.println("Creating demande with patient ID: " + patientId);
+                System.out.println("Creating demande with patient ID: " + patientId);
                 
                 // Save the demande to the database
                 boolean saved = demandeDAO.insert(demande);
@@ -202,10 +213,10 @@ public class DemandeCreateViewController implements Initializable {
                     showAlert(Alert.AlertType.INFORMATION, "Succès", "Demande créée", "Votre demande a été créée avec succès !");
                     
                     // Navigate back to DemandeMyView
-                    navigateToDemandeMyView();
+                    navigateToDemandeMyView(event);
                 } else {
                    showAlert(Alert.AlertType.ERROR, "Erreur", "Échec de la création",
-                            "La demande n'a pas pu être créée. Veuillez vérifier que l'ID patient (" + //patientId +
+                            "La demande n'a pas pu être créée. Veuillez vérifier que l'ID patient (" + patientId +
                             ") existe dans la base de données utilisateur.");
                 }
             } catch (NumberFormatException e) {
@@ -222,7 +233,7 @@ public class DemandeCreateViewController implements Initializable {
     @FXML
     private void handleCancelButton(ActionEvent event) {
         // Navigate back to DemandeMyView without saving
-        navigateToDemandeMyView();
+        navigateToDemandeMyView(event);
     }
     
     @FXML
@@ -283,20 +294,8 @@ public class DemandeCreateViewController implements Initializable {
         return true;
     }
     
-    private void navigateToDemandeMyView() {
-        try {
-            // Load the DemandeMyView.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DemandeMyView.fxml"));
-            Parent root = loader.load();
-            
-            // Create new scene and show it
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) cancelButton.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de Navigation", "Impossible de revenir à la vue principale: " + e.getMessage());
-        }
+    private void navigateToDemandeMyView(ActionEvent event) {
+        SceneManager.loadScene("/fxml/DemandeMyView.fxml", event);
     }
     
     private void showAlert(Alert.AlertType type, String title, String header, String content) {
@@ -305,5 +304,129 @@ public class DemandeCreateViewController implements Initializable {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+    public void redirectToHistorique(ActionEvent event) {
+        try {
+            // Enhanced logging
+            System.out.println("Starting history redirect...");
+            System.out.println("SessionManager.isLoggedIn(): " + SessionManager.getInstance().isLoggedIn());
+            System.out.println("SessionManager.isPatient(): " + SessionManager.getInstance().isPatient());
+
+            // Check if user is logged in
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showErrorDialog("Erreur", "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Check if the user is a patient
+            if (!SessionManager.getInstance().isPatient()) {
+                showErrorDialog("Erreur", "Seuls les patients peuvent accéder à cette fonctionnalité.");
+                return;
+            }
+
+            // Get the patient from the session
+            Patient patient = SessionManager.getInstance().getCurrentPatient();
+            System.out.println("Patient from SessionManager: " + (patient != null ?
+                    "ID=" + patient.getId() + ", Nom=" + patient.getNom() : "NULL"));
+
+            if (patient == null) {
+                System.out.println("Error: SessionManager.getCurrentPatient() returned null!");
+                // Remove reference to non-existent currentUser variable
+                showErrorDialog("Erreur", "Impossible de récupérer les informations du patient.");
+                return;
+            }
+
+            // Load the historique page
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ajouter_historique.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller and pass the patient
+            AjouterHistController controller = loader.getController();
+            controller.setPatient(patient);
+            System.out.println("Patient passed to controller: ID=" + patient.getId() +
+                    ", Nom=" + patient.getNom() + ", Prénom=" + patient.getPrenom());
+
+            // Show the new scene with maximum size
+            Stage stage = (Stage) historique.getScene().getWindow();
+
+            // Get screen dimensions for maximum size
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
+
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+
+        } catch (IOException e) {
+            System.err.println("Error during navigation to historique: " + e.getMessage());
+            e.printStackTrace();
+            showErrorDialog("Erreur", "Impossible de charger la page d'ajout d'historique: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void navigateToAcceuil(ActionEvent event) {
+        SceneManager.loadScene("/fxml/main_view_patient.fxml", event);
+    }
+    @FXML
+    public void redirectToDemande(ActionEvent event) {
+        SceneManager.loadScene("/fxml/DemandeDashboard.fxml", event);
+    }
+
+    @FXML
+    public void redirectToRendezVous(ActionEvent event) {
+        SceneManager.loadScene("/fxml/rendez-vous-view.fxml", event);
+    }
+    @FXML
+    public void viewDoctors(ActionEvent event) {
+        try {
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
+                        "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Use SceneManager to load the DoctorList.fxml in full screen
+            SceneManager.loadScene("/fxml/DoctorList.fxml", event);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de Navigation",
+                    "Impossible d'ouvrir la page des médecins: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    public void navigateToEvent(ActionEvent event) {
+        SceneManager.loadScene("/fxml/eventFront.fxml", event);
+
+    }
+    private void showErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    @FXML
+    private void redirectProduit(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/showProduit.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur",
+                    "Erreur de navigation",
+                    "Impossible de charger la page des produits: " + e.getMessage());
+        }
+    }
+    @FXML
+    private void handleProfileButtonClick(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_profile.fxml", event);
+    }
+    @FXML
+    public void redirectToCalendar(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_calendar.fxml", event);
     }
 } 

@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,8 +11,11 @@ import javafx.scene.chart.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.example.services.StatisticsService;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.net.URL;
@@ -40,6 +44,12 @@ public class StatisticsController implements Initializable {
     @FXML private Button buttoncommande;
     @FXML private Button tablesButton;
     @FXML private Button eventButton;
+    private boolean statisticsMenuExpanded = false;
+    @FXML
+    private VBox statisticsSubmenu;
+
+    @FXML
+    private Button statisticsMenuButton;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         statisticsService = new StatisticsService();
@@ -51,10 +61,67 @@ public class StatisticsController implements Initializable {
         buttoncommande.setOnAction(event -> handleCommandeRedirect());
 
         // Link the profile button to its handler
-        profileButton.setOnAction(event -> handleProfileRedirect());
+        setupStatisticsMenuIcon();
 
     }
+    private void setupStatisticsMenuIcon() {
+        // Add a dropdown arrow icon to the statistics menu button
+        FontIcon arrowIcon = new FontIcon("fas-chevron-right");
+        arrowIcon.setIconSize(12);
+        arrowIcon.setIconColor(javafx.scene.paint.Color.valueOf("#64748b"));
 
+        // Add it to the button (assuming you have an HBox in the button to hold both icons)
+        statisticsMenuButton.setGraphic(new javafx.scene.layout.HBox(5,
+                new FontIcon("fas-chart-bar"), arrowIcon));
+    }
+    @FXML
+    public void toggleStatisticsMenu() {
+        // Toggle the visibility of the statistics submenu
+        statisticsMenuExpanded = !statisticsMenuExpanded;
+
+        // Update the arrow icon direction
+        FontIcon arrowIcon = statisticsMenuExpanded ?
+                new FontIcon("fas-chevron-down") : new FontIcon("fas-chevron-right");
+        arrowIcon.setIconSize(12);
+        arrowIcon.setIconColor(javafx.scene.paint.Color.valueOf("#64748b"));
+
+        // Create chart icon
+        FontIcon chartIcon = new FontIcon("fas-chart-bar");
+        chartIcon.setIconSize(16);
+        chartIcon.setIconColor(javafx.scene.paint.Color.valueOf("#64748b"));
+
+        // Update button graphics
+        statisticsMenuButton.setGraphic(new javafx.scene.layout.HBox(5, chartIcon, arrowIcon));
+
+        // Animate the submenu visibility
+        if (statisticsMenuExpanded) {
+            statisticsSubmenu.setVisible(true);
+            statisticsSubmenu.setManaged(true);
+
+            // Optional: add a slide-down animation
+            TranslateTransition tt = new TranslateTransition(Duration.millis(200), statisticsSubmenu);
+            tt.setFromY(-20);
+            tt.setToY(0);
+            tt.play();
+        } else {
+            // Optional: add a slide-up animation
+            TranslateTransition tt = new TranslateTransition(Duration.millis(200), statisticsSubmenu);
+            tt.setFromY(0);
+            tt.setToY(-20);
+            tt.setOnFinished(e -> {
+                statisticsSubmenu.setVisible(false);
+                statisticsSubmenu.setManaged(false);
+            });
+            tt.play();
+        }
+    }
+    @FXML
+    private void handleStatisticsCommandeRedirect(ActionEvent event) {
+        SceneManager.loadScene("/fxml/back/statistics.fxml", event);
+    }
+    @FXML private void acceuiRedirect(ActionEvent event) {
+        SceneManager.loadScene("/fxml/AdminDashboard.fxml", event);
+    }
     private void loadAllStatistics() {
         loadUserRoleDistribution();
         loadAgeDistribution();
@@ -168,30 +235,6 @@ public class StatisticsController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
-    private void handleSuiviRedirect() {
-        try {
-            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_suivi_back.fxml"));
-            Stage stage = (Stage) suivi.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
-            stage.setScene(tableScene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page des historiques: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    private void handleHistoriqueRedirect() {
-        try {
-            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_historique_back.fxml"));
-            Stage stage = (Stage) tablesButton.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
-            stage.setScene(tableScene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page des historiques: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
     private void handleeventRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/listevent.fxml"));
@@ -238,4 +281,29 @@ public class StatisticsController implements Initializable {
     private void handleDashboardRedirect(ActionEvent event) {
         SceneManager.loadScene("/fxml/AdminDashboard.fxml", event);
     }
+    private void handleSuiviRedirect() {
+        try {
+            // Use SceneManager to load the scene and ensure it displays maximized
+            SceneManager.loadScene("/fxml/liste_suivi_back.fxml", new ActionEvent(suivi, null));
+        } catch (Exception e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des suivis: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void handleHistoriqueRedirect() {
+        try {
+            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_historique_back.fxml"));
+            Stage stage = (Stage) tablesButton.getScene().getWindow();
+            Scene tableScene = new Scene(tableRoot);
+            stage.setScene(tableScene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des historiques: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    @FXML private void navigateToRegister(ActionEvent event) {
+        SceneManager.loadScene("/fxml/AdminRegistration.fxml", event);
+    }
+
 }

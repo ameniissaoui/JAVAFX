@@ -196,9 +196,4 @@ public class PatientService extends UserService<Patient> {
         }
         return null;
     }
-    // Add this method to your PatientService class
-    public Patient findById(int id) {
-        // This is just an alias for getOne to maintain compatibility
-        return getOne(id);
-    }
 }

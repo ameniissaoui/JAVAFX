@@ -113,7 +113,7 @@ public abstract class BaseProfileController implements Initializable {
         profileImageView.setPreserveRatio(false);
     }
 
-    private void showErrorDialog(String title, String message) {
+    void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -417,7 +417,7 @@ public abstract class BaseProfileController implements Initializable {
         }
     }
 
-    private void showAlert(String message, String type) {
+    void showAlert(String message, String type) {
         Alert alert = new Alert(type.equals("error") ? Alert.AlertType.ERROR : Alert.AlertType.INFORMATION);
         alert.setTitle(type.equals("error") ? "Erreur" : "Succès");
         alert.setHeaderText(null);
@@ -425,8 +425,7 @@ public abstract class BaseProfileController implements Initializable {
         alert.showAndWait();
     }
 
-    @FXML
-    protected void handleLogout() {
+    @FXML protected void handleLogout() {
         SessionManager.getInstance().clearSession();
 
         Preferences prefs = Preferences.userNodeForPackage(LoginController.class);

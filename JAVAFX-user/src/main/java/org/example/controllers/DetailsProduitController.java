@@ -93,6 +93,9 @@ public class DetailsProduitController {
     @FXML
     private Label cartCountLabel;
 
+    @FXML
+    private HBox navButtonsHBox;
+
     private Produit produit;
     private ProduitServices produitServices;
     private CartItemServices cartItemServices;
@@ -121,6 +124,8 @@ public class DetailsProduitController {
         javafx.application.Platform.runLater(() -> {
             Stage stage = (Stage) anchorPane.getScene().getWindow();
             maximizeStage(stage);
+            anchorPane.setUserData(this); // Set controller as userData for DynamicHeaderSetup
+            DynamicHeaderSetup.setupHeader(navButtonsHBox); // Initialize header buttons
         });
     }
 

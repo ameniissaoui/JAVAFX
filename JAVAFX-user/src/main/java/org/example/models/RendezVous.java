@@ -9,7 +9,8 @@ public class RendezVous {
     private LocalDateTime dateheure;
     private String statut;
     private String description;
-    private Planning planning; // Pour stocker les informations du planning associé
+    private Planning planning; // Association avec le planning
+    private String googleEventId; // Gestion Google Calendar, si besoin
 
     public RendezVous() {
     }
@@ -22,7 +23,8 @@ public class RendezVous {
         this.description = description;
     }
 
-    // Getters et Setters
+    // === Getters & Setters ===
+
     public int getId() {
         return id;
     }
@@ -71,7 +73,16 @@ public class RendezVous {
         this.planning = planning;
     }
 
-    // Méthodes utilitaires
+    public String getGoogleEventId() {
+        return googleEventId;
+    }
+
+    public void setGoogleEventId(String googleEventId) {
+        this.googleEventId = googleEventId;
+    }
+
+    // === Méthodes utilitaires ===
+
     public String getFormattedDateTime() {
         if (dateheure == null) return "";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -90,10 +101,10 @@ public class RendezVous {
         return dateheure.format(formatter);
     }
 
-    // Méthode pour obtenir les informations du planning associé
     public String getPlanningInfo() {
         if (planning == null) return "";
-        return planning.getJour() + "\n" + planning.getHeuredebut().format(DateTimeFormatter.ofPattern("HH:mm"))
-                + " - " + planning.getHeurefin().format(DateTimeFormatter.ofPattern("HH:mm"));
+        return planning.getJour() + "\n" +
+                planning.getHeuredebut().format(DateTimeFormatter.ofPattern("HH:mm")) + " - " +
+                planning.getHeurefin().format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 }

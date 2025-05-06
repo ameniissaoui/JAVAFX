@@ -392,6 +392,11 @@ public class AjouterSuivController {
         String sanitized = commentaire.replaceAll("<script[^>]*>.*?</script>", "");
         sanitized = sanitized.replaceAll(" {2,}", " ");
 
+        // Truncate to database column length
+        if (sanitized.length() > 255) {
+            sanitized = sanitized.substring(0, 255);
+        }
+
         if (!sanitized.isEmpty()) {
             sanitized = Character.toUpperCase(sanitized.charAt(0)) + sanitized.substring(1);
             if (!sanitized.matches(".*[.!?]$")) {

@@ -1,44 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import java.lang.String?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
+<VBox xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.controllers.AjouterRendezVousController"
-      prefHeight="550.0" prefWidth="550.0"
-      spacing="10"
-      style="-fx-background-color: white;">
-
+      prefHeight="650.0" prefWidth="600.0" spacing="20"
+      style="-fx-background-color: #f8f9fa;">
     <!-- En-tête stylisé -->
-    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #007bff; -fx-padding: 15;">
-        <Label text="📝" style="-fx-font-size: 24px; -fx-text-fill: white;"/>
-        <Label fx:id="headerLabel" text="Créer un nouveau rendez-vous" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #30b4b4; -fx-padding: 20;">
+        <Label text="📅" style="-fx-font-size: 28px; -fx-text-fill: white;"/>
+        <Label fx:id="headerLabel" text="Créer un nouveau rendez-vous"
+               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+        <effect>
+            <DropShadow height="10.0" radius="4.5" width="10.0">
+                <color>
+                    <Color opacity="0.2" />
+                </color>
+            </DropShadow>
+        </effect>
     </HBox>
 
     <!-- Formulaire -->
-    <VBox spacing="15" style="-fx-padding: 20 30;">
-        <Label text="Date et Heure du rendez-vous" style="-fx-font-weight: bold;"/>
-        <DatePicker fx:id="datePicker" prefWidth="400"/>
+    <VBox spacing="20" style="-fx-padding: 25 35; -fx-background-color: white; -fx-background-radius: 15;"
+          VBox.vgrow="ALWAYS">
+        <effect>
+            <DropShadow height="12.0" radius="5.5" width="12.0">
+                <color>
+                    <Color opacity="0.15" />
+                </color>
+            </DropShadow>
+        </effect>
+        <!-- Date et Heure -->
+        <VBox spacing="8">
+            <Label text="Date du rendez-vous" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+            <DatePicker fx:id="datePicker" prefWidth="Infinity" styleClass="form-field"/>
+        </VBox>
 
-        <Label text="Heure" style="-fx-font-weight: bold; -fx-padding: 10 0 0 0;"/>
-        <ComboBox fx:id="cmbHeure" promptText="Sélectionnez l'heure" prefWidth="400"/>
+        <VBox spacing="8">
+            <Label text="Heure" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+            <ComboBox fx:id="cmbHeure" promptText="Sélectionnez l'heure" prefWidth="Infinity" styleClass="form-field"/>
+        </VBox>
 
-        <Label text="Statut" style="-fx-font-weight: bold; -fx-padding: 10 0 0 0;"/>
-        <ComboBox fx:id="cmbStatut" promptText="Sélectionnez le statut" prefWidth="400"/>
+        <!-- Statut -->
+        <VBox spacing="8">
+            <Label text="Statut" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+            <ComboBox fx:id="cmbStatut" promptText="Sélectionnez le statut" prefWidth="Infinity" styleClass="form-field"/>
+        </VBox>
 
-        <Label text="Description" style="-fx-font-weight: bold; -fx-padding: 10 0 0 0;"/>
-        <TextArea fx:id="txtDescription" prefWidth="400" prefHeight="100"/>
+        <!-- Description -->
+        <VBox spacing="8">
+            <Label text="Description" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+            <TextArea fx:id="txtDescription" prefHeight="120" prefWidth="Infinity" styleClass="form-field"/>
+        </VBox>
 
-        <Label text="Planning du médecin" style="-fx-font-weight: bold; -fx-padding: 10 0 0 0;"/>
-        <ComboBox fx:id="cmbPlanning" promptText="Sélectionnez un planning" prefWidth="400"/>
+        <!-- Planning -->
+        <VBox spacing="8">
+            <Label text="Planning du médecin" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+            <ComboBox fx:id="cmbPlanning" promptText="Sélectionnez un planning" prefWidth="Infinity" styleClass="form-field"/>
+        </VBox>
+
+        <!-- Google Calendar Integration -->
+        <VBox spacing="10">
+            <CheckBox fx:id="chkAddToGoogleCalendar" text="Ajouter à Google Calendar"
+                      style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-padding: 10 0 0 0;"/>
+            <Button fx:id="btnViewInGoogleCalendar" text="Voir dans Google Calendar" visible="false"
+                    styleClass="google-button"/>
+        </VBox>
     </VBox>
 
     <!-- Zone des boutons -->
-    <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 10 30 20 30;">
-        <Button fx:id="btnAnnuler" text="Annuler" style="-fx-padding: 8 15;"/>
-        <Button fx:id="btnEnregistrer" text="Enregistrer le rendez-vous"
-                style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;"/>
+    <HBox alignment="CENTER_RIGHT" spacing="15" style="-fx-padding: 15 35 25 35;">
+        <Button fx:id="btnAnnuler" text="Annuler" styleClass="cancel-button"/>
+        <Button fx:id="btnEnregistrer" text="Enregistrer le rendez-vous" styleClass="save-button"/>
     </HBox>
+
+    <stylesheets>
+        <String fx:value="@/fxml/ajouter-rendez-vous-styles.css"/>
+    </stylesheets>
 </VBox>

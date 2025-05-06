@@ -130,7 +130,6 @@ public class MedecinRecommendationsController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         demandeDAO = new DemandeDAO();
         recommandationDAO = new RecommandationDAO();
-        profile.setOnAction(event -> handleProfileRedirect());
 
         // Initialize predefined options
         initializePredefinedOptions();
@@ -841,5 +840,39 @@ public class MedecinRecommendationsController implements Initializable {
             NotificationUtil.showError("Erreur", "Impossible de charger les recommandations: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+
+    @FXML
+    private void navigateToRecom(ActionEvent event) {
+        SceneManager.loadScene("/fxml/MedecinRecommendations.fxml", event);
+    }
+    @FXML
+    private void navigateToProduit(ActionEvent event) {
+        SceneManager.loadScene("/fxml/front/showProduit.fxml", event);
+    }
+
+    @FXML
+    public void redirectToSuivi(ActionEvent event) {
+        SceneManager.loadScene("/fxml/liste_historique.fxml", event);
+
+    }
+    @FXML
+    private void redirectToEvents(ActionEvent event) {
+        SceneManager.loadScene("/fxml/eventFront.fxml", event);
+
+    }
+    @FXML
+    public void redirectToPlanning(ActionEvent event) {
+        SceneManager.loadScene("/fxml/planning-view.fxml", event);
+
+    }
+    @FXML
+    private void handleProfileButtonClick(ActionEvent event) {
+        SceneManager.loadScene("/fxml/medecin_profile.fxml", event);
+    }
+    @FXML
+    private void navigateToAcceuil(ActionEvent event) {
+        SceneManager.loadScene("/fxml/main_view_medecin.fxml", event);
     }
 } 

@@ -54,6 +54,9 @@ public class ShowCartItemController {
     @FXML
     private Button clearCartButton;
 
+    @FXML
+    private HBox navButtonsHBox;
+
     private final ObservableList<CartItem> cartItems = FXCollections.observableArrayList();
     private CartItemServices cartItemServices;
     private IServices<Produit> produitServices;
@@ -237,6 +240,10 @@ public class ShowCartItemController {
         updateTotal();
         updateItemCount();
         updateClearCartButtonVisibility();
+
+        // Set up dynamic header
+        anchorPane.setUserData(this);
+        DynamicHeaderSetup.setupHeader(navButtonsHBox);
     }
 
     public void setCartItems(List<CartItem> items) {

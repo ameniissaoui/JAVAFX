@@ -48,6 +48,8 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import org.example.util.SessionManager;
 
+import static org.example.util.NotificationUtil.showAlert;
+
 public class reservationFrontController {
     @FXML
     private TextField searchField;
@@ -473,115 +475,97 @@ public class reservationFrontController {
         stage.setWidth(screenWidth);
         stage.setHeight(screenHeight);
     }
-
-    @FXML
-    void navigateToHome() {
-        navigateTo("/fxml/front/home.fxml");
+    private void showError(String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
-
-    @FXML
-    void navigateToHistoriques() {
-        navigateTo("/fxml/historiques.fxml");
-    }
-
-    @FXML
-    void redirectToDemande() {
-        navigateTo("/fxml/DemandeDashboard.fxml");
-    }
-
-    @FXML
-    void redirectToRendezVous() {
-        navigateTo("/fxml/rendez-vous-view.fxml");
-    }
-
-    @FXML
-    void redirectProduit() {
-        navigateTo("/fxml/front/showProduit.fxml");
-    }
-
-    @FXML
-    void navigateToTraitement() {
-        navigateTo("/fxml/traitement.fxml");
-    }
-
-    @FXML
-    void viewDoctors() {
-        navigateTo("/fxml/DoctorList.fxml");
-    }
-
-    @FXML
-    void navigateToContact() {
-        navigateTo("/fxml/front/contact.fxml");
-    }
-
-    @FXML
-    void navigateToProfile() {
-        navigateTo("/fxml/front/profile.fxml");
-    }
-
-    @FXML
-    void navigateToFavorites() {
-        navigateTo("/fxml/front/favoris.fxml");
-    }
-
-    @FXML
-    void commande() {
-        navigateTo("/fxml/front/showCartItem.fxml");
-    }
-
-    @FXML
-    void navigateToCommandes() {
-        navigateTo("/fxml/front/ShowCommande.fxml");
-    }
-
-    @FXML
-    void navigateToShop() {
-        navigateTo("/fxml/front/showCartItem.fxml");
-    }
-
-    @FXML
-    void navigateToEvent() {
-        navigateTo("/fxml/eventFront.fxml");
-    }
-    @FXML
-    void navigateToReservation() {
-        navigateTo("/fxml/reservationFront.fxml");
-    }
-    // Helper method for navigation
-    private void navigateTo(String fxmlPath) {
+    private void navigate(String fxmlPath, ActionEvent event) {
         try {
-            System.out.println("Attempting to navigate to " + fxmlPath);
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            if (loader.getLocation() == null) {
-                throw new IOException(fxmlPath + " resource not found");
-            }
             Parent root = loader.load();
-
-            // Get the current stage
-            Stage stage = null;
-            if (searchField != null && searchField.getScene() != null) {
-                stage = (Stage) searchField.getScene().getWindow();
-            } else if (searchField != null && searchField.getScene() != null) {
-                stage = (Stage) searchField.getScene().getWindow();
-            }
-
-            if (stage == null) {
-                throw new RuntimeException("Cannot get current stage");
-            }
-
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            maximizeStage(stage);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
             stage.show();
-            System.out.println("Successfully navigated to " + fxmlPath);
-        } catch (IOException e) {
-            System.err.println("Error loading " + fxmlPath + ": " + e.getMessage());
-            e.printStackTrace();
-
         } catch (Exception e) {
-            System.err.println("Unexpected error during navigation: " + e.getMessage());
-            e.printStackTrace();
-
+            showError("Erreur de navigation", e.getMessage());
         }
     }
+    @FXML
+    void navigateToProfile(ActionEvent event) {
+        try {
+            SessionManager session = SessionManager.getInstance();
+            String userType = session.getUserType();
+            String fxmlPath;
+
+            switch (userType) {
+                case "admin":
+                    fxmlPath = "/fxml/AdminDashboard.fxml";
+                    break;
+                case "medecin":
+                    fxmlPath = "/fxml/medecin_profile.fxml";
+                    break;
+                case "patient":
+                    fxmlPath = "/fxml/patient_profile.fxml";
+                    break;
+                default:
+                    showAlert(Alert.AlertType.ERROR, "Erreur", "Type utilisateur inconnu",
+                            "Impossible de rediriger vers la page profil.");
+                    return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Mon Profil");
+            stage.show();
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la navigation vers le profil : " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Erreur de navigation", "Impossible d'ouvrir le profil", e.getMessage());
+        }
+    }
+    private final SessionManager sessionManager = SessionManager.getInstance();
+
+    @FXML
+    public void redirectToCalendar(ActionEvent event) {
+        try {
+            // Check login status before navigation
+            if (!checkLoginForNavigation()) return;
+            SceneManager.loadScene("/fxml/patient_calendar.fxml", event);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Erreur de navigation");
+            alert.setContentText("Impossible de charger le calendrier: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    private boolean checkLoginForNavigation() {
+        if (!sessionManager.isLoggedIn()) {
+            showAlert(Alert.AlertType.WARNING, "Accès refusé", "Non connecté",
+                    "Vous devez être connecté pour accéder à cette fonctionnalité.");
+            return false;
+        }
+        return true;
+    }
+
+
+
+    // NAVIGATION METHODS
+    @FXML void navigateToHome(ActionEvent event) { navigate("/fxml/front/home.fxml", event); }
+    @FXML void navigateToEvent(ActionEvent event) { navigate("/fxml/eventFront.fxml", event); }
+
+    @FXML void navigateToHistoriques(ActionEvent event) { navigate("/fxml/front/historiques.fxml", event); }
+    @FXML void redirectToDemande(ActionEvent event) { navigate("/fxml/DemandeDashboard.fxml", event); }
+    @FXML void redirectToRendezVous(ActionEvent event) { navigate("/fxml/rendez-vous-view.fxml", event); }
+    @FXML void redirectProduit(ActionEvent event) { navigate("/fxml/front/showProduit.fxml", event); }
+    @FXML void viewDoctors(ActionEvent event) { navigate("/fxml/DoctorList.fxml", event); }
+
+
 }

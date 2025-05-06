@@ -1,5 +1,9 @@
 package org.example.controllers;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,14 +18,18 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.example.models.Patient;
 import org.example.models.Reminder;
+import org.example.services.NotificationManager;
 import org.example.services.ReminderNotificationChecker;
 import org.example.services.ReminderService;
 import org.example.util.SessionManager;
 
 import java.io.IOException;
+import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -31,6 +39,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -40,6 +49,23 @@ public class PatientCalendarController {
 
     @FXML
     private Label monthYearLabel;
+    @FXML
+    private VBox emptyHistoryPlaceholder;
+    private Popup notificationPopup;
+    private ReminderService reminderService;
+    @FXML
+    private StackPane notificationIconContainer;
+    @FXML
+    private Button profileButton;
+    @FXML
+    private Button notificationButton;
+
+    @FXML
+    private StackPane notificationCountContainer;
+
+    @FXML
+    private Label notificationCountLabel;
+    private SessionManager sessionManager;
 
     @FXML
     private GridPane calendarGrid;
@@ -52,7 +78,9 @@ public class PatientCalendarController {
 
     @FXML
     private TextField medicationNameField;
-
+    @FXML
+    private AnchorPane sidebarContainer;
+    private boolean sidebarOpen = false;
     @FXML
     private TextArea descriptionField;
 
@@ -85,7 +113,6 @@ public class PatientCalendarController {
 
     private YearMonth currentYearMonth;
     private LocalDate selectedDate;
-    private ReminderService reminderService;
     private Patient currentPatient;
     private List<LocalDate> datesWithReminders;
 
@@ -121,6 +148,198 @@ public class PatientCalendarController {
 
         // Load reminders for the selected date
         loadRemindersForDate(selectedDate);
+    }
+
+    private void setupNotificationBadge() {
+        if (notificationCountLabel != null && notificationCountContainer != null) {
+            // Bind notification count to the label
+            NotificationManager notificationManager = NotificationManager.getInstance();
+            notificationCountLabel.textProperty().bind(notificationManager.unreadCountProperty().asString());
+
+            // Show/hide notification badge based on count
+            notificationCountContainer.visibleProperty().bind(
+                    notificationManager.unreadCountProperty().greaterThan(0));
+
+            // Refresh the notification count
+            notificationManager.refreshUnreadCount();
+        }
+    }
+
+    @FXML
+    private void showNotifications() {
+        System.out.println("Show notifications button clicked");
+
+        if (notificationPopup != null && notificationPopup.isShowing()) {
+            notificationPopup.hide();
+            return;
+        }
+
+        // Get current patient
+        Patient patient = SessionManager.getInstance().getCurrentPatient();
+        if (patient == null) {
+            System.out.println("No patient logged in, cannot show notifications");
+            return;
+        }
+
+        System.out.println("Getting notifications for patient ID: " + patient.getId());
+
+        // Initialize reminder service if needed
+        if (reminderService == null) {
+            reminderService = new ReminderService();
+        }
+
+        // Create popup
+        notificationPopup = new Popup();
+        notificationPopup.setAutoHide(true);
+        notificationPopup.setHideOnEscape(true);
+
+        // Create main container
+        VBox container = new VBox(10);
+        container.setPrefWidth(300);
+        container.getStyleClass().add("notification-dropdown");
+
+        // Create header
+        HBox header = new HBox(10);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.getStyleClass().add("notification-header");
+        header.setPadding(new Insets(10));
+
+        Label headerLabel = new Label("Rappels de médicaments");
+        headerLabel.getStyleClass().add("notification-header-text");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button markAllReadButton = new Button("Tout marquer comme lu");
+        markAllReadButton.getStyleClass().add("mark-all-read-button");
+        markAllReadButton.setOnAction(e -> {
+            System.out.println("Marking all notifications as read");
+            reminderService.markAllNotificationsAsRead(patient.getId());
+            NotificationManager.getInstance().refreshUnreadCount();
+            notificationPopup.hide();
+        });
+
+        header.getChildren().addAll(headerLabel, spacer, markAllReadButton);
+
+        // Create content area
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setMaxHeight(400);
+        scrollPane.getStyleClass().add("notification-list");
+
+        VBox notificationsBox = new VBox(10);
+        notificationsBox.setPadding(new Insets(10));
+
+        // Get unread notifications
+        List<Reminder> unreadReminders = reminderService.getUnreadNotifications(patient.getId());
+        System.out.println("Found " + unreadReminders.size() + " unread reminders");
+
+        if (unreadReminders.isEmpty()) {
+            // Show empty state
+            VBox emptyState = new VBox();
+            emptyState.setAlignment(Pos.CENTER);
+            emptyState.getStyleClass().add("notification-empty");
+
+            Label emptyLabel = new Label("Aucun rappel à afficher");
+            emptyLabel.getStyleClass().add("notification-empty-text");
+
+            emptyState.getChildren().add(emptyLabel);
+            notificationsBox.getChildren().add(emptyState);
+        } else {
+            // Add reminder notifications
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            for (Reminder reminder : unreadReminders) {
+                VBox notificationItem = new VBox(5);
+                notificationItem.getStyleClass().add("notification-item");
+
+                Label titleLabel = new Label(reminder.getMedicationName());
+                titleLabel.getStyleClass().add("notification-item-title");
+
+                Label timeLabel = new Label("Date: " + reminder.getDate().format(dateFormatter) +
+                        " à " + reminder.getTime().format(timeFormatter));
+                timeLabel.getStyleClass().add("notification-item-time");
+
+                notificationItem.getChildren().addAll(titleLabel, timeLabel);
+
+                if (reminder.getDescription() != null && !reminder.getDescription().isEmpty()) {
+                    Label descLabel = new Label(reminder.getDescription());
+                    descLabel.getStyleClass().add("notification-item-description");
+                    descLabel.setWrapText(true);
+                    notificationItem.getChildren().add(descLabel);
+                }
+
+                // Set click handler
+                final int reminderId = reminder.getId();
+                notificationItem.setOnMouseClicked(e -> {
+                    System.out.println("Notification clicked: Reminder ID " + reminderId);
+                    handleNotificationClick(reminderId);
+                    notificationPopup.hide();
+                });
+
+                notificationsBox.getChildren().add(notificationItem);
+            }
+        }
+
+        scrollPane.setContent(notificationsBox);
+
+        // Add components to container
+        container.getChildren().addAll(header, scrollPane);
+
+        // Add CSS
+        try {
+            String cssPath = getClass().getResource("/css/notification-styles.css").toExternalForm();
+            container.getStylesheets().add(cssPath);
+            System.out.println("Added notification CSS: " + cssPath);
+        } catch (Exception e) {
+            System.err.println("Could not load notification CSS: " + e.getMessage());
+        }
+
+        // Add to popup and show
+        notificationPopup.getContent().add(container);
+
+        // Position below the notification button
+        notificationPopup.show(notificationButton,
+                notificationButton.localToScreen(0, 0).getX() - 270,
+                notificationButton.localToScreen(0, 0).getY() + notificationButton.getHeight());
+
+        System.out.println("Notification popup shown");
+    }
+
+    private void handleNotificationClick(int reminderId) {
+        System.out.println("Handling notification click for reminder ID: " + reminderId);
+
+        // Mark as read
+        reminderService.markNotificationAsRead(reminderId);
+
+        // Refresh count
+        NotificationManager.getInstance().refreshUnreadCount();
+
+        // Navigate to calendar page with the reminder selected
+        navigateToCalendarWithReminder(reminderId);
+    }
+
+    private void navigateToCalendarWithReminder(int reminderId) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/patient_calendar.fxml"));
+            Parent root = loader.load();
+
+            // Get controller and pass the reminder ID
+            PatientCalendarController controller = loader.getController();
+            controller.selectReminder(reminderId);
+
+            // Show calendar page
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) notificationButton.getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur",
+                    "Impossible d'ouvrir le calendrier",
+                    "Une erreur est survenue: " + e.getMessage());
+        }
     }
 
     private void initializeTimeControls() {
@@ -710,40 +929,7 @@ public class PatientCalendarController {
     }
 
     // Navigation methods
-    @FXML
-    private void redirectToProfile(ActionEvent event) {
-        try {
-            ReminderNotificationChecker.getInstance();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/patient_profile.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur de navigation",
-                    "Impossible de charger la page de profil: " + e.getMessage());
-        }
-    }
 
-    @FXML
-    private void redirectToRendezVous(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/rendez-vous-view.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur de navigation",
-                    "Impossible de charger la page des rendez-vous: " + e.getMessage());
-        }
-    }
 
     @FXML
     private void redirectProduit(ActionEvent event) {
@@ -763,113 +949,11 @@ public class PatientCalendarController {
     }
 
     @FXML
-    private void navigateToHome(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/home.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur de navigation",
-                    "Impossible de charger la page d'accueil: " + e.getMessage());
-        }
-    }
-
-    @FXML
     private void redirectToCalendar(ActionEvent event) {
         // Since we're already on the calendar page, we might just refresh the page
         // or do nothing since we're already here
         updateCalendar();
         loadRemindersForDate(selectedDate);
-    }
-
-    @FXML
-    private void redirectToDemande(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/demande.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur de navigation",
-                    "Impossible de charger la page de demande: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void viewDoctors(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/doctor_list.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur de navigation",
-                    "Impossible de charger la liste des médecins: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void navigateToEvent(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/event.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur de navigation",
-                    "Impossible de charger la page d'événements: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void navigateToReservation(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/reservation.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur de navigation",
-                    "Impossible de charger la page de réservation: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void navigateToContact(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/contact.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur de navigation",
-                    "Impossible de charger la page de contact: " + e.getMessage());
-        }
     }
 
     @FXML
@@ -892,7 +976,51 @@ public class PatientCalendarController {
         notificationsAlert.showAndWait();
     }
 
-    public void redirectToHistorique(ActionEvent actionEvent) {
+    public void redirectToHistorique(ActionEvent event) {
+        SceneManager.loadScene("/fxml/ajouter_historique.fxml", event);
 
     }
+
+    @FXML
+    private void navigateToAcceuil(ActionEvent event) {
+        SceneManager.loadScene("/fxml/main_view_patient.fxml", event);
+    }
+
+    @FXML
+    public void redirectToDemande(ActionEvent event) {
+        SceneManager.loadScene("/fxml/DemandeDashboard.fxml", event);
+    }
+
+    @FXML
+    public void redirectToRendezVous(ActionEvent event) {
+        SceneManager.loadScene("/fxml/rendez-vous-view.fxml", event);
+    }
+
+    @FXML
+    public void viewDoctors(ActionEvent event) {
+        try {
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
+                        "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Use SceneManager to load the DoctorList.fxml in full screen
+            SceneManager.loadScene("/fxml/DoctorList.fxml", event);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de Navigation",
+                    "Impossible d'ouvrir la page des médecins: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void handleProfileButtonClick(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_profile.fxml", event);
+    }
+    @FXML public void redirectToEvents(ActionEvent event) {
+        SceneManager.loadScene("/fxml/eventFront.fxml", event);
+    }
+
+
 }
+

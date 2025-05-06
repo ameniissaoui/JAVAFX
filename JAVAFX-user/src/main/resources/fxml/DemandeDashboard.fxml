@@ -8,48 +8,88 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="800.0" styleClass="root" stylesheets="@/css/profile-styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.DemandeDashboardController">
     <!-- Top Navigation Bar -->
     <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="70.0" styleClass="top-nav-bar" BorderPane.alignment="CENTER">
-            <children>
-                <!-- Logo Section -->
-                <HBox alignment="CENTER_LEFT" HBox.hgrow="NEVER">
-                    <Label style="-fx-text-fill: white; -fx-font-weight: bold;" text="CHRONOSERENA">
-                        <font>
-                            <Font name="System Bold" size="24.0" />
-                        </font>
-                        <HBox.margin>
-                            <Insets left="40.0" right="20.0" />
-                        </HBox.margin>
-                    </Label>
+        <VBox spacing="0">
+            <HBox alignment="CENTER" prefHeight="40.0" style="-fx-background-color: #30b4b4;">
+                <HBox alignment="CENTER_LEFT" prefWidth="600.0" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 0 0 0 20;" text="Lundi- Samedi, 8h à 22h" />
                 </HBox>
-
-                <!-- Navigation Menu - Centered with proper spacing -->
-                <HBox alignment="CENTER" spacing="20.0" HBox.hgrow="ALWAYS">
-                    <children>
-                        <Button mnemonicParsing="false" styleClass="nav-button" text="ACCUEIL" />
-                        <Button mnemonicParsing="false" styleClass="nav-button" text="CONSERNANT" />
-                        <Button mnemonicParsing="false" styleClass="nav-button" text="Historiques" />
-                        <Button mnemonicParsing="false" styleClass="nav-button" text="DEMANDE" />
-                        <Button mnemonicParsing="false" styleClass="nav-button" text="PRODUIT" />
-                        <Button mnemonicParsing="false" styleClass="nav-button" text="TRAITEMENT" />
-                        <Button mnemonicParsing="false" styleClass="nav-button" text="MÉDECIN" />
-                        <Button mnemonicParsing="false" styleClass="nav-button" text="CONTACT" />
-                    </children>
+                <HBox alignment="CENTER_RIGHT" minHeight="35.0" prefWidth="600.0" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 0 20 0 0;" text="Appelez-nous maintenant +216 28 236 733" />
+                </HBox>
+            </HBox>
+            <HBox prefHeight="80.0" style="-fx-background-color: white; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;">
+                <!-- Logo on the Left -->
+                <HBox alignment="CENTER_LEFT" HBox.hgrow="SOMETIMES" prefWidth="200.0">
+                    <ImageView fitHeight="78.0" fitWidth="198.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/logo.png" />
+                        </image>
+                        <HBox.margin>
+                            <Insets left="20.0" />
+                        </HBox.margin>
+                    </ImageView>
+                </HBox>
+                <!-- Navigation Buttons (Centered) -->
+                <HBox alignment="CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                    <Button onAction="#navigateToAcceuil" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="ACCUEIL">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button onAction="#navigateToEvent" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="EVENEMENT">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button onAction="#redirectProduit" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="PRODUIT">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button fx:id="historique" onAction="#redirectToHistorique" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="HISTORIQUES">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button onAction="#redirectToCalendar" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="CALANDRIER">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="DEMANDE">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button fx:id="rendezVousButton" onAction="#redirectToRendezVous" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="RENDEZ-VOUS">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                    <Button onAction="#viewDoctors" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="MÉDECIN">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
                     <padding>
                         <Insets left="10.0" right="10.0" />
                     </padding>
                 </HBox>
-
-                <!-- Profile Button -->
-                <Button fx:id="profile" mnemonicParsing="false" styleClass="profile-button" text="Mon Profile">
-                    <HBox.margin>
-                        <Insets right="40.0" />
-                    </HBox.margin>
-                </Button>
-            </children>
-        </HBox>
+                <!-- Profile and Cart Count (Right) -->
+                <HBox alignment="CENTER_RIGHT" HBox.hgrow="SOMETIMES" prefWidth="200.0">
+                    <Button fx:id="profileButton" onAction="#handleProfileButtonClick" prefHeight="30.0" prefWidth="91.0" style="-fx-background-color: #30b4b4; -fx-text-fill: white; -fx-background-radius: 20;" text="Mon Profil">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Button>
+                </HBox>
+            </HBox>
+        </VBox>
     </top>
 
     <center>
@@ -141,6 +181,36 @@
                     <VBox.margin>
                         <Insets top="20.0" />
                     </VBox.margin>
+                </HBox>
+                
+                <!-- Chat Assistant Button -->
+                <HBox alignment="CENTER" spacing="20.0">
+                    <Button fx:id="chatButton" mnemonicParsing="false" onAction="#openChatDialog" styleClass="chat-button" text="Assistant IA">
+                        <graphic>
+                            <Label styleClass="chat-icon" text="💬">
+                                <font>
+                                    <Font size="16.0" />
+                                </font>
+                            </Label>
+                        </graphic>
+                        <font>
+                            <Font name="System Bold" size="14.0" />
+                        </font>
+                        <padding>
+                            <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                        </padding>
+                    </Button>
+                    <Button fx:id="analyticsButton" mnemonicParsing="false" onAction="#handleAnalytics" styleClass="primary-button" text="Tableau de Bord Santé">
+                        <graphic>
+                            <Label text="📊" textFill="WHITE" />
+                        </graphic>
+                        <padding>
+                            <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                        </padding>
+                        <font>
+                            <Font name="System Bold" size="14.0" />
+                        </font>
+                    </Button>
                 </HBox>
             </children>
         </VBox>

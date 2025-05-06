@@ -1,105 +1,79 @@
+// eventFrontController.java
+
 package org.example.controllers;
 
-import javafx.stage.Screen;
-import org.example.models.Event;
-import org.example.services.EventService;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.example.models.Event;
+import org.example.models.Patient;
+import org.example.services.EventService;
 import org.example.services.ReservationService;
-import com.sothawo.mapjfx.Configuration;
-import com.sothawo.mapjfx.Coordinate;
-import com.sothawo.mapjfx.MapView;
-import com.sothawo.mapjfx.Marker;
-import com.sothawo.mapjfx.Projection;
+import org.example.util.SessionManager;
+import org.json.JSONObject;
 
-import java.io.IOException;
-import java.util.List;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-// Weather API imports
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import org.json.JSONObject;
+import java.util.List;
+
+import static org.example.util.NotificationUtil.showAlert;
 
 public class eventFrontController {
     @FXML
     private GridPane eventGridPane;
+
     @FXML
     private ScrollPane scrollPane;
+
     private final EventService eventService = new EventService();
+    private final ReservationService reservationService = new ReservationService();
     private final String API_KEY = "294172e55663c6d252179c242db11ad0";
     private final String BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
+    @FXML private Button historique; // Added missing Button declaration
 
     @FXML
-    void eventfront(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/eventFront.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void initialize() {
+
+        Platform.runLater(this::loadEvents);
     }
 
-    @FXML
-    void reservationfront(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/reservationFront.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    void initialize() {
-        List<Event> events = eventService.afficher(); // Récupérer les événements
+    private void loadEvents() {
+        List<Event> events = eventService.afficher();
 
         eventGridPane.getChildren().clear();
         eventGridPane.setAlignment(Pos.CENTER);
-        eventGridPane.setHgap(20); // Espacement horizontal
-        eventGridPane.setVgap(20); // Espacement vertical
+        eventGridPane.setHgap(20);
+        eventGridPane.setVgap(20);
 
-        int column = 0;
-        int row = 0;
-
+        int column = 0, row = 0;
         for (Event event : events) {
             VBox card = createEventCard(event);
             eventGridPane.add(card, column, row);
-            column++;
-
-            if (column == 3) { // 3 cartes par ligne
+            if (++column == 3) {
                 column = 0;
                 row++;
             }
         }
 
-        // Assurer un scroll fluide et adapter à la largeur
         scrollPane.setFitToWidth(true);
         scrollPane.setContent(eventGridPane);
     }
@@ -257,7 +231,7 @@ public class eventFrontController {
                 String weatherDescription = weatherDetails.getString("description");
 
                 // Créer une fenêtre d'alerte pour afficher les informations météo
-                Alert alert = new Alert(AlertType.INFORMATION);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Météo pour " + city);
                 alert.setHeaderText("Prévisions météo pour l'événement: " + event.getTitre());
 
@@ -271,7 +245,7 @@ public class eventFrontController {
                 alert.showAndWait();
             } else {
                 // En cas d'erreur
-                Alert alert = new Alert(AlertType.ERROR);
+                Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Erreur météo");
                 alert.setHeaderText("Impossible de récupérer les données météo");
                 alert.setContentText("Veuillez vérifier votre connexion internet ou essayer à nouveau plus tard.");
@@ -280,7 +254,7 @@ public class eventFrontController {
         } catch (Exception e) {
             e.printStackTrace();
             // En cas d'erreur imprévue
-            Alert alert = new Alert(AlertType.ERROR);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Erreur");
             alert.setHeaderText("Une erreur est survenue");
             alert.setContentText("Impossible de récupérer les informations météo: " + e.getMessage());
@@ -373,114 +347,159 @@ public class eventFrontController {
         stage.setHeight(screenHeight);
     }
 
-    @FXML
-    void navigateToHome() {
-        navigateTo("/fxml/front/home.fxml");
+    private void showInfo(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
-    @FXML
-    void navigateToHistoriques() {
-        navigateTo("/fxml/historiques.fxml");
+    private void showError(String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
-    @FXML
-    void redirectToDemande() {
-        navigateTo("/fxml/DemandeDashboard.fxml");
-    }
-
-    @FXML
-    void redirectToRendezVous() {
-        navigateTo("/fxml/rendez-vous-view.fxml");
-    }
-
-    @FXML
-    void redirectProduit() {
-        navigateTo("/fxml/front/showProduit.fxml");
-    }
-
-    @FXML
-    void navigateToTraitement() {
-        navigateTo("/fxml/traitement.fxml");
-    }
-
-    @FXML
-    void viewDoctors() {
-        navigateTo("/fxml/DoctorList.fxml");
-    }
-
-    @FXML
-    void navigateToContact() {
-        navigateTo("/fxml/front/contact.fxml");
-    }
-
-    @FXML
-    void navigateToProfile() {
-        navigateTo("/fxml/front/profile.fxml");
-    }
-
-    @FXML
-    void navigateToFavorites() {
-        navigateTo("/fxml/front/favoris.fxml");
-    }
-
-    @FXML
-    void commande() {
-        navigateTo("/fxml/front/showCartItem.fxml");
-    }
-
-    @FXML
-    void navigateToCommandes() {
-        navigateTo("/fxml/front/ShowCommande.fxml");
-    }
-
-    @FXML
-    void navigateToShop() {
-        navigateTo("/fxml/front/showCartItem.fxml");
-    }
-
-    @FXML
-    void navigateToEvent() {
-        navigateTo("/fxml/eventFront.fxml");
-    }
-    @FXML
-    void navigateToReservation() {
-        navigateTo("/fxml/reservationFront.fxml");
-    }
-    // Helper method for navigation
-    private void navigateTo(String fxmlPath) {
+    private void navigate(String fxmlPath, ActionEvent event) {
         try {
-            System.out.println("Attempting to navigate to " + fxmlPath);
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            if (loader.getLocation() == null) {
-                throw new IOException(fxmlPath + " resource not found");
-            }
             Parent root = loader.load();
-
-            // Get the current stage
-            Stage stage = null;
-            if (eventGridPane != null && eventGridPane.getScene() != null) {
-                stage = (Stage) eventGridPane.getScene().getWindow();
-            } else if (eventGridPane != null && eventGridPane.getScene() != null) {
-                stage = (Stage) eventGridPane.getScene().getWindow();
-            }
-
-            if (stage == null) {
-                throw new RuntimeException("Cannot get current stage");
-            }
-
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            maximizeStage(stage);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
             stage.show();
-            System.out.println("Successfully navigated to " + fxmlPath);
-        } catch (IOException e) {
-            System.err.println("Error loading " + fxmlPath + ": " + e.getMessage());
-            e.printStackTrace();
-
         } catch (Exception e) {
-            System.err.println("Unexpected error during navigation: " + e.getMessage());
-            e.printStackTrace();
-
+            showError("Erreur de navigation", e.getMessage());
         }
     }
+    private final SessionManager sessionManager = SessionManager.getInstance();
+
+    @FXML
+    public void redirectToCalendar(ActionEvent event) {
+        try {
+            // Check login status before navigation
+            if (!checkLoginForNavigation()) return;
+            SceneManager.loadScene("/fxml/patient_calendar.fxml", event);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Erreur de navigation");
+            alert.setContentText("Impossible de charger le calendrier: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    private boolean checkLoginForNavigation() {
+        if (!sessionManager.isLoggedIn()) {
+            showAlert(Alert.AlertType.WARNING, "Accès refusé", "Non connecté",
+                    "Vous devez être connecté pour accéder à cette fonctionnalité.");
+            return false;
+        }
+        return true;
+    }
+
+    @FXML
+    void navigateToProfile(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_profile.fxml", event);
+    }
+
+
+    // NAVIGATION METHODS
+    @FXML void navigateToHome(ActionEvent event) { SceneManager.loadScene("/fxml/main_view_patient.fxml", event); }
+    private void showErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    @FXML
+    public void redirectToHistorique(ActionEvent event) {
+        try {
+            // Enhanced logging
+            System.out.println("Starting history redirect...");
+            System.out.println("SessionManager.isLoggedIn(): " + SessionManager.getInstance().isLoggedIn());
+            System.out.println("SessionManager.isPatient(): " + SessionManager.getInstance().isPatient());
+
+            // Check if user is logged in
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showErrorDialog("Erreur", "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Check if the user is a patient
+            if (!SessionManager.getInstance().isPatient()) {
+                showErrorDialog("Erreur", "Seuls les patients peuvent accéder à cette fonctionnalité.");
+                return;
+            }
+
+            // Get the patient from the session
+            Patient patient = SessionManager.getInstance().getCurrentPatient();
+            System.out.println("Patient from SessionManager: " + (patient != null ?
+                    "ID=" + patient.getId() + ", Nom=" + patient.getNom() : "NULL"));
+
+            if (patient == null) {
+                System.out.println("Error: SessionManager.getCurrentPatient() returned null!");
+                // Remove reference to non-existent currentUser variable
+                showErrorDialog("Erreur", "Impossible de récupérer les informations du patient.");
+                return;
+            }
+
+            // Load the historique page
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ajouter_historique.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller and pass the patient
+            AjouterHistController controller = loader.getController();
+            controller.setPatient(patient);
+            System.out.println("Patient passed to controller: ID=" + patient.getId() +
+                    ", Nom=" + patient.getNom() + ", Prénom=" + patient.getPrenom());
+
+            // Show the new scene with maximum size
+            Stage stage = (Stage) historique.getScene().getWindow();
+
+            // Get screen dimensions for maximum size
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
+
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+
+        } catch (IOException e) {
+            System.err.println("Error during navigation to historique: " + e.getMessage());
+            e.printStackTrace();
+            showErrorDialog("Erreur", "Impossible de charger la page d'ajout d'historique: " + e.getMessage());
+        }
+    }
+    @FXML void redirectToDemande(ActionEvent event) { SceneManager.loadScene("/fxml/DemandeDashboard.fxml", event); }
+    @FXML void redirectToRendezVous(ActionEvent event) {
+        SceneManager.loadScene("/fxml/rendez-vous-view.fxml", event);
+    }
+    @FXML
+    void redirectProduit(ActionEvent event) {
+        SceneManager.loadScene("/fxml/front/showProduit.fxml", event);
+    }
+    @FXML
+    public void viewDoctors(ActionEvent event) {
+        try {
+            if (!sessionManager.isLoggedIn()) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
+                        "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Use SceneManager to load the DoctorList.fxml in full screen
+            SceneManager.loadScene("/fxml/DoctorList.fxml", event);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de Navigation",
+                    "Impossible d'ouvrir la page des médecins: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

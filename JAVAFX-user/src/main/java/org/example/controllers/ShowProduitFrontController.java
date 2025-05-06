@@ -39,7 +39,6 @@ import java.util.logging.Logger;
 
 import static org.example.controllers.NavigationController.navigateTo;
 
-
 public class ShowProduitFrontController {
 
     private static final Logger LOGGER = Logger.getLogger(ShowProduitFrontController.class.getName());
@@ -77,7 +76,9 @@ public class ShowProduitFrontController {
     @FXML
     private ComboBox<String> sortComboBox;
 
-
+    @FXML
+    private HBox navButtonsHBox;
+    private SessionManager sessionManager;
 
     private final ProduitServices ps = new ProduitServices();
     private CartItemServices cartItemServices = new CartItemServices();
@@ -102,6 +103,8 @@ public class ShowProduitFrontController {
             Stage stage = (Stage) anchorPane.getScene().getWindow();
             setStageSize(stage);
             setupResponsiveLayout();
+            anchorPane.setUserData(this); // Set controller as userData for DynamicHeaderSetup
+            DynamicHeaderSetup.setupHeader(navButtonsHBox); // Initialize header buttons
         });
 
         updateCartCount();
@@ -128,12 +131,12 @@ public class ShowProduitFrontController {
         setupPriceSlider();
         renderProductsPage(currentPage);
         createPagination();
+
     }
 
     private void setStageSize(Stage stage) {
         stage.setWidth(DEFAULT_WINDOW_WIDTH);
         stage.setHeight(DEFAULT_WINDOW_HEIGHT);
-        stage.setMaximized(false);
         stage.centerOnScreen();
     }
 
@@ -721,6 +724,7 @@ public class ShowProduitFrontController {
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
+                setStageSize(stage);
                 stage.show();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
@@ -743,6 +747,7 @@ public class ShowProduitFrontController {
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
+                setStageSize(stage);
                 stage.show();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
@@ -765,6 +770,7 @@ public class ShowProduitFrontController {
                 Scene scene = new Scene(root);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 stage.setScene(scene);
+                setStageSize(stage);
                 stage.show();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
@@ -790,6 +796,7 @@ public class ShowProduitFrontController {
             Scene scene = new Scene(root);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(scene);
+            setStageSize(stage);
             stage.show();
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de Navigation",
@@ -801,11 +808,14 @@ public class ShowProduitFrontController {
     @FXML
     void navigateToHome() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Home.fxml"));
+            SessionManager session = SessionManager.getInstance();
+            String fxmlPath = session.isMedecin() ? "/fxml/main_view_medecin.fxml" : "/fxml/main_view_patient.fxml";
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
             Scene scene = new Scene(root);
             Stage stage = (Stage) anchorPane.getScene().getWindow();
             stage.setScene(scene);
+            stage.setTitle("Accueil");
             setStageSize(stage);
             stage.show();
         } catch (Exception e) {
@@ -840,6 +850,7 @@ public class ShowProduitFrontController {
                     "Error navigating to historiques", e.getMessage());
         }
     }
+
     @FXML
     void navigateToEvent() {
         try {
@@ -865,7 +876,9 @@ public class ShowProduitFrontController {
             showAlert(Alert.AlertType.ERROR, "Navigation Error",
                     "Error navigating to evenements", e.getMessage());
         }
-    } @FXML
+    }
+
+    @FXML
     void navigateToReservation() {
         try {
             if (!SessionManager.getInstance().isLoggedIn()) {
@@ -948,7 +961,6 @@ public class ShowProduitFrontController {
             String userType = session.getUserType();
             String fxmlPath;
 
-            // Navigate to the appropriate page based on user type
             switch (userType) {
                 case "admin":
                     fxmlPath = "/fxml/AdminDashboard.fxml";
@@ -1050,9 +1062,9 @@ public class ShowProduitFrontController {
     @FXML
     void navigateToCommandes() {
         try {
-            URL fxmlLocation = getClass().getResource("/fxml/front/ShowCommande.fxml");
+            URL fxmlLocation = getClass().getResource("/fxml/front/showCommande.fxml");
             if (fxmlLocation == null) {
-                throw new IllegalStateException("FXML file not found: /fxml/front/ShowCommande.fxml");
+                throw new IllegalStateException("FXML file not found: /fxml/front/showCommande.fxml");
             }
             FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
@@ -1068,5 +1080,35 @@ public class ShowProduitFrontController {
             showAlert(Alert.AlertType.ERROR, "Navigation Error",
                     "Error navigating to commandes", e.getMessage());
         }
+    }
+
+    @FXML
+    public void redirectToCalendar(ActionEvent event) {
+        try {
+            // Check login status before navigation
+            if (!checkLoginForNavigation()) return;
+            SceneManager.loadScene("/fxml/patient_calendar.fxml", event);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Show error alert
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Erreur de navigation");
+            alert.setContentText("Impossible de charger le calendrier: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    /**
+     * Helper method to check login status before navigation
+     * @return true if logged in, false otherwise
+     */
+    private boolean checkLoginForNavigation() {
+        if (!sessionManager.isLoggedIn()) {
+            showAlert(Alert.AlertType.WARNING, "Accès refusé", "Non connecté",
+                    "Vous devez être connecté pour accéder à cette fonctionnalité.");
+            return false;
+        }
+        return true;
     }
 }

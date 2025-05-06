@@ -41,6 +41,7 @@ public class ShowCommandeController implements Initializable {
     @FXML private Button suivi;
     @FXML private Button tablesButton;
     @FXML private Button eventButton;
+    @FXML private Button reservationButton;
     @FXML private Button acceuil;
     private CommandeServices cs = new CommandeServices();
 
@@ -49,6 +50,7 @@ public class ShowCommandeController implements Initializable {
         buttoncommande.setOnAction(event -> handleCommandeRedirect());
         tablesButton.setOnAction(event -> handleTablesRedirect());
         eventButton.setOnAction(event -> handleeventRedirect());
+        reservationButton.setOnAction(event -> handlereservationRedirect());
         historique.setOnAction(event -> handleHistoriqueRedirect());
         suivi.setOnAction(event -> handleSuiviRedirect());
         acceuil.setOnAction(event -> handleAcceuilRedirect());
@@ -318,6 +320,18 @@ public class ShowCommandeController implements Initializable {
     private void handleeventRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/listevent.fxml"));
+            Stage stage = (Stage) eventButton.getScene().getWindow();
+            Scene tableScene = new Scene(tableRoot);
+            stage.setScene(tableScene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des événements: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    private void handlereservationRedirect() {
+        try {
+            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/listreservation.fxml"));
             Stage stage = (Stage) eventButton.getScene().getWindow();
             Scene tableScene = new Scene(tableRoot);
             stage.setScene(tableScene);

@@ -1,0 +1,141 @@
+/* Base Styles */
+.root {
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-background-color: #f5f7fa;
+}
+
+/* ListView Styling */
+.list-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 15 0;
+}
+
+.list-cell:empty {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Appointment Card Styling */
+.appointment-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 0, 2, 0, 1);
+    -fx-padding: 20;
+    -fx-border-color: #eaeaea;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+}
+
+.appointment-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 0, 4, 0, 2);
+    -fx-border-color: #30b4b4;
+}
+
+.appointment-header {
+    -fx-spacing: 15;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.appointment-time {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.appointment-status {
+    -fx-padding: 4 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+}
+
+.status-confirmed {
+    -fx-background-color: #e8f5e9;
+    -fx-text-fill: #2e7d32;
+}
+
+.status-pending {
+    -fx-background-color: #fff8e1;
+    -fx-text-fill: #f57c00;
+}
+
+.status-cancelled {
+    -fx-background-color: #ffebee;
+    -fx-text-fill: #c62828;
+}
+
+.appointment-details {
+    -fx-spacing: 8;
+    -fx-padding: 10 0 0 0;
+}
+
+.appointment-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: #7f8c8d;
+    -fx-wrap-text: true;
+}
+
+.appointment-doctor {
+    -fx-font-size: 14px;
+    -fx-text-fill: #5d6d7e;
+    -fx-font-weight: bold;
+}
+
+.appointment-actions {
+    -fx-spacing: 10;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.action-button {
+    -fx-background-radius: 6;
+    -fx-padding: 8 15;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-effect: none;
+    -fx-font-weight: 500;
+}
+
+.action-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 0, 2, 0, 1);
+}
+
+.view-button {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #1976d2;
+}
+
+.edit-button {
+    -fx-background-color: #e8f5e9;
+    -fx-text-fill: #2e7d32;
+}
+
+.delete-button {
+    -fx-background-color: #ffebee;
+    -fx-text-fill: #c62828;
+}
+
+/* TextField Styling */
+.text-field {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+    -fx-padding: 0 20;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused {
+    -fx-border-color: #30b4b4;
+    -fx-border-width: 1;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(48,180,180,0.2), 10, 0, 0, 0);
+}

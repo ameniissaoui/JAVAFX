@@ -79,6 +79,11 @@
                     <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z';" />
                 </graphic>
             </Button>
+            <Button fx:id="statisticsButton" alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Statistiques" onAction="#handleStatisticsRedirect">
+                <graphic>
+                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z';" />
+                </graphic>
+            </Button>
             <Button fx:id="suivi" alignment="BASELINE_LEFT" prefWidth="180" style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 5; -fx-padding: 10 15;" text="Suivies Médicales">
                 <graphic>
                     <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #3b82f6; -fx-shape: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z';" />
@@ -116,11 +121,7 @@
                     <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z';" />
                 </graphic>
             </Button>
-            <Button fx:id="statisticsButton" alignment="BASELINE_LEFT" onAction="#handleStatisticsRedirect" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="User Statistiques">
-                <graphic>
-                    <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z';" />
-                </graphic>
-            </Button>
+
             <Button fx:id="statisticsButton1" alignment="BASELINE_LEFT" onAction="#handleStatisticsCommandeRedirect" prefWidth="180" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-background-radius: 5; -fx-padding: 10 15;" text="Commande Statistiques">
                 <graphic>
                     <Region prefHeight="16" prefWidth="16" style="-fx-background-color: #64748b; -fx-shape: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z';" />

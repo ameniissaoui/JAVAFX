@@ -42,12 +42,12 @@ public class FavorisController {
     @FXML
     private Label cartCountLabel;
 
-    @FXML
-    private Label cartCountLabel1;
-
     private FavorisServices favorisServices = new FavorisServices();
     private ProduitServices produitServices = new ProduitServices();
     private CartItemServices cartItemServices;
+
+    @FXML
+    private HBox navButtonsHBox;
 
     private final Color PRIMARY_COLOR = Color.web("#30b4b4");
 
@@ -77,6 +77,10 @@ public class FavorisController {
         javafx.application.Platform.runLater(() -> {
             Stage stage = (Stage) anchorPane.getScene().getWindow();
             maximizeStage(stage);
+
+            // Set up dynamic header
+            anchorPane.setUserData(this);
+            DynamicHeaderSetup.setupHeader(navButtonsHBox);
         });
     }
 
@@ -341,7 +345,6 @@ public class FavorisController {
         }
     }
 
-    // Navigation methods from DetailsProduitController
     @FXML
     void navigateToHome() {
         navigateTo("/fxml/front/home.fxml");
@@ -407,7 +410,6 @@ public class FavorisController {
         navigateTo("/fxml/front/showProduit.fxml");
     }
 
-    // Helper method for navigation
     private void navigateTo(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -423,7 +425,6 @@ public class FavorisController {
         }
     }
 
-    // Update cart count
     private void updateCartCount() {
         if (cartItemServices == null) {
             cartItemServices = new CartItemServices();
@@ -435,17 +436,11 @@ public class FavorisController {
             int count = 0;
 
             if (currentUser != null) {
-                // Get cart count logic would go here
-                // This is a simplified version
                 count = cartItemServices.showProduit().size();
             }
 
             if (cartCountLabel != null) {
                 cartCountLabel.setText(String.valueOf(count));
-            }
-
-            if (cartCountLabel1 != null) {
-                cartCountLabel1.setText(String.valueOf(count));
             }
         } catch (Exception e) {
             LOGGER.severe("Error updating cart count: " + e.getMessage());

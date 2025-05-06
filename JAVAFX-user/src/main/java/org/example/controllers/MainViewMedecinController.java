@@ -36,7 +36,7 @@ public class MainViewMedecinController implements Initializable {
         // Load logo
         try {
             logoImageView.setImage(new Image(getClass().getResourceAsStream("/images/logo.png")));
-            logoImageView.setFitHeight(100);
+            logoImageView.setFitHeight(78.0);
             logoImageView.setPreserveRatio(true);
         } catch (Exception e) {
             System.err.println("Could not load logo image: " + e.getMessage());
@@ -162,6 +162,28 @@ public class MainViewMedecinController implements Initializable {
                 "Il existe deux types principaux de diabète : le type 1 et le type 2. Une gestion appropriée comprend une alimentation saine, de l'exercice régulier et des médicaments si nécessaire. Apprenez-en plus sur les stratégies de prévention et de traitement.",
                 "/images/departments-1.jpg",
                 (Button) diseaseContent.lookup("#diabèteTabButton"));
+    }
+    @FXML
+    private void redirectToEvents(ActionEvent event) {
+        if (!SessionManager.getInstance().isLoggedIn()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Accès refusé");
+            alert.setHeaderText("Vous n'êtes pas connecté");
+            alert.setContentText("Veuillez vous connecter pour accéder aux événements.");
+            alert.showAndWait();
+            return;
+        }
+
+        try {
+            SceneManager.loadScene("/fxml/eventFront.fxml", event);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur de navigation");
+            alert.setHeaderText("Impossible d'accéder aux événements");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML

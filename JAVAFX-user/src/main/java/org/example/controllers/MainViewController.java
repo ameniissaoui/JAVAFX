@@ -5,17 +5,30 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import org.example.controllers.AjouterHistController;
+import org.example.models.Medecin;
+import org.example.models.Patient;
+import org.example.services.NotificationManager;
+import org.example.services.ReminderService;
 import org.example.util.Carousel;
 import org.example.util.ServiceCard;
 import org.example.util.SessionManager;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -26,15 +39,29 @@ public class MainViewController implements Initializable {
     @FXML private FlowPane featuredServicesContainer;
     @FXML private Label cartCountLabel;
     @FXML private VBox diseaseContent;
+    @FXML private ReminderService reminderService;
+    @FXML private StackPane notificationCountContainer;
+    @FXML private Label notificationCountLabel;
+    @FXML private Label welcomeUserLabel; // Add this to show user's name
+    @FXML private Button loginButton; // Button to show/hide based on session
+    @FXML private Button profileButton; // Button to navigate to profile
+    @FXML private HBox userControls; // Container for user-specific buttons
+    @FXML private HBox adminControls; // Container for admin-specific buttons
+    @FXML private HBox doctorControls; // Container for doctor-specific buttons
+    @FXML private Button historique; // Added missing Button declaration
 
     private Button selectedTabButton;
+    private SessionManager sessionManager;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Initialize SessionManager
+        sessionManager = SessionManager.getInstance();
+
         // Load logo
         try {
             logoImageView.setImage(new Image(getClass().getResourceAsStream("/images/logo.png")));
-            logoImageView.setFitHeight(100);
+            logoImageView.setFitHeight(78.0);
             logoImageView.setPreserveRatio(true);
         } catch (Exception e) {
             System.err.println("Could not load logo image: " + e.getMessage());
@@ -46,7 +73,133 @@ public class MainViewController implements Initializable {
 
         setupHeroCarousel();
         setupFeaturedServices();
-        Platform.runLater(this::selectDiabetesTab);
+        Platform.runLater(() -> {
+            selectDiabetesTab();
+            updateUIBasedOnSession();
+        });
+        reminderService = new ReminderService();
+        setupNotificationBadge();
+    }
+
+    /**
+     * Updates UI elements based on current user session
+     */
+    private void updateUIBasedOnSession() {
+        if (sessionManager.isLoggedIn()) {
+            // User is logged
+            if (welcomeUserLabel != null) {
+                String userName = sessionManager.getCurrentUser().getNom(); // Assuming User has getNom method
+                welcomeUserLabel.setText("Bienvenue, " + userName);
+                welcomeUserLabel.setVisible(true);
+            }
+
+            // Show/hide login button
+            if (loginButton != null) {
+                loginButton.setText("Déconnexion");
+                loginButton.setOnAction(this::handleLogout);
+            }
+
+            // Show appropriate controls based on user type
+            if (userControls != null) userControls.setVisible(sessionManager.isPatient());
+            if (adminControls != null) adminControls.setVisible(sessionManager.isAdmin());
+            if (doctorControls != null) doctorControls.setVisible(sessionManager.isMedecin());
+
+            // For patients, we might want to load specific information
+            if (sessionManager.isPatient()) {
+                Patient patient = sessionManager.getCurrentPatient();
+                loadPatientSpecificContent(patient);
+            } else if (sessionManager.isMedecin()) {
+                Medecin medecin = sessionManager.getCurrentMedecin();
+                loadDoctorSpecificContent(medecin);
+            }
+
+            // Enable profile button
+            if (profileButton != null) {
+                profileButton.setVisible(true);
+            }
+        } else {
+            // User is not logged in
+            if (welcomeUserLabel != null) {
+                welcomeUserLabel.setVisible(false);
+            }
+
+            // Show login button
+            if (loginButton != null) {
+                loginButton.setText("Connexion");
+                loginButton.setOnAction(this::handleLogin);
+            }
+
+            // Hide user-specific controls
+            if (userControls != null) userControls.setVisible(false);
+            if (adminControls != null) adminControls.setVisible(false);
+            if (doctorControls != null) doctorControls.setVisible(false);
+
+            // Disable profile button
+            if (profileButton != null) {
+                profileButton.setVisible(false);
+            }
+        }
+    }
+
+    /**
+     * Load patient-specific content when a patient is logged in
+     */
+    private void loadPatientSpecificContent(Patient patient) {
+        // Example: Load patient-specific reminders, appointments, etc.
+        if (patient != null) {
+            // This would depend on your Patient class implementation
+            System.out.println("Loading content for patient: " + patient.getNom());
+            // You could load upcoming appointments, reminders, etc.
+        }
+    }
+
+    /**
+     * Load doctor-specific content when a doctor is logged in
+     */
+    private void loadDoctorSpecificContent(Medecin medecin) {
+        // Example: Load doctor's schedule, patient list, etc.
+        if (medecin != null) {
+            System.out.println("Loading content for doctor: " + medecin.getNom());
+            // You could load today's appointments, patient alerts, etc.
+        }
+    }
+
+    /**
+     * Handle logout action
+     */
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        sessionManager.clearSession();
+        showAlert(Alert.AlertType.INFORMATION, "Déconnexion", "Déconnexion réussie",
+                "Vous avez été déconnecté avec succès.");
+        updateUIBasedOnSession();
+
+        // Optional: Redirect to login page
+        // SceneManager.loadScene("/fxml/login.fxml", event);
+    }
+
+    /**
+     * Handle login button action
+     */
+    @FXML
+    private void handleLogin(ActionEvent event) {
+        // Navigate to login page
+        SceneManager.loadScene("/fxml/login.fxml", event);
+    }
+
+    private void setupNotificationBadge() {
+        if (notificationCountLabel != null && notificationCountContainer != null) {
+            // Bind notification count to the label
+            NotificationManager notificationManager = NotificationManager.getInstance();
+            notificationCountLabel.textProperty().bind(notificationManager.unreadCountProperty().asString());
+
+            // Show/hide notification badge based on count
+            notificationCountContainer.visibleProperty().bind(
+                    notificationManager.unreadCountProperty().greaterThan(0));
+
+            // Refresh the notification count
+            notificationManager.refreshUnreadCount();
+        }
     }
 
     private void setupHeroCarousel() {
@@ -205,32 +358,63 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void handleProfileButtonClick(ActionEvent event) {
-        SceneManager.loadScene("/fxml/patient_profile.fxml", event);
+        // Check if user is logged in before navigating to profile
+        if (!sessionManager.isLoggedIn()) {
+            showAlert(Alert.AlertType.WARNING, "Accès refusé", "Non connecté",
+                    "Vous devez être connecté pour accéder à votre profil.");
+            return;
+        }
+
+        // Route to appropriate profile page based on user type
+        if (sessionManager.isPatient()) {
+            SceneManager.loadScene("/fxml/patient_profile.fxml", event);
+        } else if (sessionManager.isMedecin()) {
+            SceneManager.loadScene("/fxml/doctor_profile.fxml", event);
+        } else if (sessionManager.isAdmin()) {
+            SceneManager.loadScene("/fxml/admin_profile.fxml", event);
+        }
     }
 
     @FXML
     private void handleCartButtonClick() {
+        // Check if user is logged in before accessing cart
+        if (!sessionManager.isLoggedIn()) {
+            showAlert(Alert.AlertType.WARNING, "Accès refusé", "Non connecté",
+                    "Vous devez être connecté pour accéder au panier.");
+            return;
+        }
         System.out.println("Open cart");
     }
 
     @FXML
     private void handleAppointmentButtonClick() {
+        // Check if user is logged in before accessing appointments
+        if (!sessionManager.isLoggedIn()) {
+            showAlert(Alert.AlertType.WARNING, "Accès refusé", "Non connecté",
+                    "Vous devez être connecté pour accéder aux rendez-vous.");
+            return;
+        }
         System.out.println("Navigate to appointments");
     }
 
     ////////////////////////////////////////NAVIGATION////////////////////////////////////////////////////////////////////////////
     @FXML
     private void navigateToDemande(ActionEvent event) {
+        // Check login status before navigation
+        if (!checkLoginForNavigation()) return;
         SceneManager.loadScene("/fxml/DemandeDashboard.fxml", event);
     }
+
     @FXML
     private void navigateToProduit(ActionEvent event) {
+        // Products might be viewable without login
         SceneManager.loadScene("/fxml/front/showProduit.fxml", event);
     }
+
     @FXML
     public void viewDoctors(ActionEvent event) {
         try {
-            if (!SessionManager.getInstance().isLoggedIn()) {
+            if (!sessionManager.isLoggedIn()) {
                 showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
                         "Vous devez être connecté pour accéder à cette page.");
                 return;
@@ -244,6 +428,7 @@ public class MainViewController implements Initializable {
             e.printStackTrace();
         }
     }
+
     private void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -251,15 +436,107 @@ public class MainViewController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
-    @FXML
-    public void redirectToHistorique(ActionEvent event) {
-        SceneManager.loadScene("/fxml/ajouter_historique.fxml", event);
 
+    private void showErrorDialog(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     @FXML
-    public void redirectToCalendrier(ActionEvent event) {
-        SceneManager.loadScene("/fxml/patient_calendar.fxml", event);
+    public void redirectToHistorique(ActionEvent event) {
+        try {
+            // Enhanced logging
+            System.out.println("Starting history redirect...");
+            System.out.println("SessionManager.isLoggedIn(): " + SessionManager.getInstance().isLoggedIn());
+            System.out.println("SessionManager.isPatient(): " + SessionManager.getInstance().isPatient());
 
+            // Check if user is logged in
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showErrorDialog("Erreur", "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Check if the user is a patient
+            if (!SessionManager.getInstance().isPatient()) {
+                showErrorDialog("Erreur", "Seuls les patients peuvent accéder à cette fonctionnalité.");
+                return;
+            }
+
+            // Get the patient from the session
+            Patient patient = SessionManager.getInstance().getCurrentPatient();
+            System.out.println("Patient from SessionManager: " + (patient != null ?
+                    "ID=" + patient.getId() + ", Nom=" + patient.getNom() : "NULL"));
+
+            if (patient == null) {
+                System.out.println("Error: SessionManager.getCurrentPatient() returned null!");
+                // Remove reference to non-existent currentUser variable
+                showErrorDialog("Erreur", "Impossible de récupérer les informations du patient.");
+                return;
+            }
+
+            // Load the historique page
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ajouter_historique.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller and pass the patient
+            AjouterHistController controller = loader.getController();
+            controller.setPatient(patient);
+            System.out.println("Patient passed to controller: ID=" + patient.getId() +
+                    ", Nom=" + patient.getNom() + ", Prénom=" + patient.getPrenom());
+
+            // Show the new scene with maximum size
+            Stage stage = (Stage) historique.getScene().getWindow();
+
+            // Get screen dimensions for maximum size
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
+
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+
+        } catch (IOException e) {
+            System.err.println("Error during navigation to historique: " + e.getMessage());
+            e.printStackTrace();
+            showErrorDialog("Erreur", "Impossible de charger la page d'ajout d'historique: " + e.getMessage());
+        }
+    }
+    @FXML
+    public void redirectToRendezVous(ActionEvent event) {
+        SceneManager.loadScene("/fxml/rendez-vous-view.fxml", event);
+    }
+    @FXML public void redirectToEvents(ActionEvent event) {
+        SceneManager.loadScene("/fxml/eventFront.fxml", event);
+    }
+    @FXML
+    public void redirectToCalendar(ActionEvent event) {
+        try {
+            // Check login status before navigation
+            if (!checkLoginForNavigation()) return;
+            SceneManager.loadScene("/fxml/patient_calendar.fxml", event);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Show error alert
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Erreur de navigation");
+            alert.setContentText("Impossible de charger le calendrier: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    private boolean checkLoginForNavigation() {
+        if (!sessionManager.isLoggedIn()) {
+            showAlert(Alert.AlertType.WARNING, "Accès refusé", "Non connecté",
+                    "Vous devez être connecté pour accéder à cette fonctionnalité.");
+            return false;
+        }
+        return true;
+    }
+    public void refreshView() {
+        updateUIBasedOnSession();
     }
 }

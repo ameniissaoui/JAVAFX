@@ -161,19 +161,6 @@ public class ListeSuiviBackController implements Initializable {
         }
     }
 
-    @FXML
-    public void handleStatisticsRedirect(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/fxml/UserStatistics.fxml"));
-            Stage stage = (Stage) statisticsButton.getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger les statistiques utilisateur: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     @FXML
     public void handleStatisticsCommandeRedirect(ActionEvent event) {
@@ -675,5 +662,9 @@ public class ListeSuiviBackController implements Initializable {
         loadData();
         searchField.clear();
         filterComboBox.setValue("Tous");
+    }
+    @FXML
+    private void handleStatisticsRedirect(ActionEvent event) {
+        SceneManager.loadScene("/fxml/statistics-view.fxml", event);
     }
 }

@@ -17,11 +17,7 @@ import org.example.models.Admin;
 import org.example.models.Medecin;
 import org.example.models.Patient;
 import org.example.models.User;
-import org.example.services.AdminService;
-import org.example.services.GoogleAuthService;
-import org.example.services.MedecinService;
-import org.example.services.PatientService;
-import org.example.services.UserService;
+import org.example.services.*;
 import org.example.util.SessionManager;
 
 import java.io.IOException;
@@ -257,6 +253,8 @@ public class LoginController implements Initializable {
                     showAlert("danger", "Type d'utilisateur non reconnu");
                     return;
             }
+            // Load the appropriate FXML
+            ReminderNotificationChecker.getInstance();
 
             // Load the FXML file
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
