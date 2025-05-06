@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 import org.example.models.Produit;
 import org.example.services.ProduitServices;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ public class ShowProduitController implements Initializable {
     @FXML private Button tablesButton;
     @FXML private Button eventButton;
     @FXML private Button acceuil;
+    @FXML private Button reservationButton;
     @FXML private TextField searchField;
 
     @FXML
@@ -47,6 +50,7 @@ public class ShowProduitController implements Initializable {
         tablesButton.setOnAction(event -> handleTablesRedirect());
         eventButton.setOnAction(event -> handleeventRedirect());
         historique.setOnAction(event -> handleHistoriqueRedirect());
+        reservationButton.setOnAction(event -> handlereservationRedirect());
         suivi.setOnAction(event -> handleSuiviRedirect());
         acceuil.setOnAction(event -> handleAcceuilRedirect());
 
@@ -107,6 +111,20 @@ public class ShowProduitController implements Initializable {
         alert.showAndWait();
     }
 
+
+    private void handlereservationRedirect() {
+        try {
+            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/listreservation.fxml"));
+            Stage stage = (Stage) eventButton.getScene().getWindow();
+            Scene tableScene = new Scene(tableRoot);
+            stage.setScene(tableScene);
+            stage.show();
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des événements: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     private void handleCommandeRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showCommande.fxml"));
@@ -148,17 +166,18 @@ public class ShowProduitController implements Initializable {
 
     private void handleeventRedirect() {
         try {
-            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/listevent.fxml"));
-            Stage stage = (Stage) tablesButton.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
-            stage.setScene(tableScene);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/eventFront.fxml")); // Assure-toi que ce fichier existe
+            Parent root = loader.load();
+            Stage stage = (Stage) eventButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true); // Pour afficher en plein écran si besoin
+            stage.setTitle("Liste des événements");
             stage.show();
-        } catch (Exception e) {
-            showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
+        } catch (IOException e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des événements : " + e.getMessage());
             e.printStackTrace();
         }
     }
-
     private void handleTablesRedirect() {
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showProduit.fxml"));
@@ -312,6 +331,17 @@ public class ShowProduitController implements Initializable {
     private void loadImage(Produit product, ImageView productImage, Label imageUrlLabel) {
         try {
             String imagePath = "/images/" + product.getImage();
+
+            // First try loading from actual file system (for newly added images)
+            File imageFile = new File("src/main/resources/images/" + product.getImage());
+            if (imageFile.exists()) {
+                Image img = new Image(imageFile.toURI().toString());
+                productImage.setImage(img);
+                imageUrlLabel.setText(product.getImage());
+                return;
+            }
+
+            // Fallback to resource stream (for bundled images)
             InputStream imageStream = getClass().getResourceAsStream(imagePath);
             if (imageStream != null) {
                 Image img = new Image(imageStream);
@@ -340,16 +370,26 @@ public class ShowProduitController implements Initializable {
 
         String imageInfo;
         try {
-            String imagePath = "/images/" + product.getImage();
-            InputStream imageStream = getClass().getResourceAsStream(imagePath);
-            if (imageStream != null) {
-                Image img = new Image(imageStream);
+            // First try loading from file system
+            File imageFile = new File("src/main/resources/images/" + product.getImage());
+            if (imageFile.exists()) {
+                Image img = new Image(imageFile.toURI().toString());
                 imageView.setImage(img);
                 imageInfo = String.format("Image File: %s\nDimensions: %.0fx%.0f pixels",
                         product.getImage(), img.getWidth(), img.getHeight());
             } else {
-                setPlaceholderImage(imageView);
-                imageInfo = "Image file not found: " + product.getImage();
+                // Fallback to resource stream
+                String imagePath = "/images/" + product.getImage();
+                InputStream imageStream = getClass().getResourceAsStream(imagePath);
+                if (imageStream != null) {
+                    Image img = new Image(imageStream);
+                    imageView.setImage(img);
+                    imageInfo = String.format("Image File: %s\nDimensions: %.0fx%.0f pixels",
+                            product.getImage(), img.getWidth(), img.getHeight());
+                } else {
+                    setPlaceholderImage(imageView);
+                    imageInfo = "Image file not found: " + product.getImage();
+                }
             }
         } catch (Exception e) {
             setPlaceholderImage(imageView);
@@ -456,4 +496,5 @@ public class ShowProduitController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load add product form.");
         }
     }
+
 }

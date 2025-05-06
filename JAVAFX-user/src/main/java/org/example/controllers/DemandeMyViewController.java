@@ -3,9 +3,12 @@ package org.example.controllers;
 import java.io.IOException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import org.example.services.DemandeDAO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,6 +25,7 @@ import javafx.stage.Stage;
 import org.example.models.Demande;
 import org.example.models.Patient;
 import org.example.util.SessionManager;
+import javafx.scene.Node;
 
 public class DemandeMyViewController implements Initializable {
 
@@ -36,6 +40,8 @@ public class DemandeMyViewController implements Initializable {
 
     @FXML
     private Button editDemandeButton;
+    @FXML
+    private Button historique;
 
     @FXML
     private Button deleteDemandeButton;
@@ -78,7 +84,6 @@ public class DemandeMyViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         demandeDAO = new DemandeDAO();
         loadPatientDemande();
-        profile.setOnAction(event -> handleProfileRedirect());
     }
 
     private void showErrorDialog(String title, String message) {
@@ -90,11 +95,24 @@ public class DemandeMyViewController implements Initializable {
     }
 
     private void handleProfileRedirect() {
+        // Updated to use SceneManager - we'll need an ActionEvent for this
+        // Since this method doesn't seem to be connected to any FXML button directly,
+        // keeping it as a reference implementation
         try {
             Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/patient_profile.fxml"));
             Stage stage = (Stage) profile.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
+
+            // Create scene with screen dimensions for full screen
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            Scene tableScene = new Scene(tableRoot, screenBounds.getWidth(), screenBounds.getHeight());
+
+            // Preserve stylesheets if any
+            if (stage.getScene() != null && !stage.getScene().getStylesheets().isEmpty()) {
+                tableScene.getStylesheets().addAll(stage.getScene().getStylesheets());
+            }
+
             stage.setScene(tableScene);
+            stage.setMaximized(true);
             stage.show();
         } catch (IOException e) {
             showErrorDialog("Erreur", "Impossible de charger la page de profile: " + e.getMessage());
@@ -130,7 +148,14 @@ public class DemandeMyViewController implements Initializable {
             int patientId = currentPatient.getId();
             System.out.println("Loading demandes for patient ID: " + patientId);
 
-            Optional<Demande> latestDemande = demandeDAO.getByPatientId(patientId).stream().findFirst();
+            // Get all demandes for the patient
+            List<Demande> demandes = demandeDAO.getByPatientId(patientId);
+
+            // Sort demandes by date in descending order (newest first)
+            demandes.sort((d1, d2) -> d2.getDate().compareTo(d1.getDate()));
+
+            // Get the latest demande (first in the sorted list)
+            Optional<Demande> latestDemande = demandes.stream().findFirst();
 
             if (latestDemande.isPresent()) {
                 // If demande exists, show the existing demande view
@@ -202,28 +227,13 @@ public class DemandeMyViewController implements Initializable {
 
     @FXML
     private void handleCreateDemande(ActionEvent event) {
-        try {
-            // Load the DemandeCreateView.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DemandeCreateView.fxml"));
-            Parent root = loader.load();
-
-            // Get the controller (no need to explicitly set patient ID thanks to SessionManager)
-            DemandeCreateViewController controller = loader.getController();
-
-            // Create new scene and show it
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) createDemandeButton.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ouverture du formulaire de création", e.getMessage());
-        }
+        SceneManager.loadScene("/fxml/DemandeCreateView.fxml", event);
     }
 
     @FXML
     private void handleEditDemande(ActionEvent event) {
         try {
-            // Load the DemandeEditView.fxml
+            // We need custom handling here to set the demande in controller
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DemandeEditView.fxml"));
             Parent root = loader.load();
 
@@ -231,10 +241,20 @@ public class DemandeMyViewController implements Initializable {
             DemandeEditViewController controller = loader.getController();
             controller.setDemande(currentDemande);
 
-            // Create new scene and show it
-            Scene scene = new Scene(root);
+            // Using SceneManager's approach for fullscreen support
             Stage stage = (Stage) editDemandeButton.getScene().getWindow();
+
+            // Create scene with screen dimensions for full screen
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
+
+            // Preserve stylesheets if any
+            if (stage.getScene() != null && !stage.getScene().getStylesheets().isEmpty()) {
+                scene.getStylesheets().addAll(stage.getScene().getStylesheets());
+            }
+
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur lors de l'ouverture du formulaire de modification", e.getMessage());
@@ -277,5 +297,122 @@ public class DemandeMyViewController implements Initializable {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    @FXML
+    public void redirectToHistorique(ActionEvent event) {
+        try {
+            // Enhanced logging
+            System.out.println("Starting history redirect...");
+            System.out.println("SessionManager.isLoggedIn(): " + SessionManager.getInstance().isLoggedIn());
+            System.out.println("SessionManager.isPatient(): " + SessionManager.getInstance().isPatient());
+
+            // Check if user is logged in
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showErrorDialog("Erreur", "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Check if the user is a patient
+            if (!SessionManager.getInstance().isPatient()) {
+                showErrorDialog("Erreur", "Seuls les patients peuvent accéder à cette fonctionnalité.");
+                return;
+            }
+
+            // Get the patient from the session
+            Patient patient = SessionManager.getInstance().getCurrentPatient();
+            System.out.println("Patient from SessionManager: " + (patient != null ?
+                    "ID=" + patient.getId() + ", Nom=" + patient.getNom() : "NULL"));
+
+            if (patient == null) {
+                System.out.println("Error: SessionManager.getCurrentPatient() returned null!");
+                showErrorDialog("Erreur", "Impossible de récupérer les informations du patient.");
+                return;
+            }
+
+            // Since we need to pass patient to controller, we need custom loading
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ajouter_historique.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller and pass the patient
+            AjouterHistController controller = loader.getController();
+            controller.setPatient(patient);
+            System.out.println("Patient passed to controller: ID=" + patient.getId() +
+                    ", Nom=" + patient.getNom() + ", Prénom=" + patient.getPrenom());
+
+            // Show the new scene with maximum size
+            Stage stage = (Stage) historique.getScene().getWindow();
+
+            // Get screen dimensions for maximum size
+            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+            Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
+
+            // Preserve stylesheets if any
+            if (stage.getScene() != null && !stage.getScene().getStylesheets().isEmpty()) {
+                scene.getStylesheets().addAll(stage.getScene().getStylesheets());
+            }
+
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+
+        } catch (IOException e) {
+            System.err.println("Error during navigation to historique: " + e.getMessage());
+            e.printStackTrace();
+            showErrorDialog("Erreur", "Impossible de charger la page d'ajout d'historique: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void navigateToAcceuil(ActionEvent event) {
+        SceneManager.loadScene("/fxml/main_view_patient.fxml", event);
+    }
+
+    @FXML
+    public void redirectToDemande(ActionEvent event) {
+        SceneManager.loadScene("/fxml/DemandeDashboard.fxml", event);
+    }
+
+    @FXML
+    public void redirectToRendezVous(ActionEvent event) {
+        SceneManager.loadScene("/fxml/rendez-vous-view.fxml", event);
+    }
+
+    @FXML
+    public void viewDoctors(ActionEvent event) {
+        try {
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
+                        "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Use SceneManager to load the DoctorList.fxml in full screen
+            SceneManager.loadScene("/fxml/DoctorList.fxml", event);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de Navigation",
+                    "Impossible d'ouvrir la page des médecins: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void navigateToEvent(ActionEvent event) {
+        SceneManager.loadScene("/fxml/eventFront.fxml", event);
+    }
+
+    @FXML
+    private void redirectProduit(ActionEvent event) {
+        SceneManager.loadScene("/fxml/front/showProduit.fxml", event);
+    }
+
+    @FXML
+    private void handleProfileButtonClick(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_profile.fxml", event);
+    }
+
+    @FXML
+    public void redirectToCalendar(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_calendar.fxml", event);
     }
 }

@@ -1,6 +1,46 @@
 /* Enhanced CSS styles for the Medical History tab */
 
 /* Medical History ListView Styling */
+.modern-page-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #30b4b4;
+    -fx-alignment: center;
+    -fx-padding: 20px 0 30px 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 2, 0, 0, 1);
+}
+/* Container for history title */
+#historiqueContent > HBox {
+    -fx-alignment: center;
+    -fx-padding: 20px 0 30px 0;
+    -fx-background-color: rgba(48, 180, 180, 0.05);
+    -fx-background-radius: 5px;
+    -fx-border-color: rgba(48, 180, 180, 0.2);
+    -fx-border-radius: 5px;
+    -fx-border-width: 1px;
+    -fx-min-width: 100%;
+}
+/* Style for the refresh button */
+#historiqueContent Button {
+    -fx-background-color: #30b4b4;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 15px;
+    -fx-background-radius: 20px;
+    -fx-cursor: hand;
+}
+
+#historiqueContent Button:hover {
+    -fx-background-color: #279a9a;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 4, 0, 0, 2);
+}
+/* Make the history list view more visible */
+#listViewHistoriques {
+    -fx-background-color: white;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
 .history-list-view {
     -fx-background-color: transparent;
     -fx-background-insets: 0;

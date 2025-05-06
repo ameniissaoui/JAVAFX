@@ -8,12 +8,10 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBase;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -83,7 +81,7 @@ public class MedecinProfileController extends BaseProfileController {
                 System.out.println("Mes Traitements clicked");
             });
         }
-
+        mesTraitementsButton.setOnAction(this::goToListeSuivi);
         if (mesReservationsButton != null) {
             mesReservationsButton.setOnAction(event -> {
                 // Handle mes reservations button click
@@ -282,8 +280,44 @@ public class MedecinProfileController extends BaseProfileController {
 
     @FXML
     public void redirectToSuivi(ActionEvent event) {
-        SceneManager.loadScene("/fxml/liste_historique.fxml", event);
+        try {
+            // Check if user is logged in and is a medecin
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showAlert("Vous devez être connecté pour accéder à cette page.", "error");
+                return;
+            }
 
+            if (!SessionManager.getInstance().isMedecin()) {
+                showAlert("Seuls les médecins peuvent accéder à cette fonctionnalité.", "error");
+                return;
+            }
+
+            // Get the current medecin
+            Medecin medecin = SessionManager.getInstance().getCurrentMedecin();
+            if (medecin == null) {
+                showAlert("Impossible de récupérer les informations du médecin.", "error");
+                return;
+            }
+
+            // Use SceneManager to load the liste_historique page in full screen
+            String fxmlPath = "/fxml/liste_historique.fxml";
+            SceneManager.loadScene(fxmlPath, event);
+
+            // Get the controller and pass the medecin if needed
+            try {
+                ListeHistoriqueController controller = SceneManager.getController(fxmlPath);
+                // If needed, set the medecin in the controller
+                // controller.setMedecin(medecin);
+            } catch (IOException e) {
+                System.err.println("Error getting controller: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error during navigation to liste historique: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Impossible de charger la page de liste d'historique: " + e.getMessage(), "error");
+        }
     }
 
     @FXML
@@ -318,6 +352,45 @@ public class MedecinProfileController extends BaseProfileController {
             timeline.getKeyFrames().add(kf);
             timeline.play();
             sidebarOpen = true;
+        }
+    }
+
+    @FXML
+    private void goToListeSuivi(ActionEvent event) {
+        try {
+            // Spécifier le chemin correct vers le fichier FXML de la liste des suivis
+            // Assurez-vous que ce chemin est correct par rapport à la structure de votre projet
+            String fxmlPath = "/fxml/liste_historique.fxml";
+            // ou "/org/example/fxml/liste_suivi.fxml" selon votre structure
+
+            // Vérifier si la ressource existe
+            URL location = getClass().getResource(fxmlPath);
+            if (location == null) {
+                System.err.println("FXML file not found: " + fxmlPath);
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur de chargement");
+                alert.setHeaderText("Fichier FXML introuvable");
+                alert.setContentText("Le fichier liste_suivi.fxml n'a pas été trouvé dans le chemin spécifié.");
+                alert.showAndWait();
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(location);
+            Parent listeSuiviView = loader.load();
+
+            // Obtenir la scène actuelle
+            Scene currentScene = ((Node) event.getSource()).getScene();
+
+            // Remplacer le contenu de la scène par la vue de la liste des suivis
+            currentScene.setRoot(listeSuiviView);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur de navigation");
+            alert.setHeaderText("Impossible de charger la page des suivis");
+            alert.setContentText("Une erreur s'est produite: " + e.getMessage());
+            alert.showAndWait();
         }
     }
 }

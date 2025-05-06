@@ -1,24 +1,29 @@
 package org.example.controllers;
 
+import javafx.animation.*;
 import javafx.application.Platform;
-import javafx.animation.RotateTransition;
-import javafx.animation.ScaleTransition;
-import javafx.animation.ParallelTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.example.models.Patient;
 import org.example.models.historique_traitement;
 import org.example.services.HisServices;
+import org.example.services.ReminderNotificationChecker;
+import org.example.util.SessionManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,17 +31,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.regex.Pattern;
+
+import static org.example.controllers.NavigationController.navigateTo;
 
 public class AjouterHistController {
 
+
     @FXML
     private TextField tfNom;
-
+    private SessionManager sessionManager;
+    @FXML
+    private Button profileButton;
     @FXML
     private TextField tfPrenom;
 
@@ -343,14 +353,12 @@ public class AjouterHistController {
                 clearFields();
 
                 try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/patient_profile.fxml"));
-                    Parent root = loader.load();
-                    PatientProfileController profileController = loader.getController();
+                    // Using SceneManager instead of manual scene loading
+                    SceneManager.loadScene("/fxml/patient_profile.fxml", event);
+
+                    // Get the controller and set the patient
+                    PatientProfileController profileController = SceneManager.getController("/fxml/patient_profile.fxml");
                     profileController.setPatient(patient);
-                    Stage stage = (Stage) tfNom.getScene().getWindow();
-                    Scene scene = new Scene(root);
-                    stage.setScene(scene);
-                    stage.show();
                 } catch (Exception e) {
                     afficherAlert(Alert.AlertType.ERROR, "Erreur",
                             "Erreur de navigation",
@@ -370,24 +378,39 @@ public class AjouterHistController {
     @FXML
     public void retourProfil(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/patient_profile.fxml"));
-            Parent root = loader.load();
-            PatientProfileController controller = loader.getController();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("Profil Patient");
-            stage.show();
+            // Using SceneManager instead of manual scene loading
+            SceneManager.loadScene("/fxml/patient_profile.fxml", event);
+
+            // Get the controller and set the patient if needed
+            PatientProfileController controller = SceneManager.getController("/fxml/patient_profile.fxml");
+            if (patient != null) {
+                controller.setPatient(patient);
+            }
         } catch (IOException e) {
             e.printStackTrace();
+            afficherAlert(Alert.AlertType.ERROR, "Erreur",
+                    "Erreur de navigation",
+                    "Impossible de retourner au profil patient: " + e.getMessage());
         }
     }
-
     @FXML
     private void onAnnuler(ActionEvent event) {
-        retourProfil(new ActionEvent(btnAnnuler, null));
-    }
+        try {
+            // Using SceneManager directly for consistent navigation
+            SceneManager.loadScene("/fxml/patient_profile.fxml", event);
 
+            // Get the controller and set the patient if needed
+            PatientProfileController controller = SceneManager.getController("/fxml/patient_profile.fxml");
+            if (patient != null) {
+                controller.setPatient(patient);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            afficherAlert(Alert.AlertType.ERROR, "Erreur",
+                    "Erreur de navigation",
+                    "Impossible de retourner au profil patient: " + e.getMessage());
+        }
+    }
     private boolean validateInput() {
         StringBuilder errors = new StringBuilder();
 
@@ -480,39 +503,111 @@ public class AjouterHistController {
     public void navigateToHome(ActionEvent actionEvent) {
     }
 
+
     public void handleHistoRedirect(ActionEvent actionEvent) {
     }
 
-    public void redirectToCalendar(ActionEvent actionEvent) {
+    public void navigateToEvent(ActionEvent event) {
+        SceneManager.loadScene("/fxml/eventFront.fxml", event);
+
     }
 
-    public void redirectToDemande(ActionEvent actionEvent) {
-    }
-
-    public void redirectToRendezVous(ActionEvent actionEvent) {
-    }
-
-    public void redirectProduit(ActionEvent actionEvent) {
-    }
-
-    public void viewDoctors(ActionEvent actionEvent) {
-    }
-
-    public void navigateToEvent(ActionEvent actionEvent) {
-    }
-
-    public void navigateToReservation(ActionEvent actionEvent) {
-    }
 
     public void navigateToContact(ActionEvent actionEvent) {
     }
 
-    public void showNotifications(ActionEvent actionEvent) {
-    }
-
-    public void navigateToProfile(ActionEvent actionEvent) {
-    }
 
     public void handleLogout(ActionEvent actionEvent) {
+    }
+
+
+    // Navigation methods
+    @FXML
+    private void handleProfileButtonClick(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_profile.fxml", event);
+    }
+    @FXML
+    private void redirectProduit(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/showProduit.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur",
+                    "Erreur de navigation",
+                    "Impossible de charger la page des produits: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void showNotifications(ActionEvent event) {
+        // Implement notification display logic here
+        // This could be a popup with recent notifications
+        Alert notificationsAlert = new Alert(Alert.AlertType.INFORMATION);
+        notificationsAlert.setTitle("Notifications");
+        notificationsAlert.setHeaderText("Vos notifications");
+
+        // Here you would load actual notifications from a service
+        // This is just a placeholder
+        VBox notificationsContent = new VBox(10);
+        notificationsContent.getChildren().addAll(
+                new Label("Rappel: Prendre médicament à 14:00"),
+                new Label("Rendez-vous demain à 10:30")
+        );
+
+        notificationsAlert.getDialogPane().setContent(notificationsContent);
+        notificationsAlert.showAndWait();
+    }
+    public void redirectToHistorique(ActionEvent event) {
+        SceneManager.loadScene("/fxml/ajouter_historique.fxml", event);
+
+    }
+
+    @FXML
+    private void navigateToAcceuil(ActionEvent event) {
+        SceneManager.loadScene("/fxml/main_view_patient.fxml", event);
+    }
+    @FXML
+    public void redirectToDemande(ActionEvent event) {
+        SceneManager.loadScene("/fxml/DemandeDashboard.fxml", event);
+    }
+
+    @FXML
+    public void redirectToRendezVous(ActionEvent event) {
+        SceneManager.loadScene("/fxml/rendez-vous-view.fxml", event);
+    }
+    @FXML
+    public void viewDoctors(ActionEvent event) {
+        try {
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
+                        "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Use SceneManager to load the DoctorList.fxml in full screen
+            SceneManager.loadScene("/fxml/DoctorList.fxml", event);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de Navigation",
+                    "Impossible d'ouvrir la page des médecins: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    @FXML
+    public void redirectToCalendar(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_calendar.fxml", event);
     }
 }

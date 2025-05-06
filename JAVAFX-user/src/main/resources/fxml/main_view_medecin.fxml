@@ -46,7 +46,8 @@
                             <Font size="14.0" />
                         </font>
                     </Button>
-                    <Button   style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="EVENEMENT">
+                    <Button fx:id="evenementButton"
+                            onAction="#redirectToEvents"  style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="EVENEMENT">
                         <font>
                             <Font size="14.0" />
                         </font>

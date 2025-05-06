@@ -23,11 +23,17 @@
             <VBox spacing="0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <!-- Top Bar -->
                 <HBox alignment="CENTER" prefHeight="40.0" style="-fx-background-color: #30b4b4;">
-                    <HBox alignment="CENTER_LEFT" prefWidth="600.0" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 0 0 0 20;" text="Lundi- Samedi, 8h à 22h" />
+                    <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                        <padding>
+                            <Insets left="20.0" />
+                        </padding>
+                        <Label style="-fx-font-size: 14px; -fx-text-fill: white;" text="Lundi- Samedi, 8h à 22h" />
                     </HBox>
-                    <HBox alignment="CENTER_RIGHT" minHeight="35.0" prefWidth="600.0" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 0 20 0 0;" text="Appelez-nous maintenant +1 5589 55488 55" />
+                    <HBox alignment="CENTER_RIGHT" minHeight="35.0" HBox.hgrow="ALWAYS">
+                        <padding>
+                            <Insets right="20.0" />
+                        </padding>
+                        <Label style="-fx-font-size: 14px; -fx-text-fill: white;" text="Appelez-nous maintenant +1 5589 55488 55" />
                     </HBox>
                 </HBox>
                 <HBox prefHeight="80.0" style="-fx-background-color: white; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0;">
@@ -41,53 +47,19 @@
                                 <Insets left="20.0" />
                             </HBox.margin>
                         </ImageView>
-                        <!-- Navigation Buttons (Centered) -->
-                        <HBox alignment="CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <!-- Spacer to push navigation buttons to the right -->
+                        <Region HBox.hgrow="ALWAYS" />
+                        <!-- Navigation Buttons (Right-aligned) -->
+                        <HBox fx:id="navButtonsHBox" alignment="CENTER_RIGHT" spacing="15.0">
                             <children>
-                                <Button onAction="#navigateToHome" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="ACCUEIL">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Button>
-                                <Button onAction="#navigateToHistoriques" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="HISTORIQUES">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Button>
-                                <Button onAction="#redirectToDemande" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="DEMANDE">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Button>
-                                <Button onAction="#redirectToRendezVous" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="RENDEZ-VOUS">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Button>
-                                <Button onAction="#redirectProduit" style="-fx-background-color: transparent; -fx-text-fill: #30b4b4;" text="PRODUIT">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Button>
-                                <Button onAction="#navigateToTraitement" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="TRAITEMENT">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Button>
-                                <Button onAction="#viewDoctors" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="MÉDECIN">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Button>
-                                <Button onAction="#navigateToContact" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="CONTACT">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Button>
+                                <!-- Navigation buttons will be populated dynamically based on user type -->
                             </children>
+                            <HBox.margin>
+                                <Insets right="20.0" />
+                            </HBox.margin>
                         </HBox>
-                        <!-- Profile and Cart Count (Right) -->
-                        <HBox alignment="CENTER_RIGHT" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <!-- Profile and Icons (Right) -->
+                        <HBox alignment="CENTER_RIGHT" spacing="15.0">
                             <children>
                                 <Button onAction="#navigateToProfile" prefHeight="30.0" prefWidth="91.0" style="-fx-background-color: #30b4b4; -fx-text-fill: white; -fx-background-radius: 20;" text="Mon Profil">
                                     <font>
@@ -97,27 +69,6 @@
                                         <Insets right="10.0" />
                                     </HBox.margin>
                                 </Button>
-                                <StackPane styleClass="cart-icon-wrapper">
-                                    <children>
-                                        <StackPane styleClass="cart-count-wrapper" translateX="12.0" translateY="-12.0">
-                                            <children>
-                                                <Label fx:id="cartCountLabel1" style="-fx-font-weight: bold;" text="0" textFill="WHITE">
-                                                    <font>
-                                                        <Font size="10.0" />
-                                                    </font>
-                                                </Label>
-                                            </children>
-                                        </StackPane>
-                                    </children>
-                                    <HBox.margin>
-                                        <Insets right="20.0" />
-                                    </HBox.margin>
-                                </StackPane>
-                            </children>
-                        </HBox>
-                        <!-- Icons (Far Right) -->
-                        <HBox alignment="CENTER_RIGHT" prefWidth="250.0" spacing="15.0" style="-fx-padding: 0 20 0 0;">
-                            <children>
                                 <StackPane>
                                     <children>
                                         <Button onAction="#navigateToFavorites" style="-fx-background-color: #30b4b4; -fx-background-radius: 50%; -fx-min-width: 40; -fx-min-height: 40; -fx-max-width: 40; -fx-max-height: 40;">
@@ -147,85 +98,91 @@
                                     </children>
                                 </StackPane>
                             </children>
+                            <HBox.margin>
+                                <Insets right="20.0" />
+                            </HBox.margin>
                         </HBox>
                     </children>
                 </HBox>
             </VBox>
 
             <!-- Main Content -->
-            <VBox spacing="15" style="-fx-padding: 20;" VBox.vgrow="ALWAYS">
-                <!-- Checkout Progress -->
-                <HBox alignment="CENTER" style="-fx-background-color: #ecf0f1; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8;">
-                    <Label text="Étape 1 sur 3 : Panier" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                </HBox>
-
-                <HBox spacing="20">
-                    <!-- Cart Items List -->
-                    <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 3);" HBox.hgrow="ALWAYS">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label text="🛒 Mon Panier" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                            <Label fx:id="itemCountLabel" text="(0 articles)" style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d; -fx-padding: 8 0 0 0;" />
-                            <Region HBox.hgrow="ALWAYS" />
-                            <Button fx:id="clearCartButton" onAction="#clearCart" style="-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-font-size: 14px; -fx-cursor: hand;" text="Vider le panier">
-                                <graphic>
-                                    <Text style="-fx-fill: #e74c3c; -fx-font-size: 16px;" text="🗑️" />
-                                </graphic>
-                                <tooltip>
-                                    <Tooltip text="Supprimer tous les articles" />
-                                </tooltip>
-                            </Button>
+            <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                <content>
+                    <VBox spacing="15" style="-fx-padding: 20;">
+                        <!-- Checkout Progress -->
+                        <HBox alignment="CENTER" style="-fx-background-color: #ecf0f1; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8;">
+                            <Label text="Étape 1 sur 3 : Panier" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
                         </HBox>
-                        <HBox spacing="20" style="-fx-background-color: #ecf0f1; -fx-padding: 12; -fx-border-radius: 8; -fx-background-radius: 8;">
-                            <Label text="Produit" prefWidth="150" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                            <Label text="Image" prefWidth="80" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                            <Label text="Prix unitaire" prefWidth="120" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                            <Label text="Quantité" prefWidth="120" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" alignment="CENTER" />
-                            <Label text="Prix total" prefWidth="120" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                            <Label text="Actions" prefWidth="100" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" alignment="CENTER" />
-                        </HBox>
-                        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
-                            <content>
-                                <ListView fx:id="cartListView" style="-fx-background-color: transparent;" />
-                            </content>
-                        </ScrollPane>
-                    </VBox>
 
-                    <!-- Sticky Summary Section -->
-                    <VBox spacing="15" prefWidth="300" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 3);">
-                        <Label text="Résumé de la commande" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                        <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f7f9fc; -fx-border-radius: 5; -fx-background-radius: 5;">
-                            <HBox alignment="CENTER_LEFT" spacing="10">
-                                <Label text="Sous-total:" style="-fx-font-size: 16px; -fx-text-fill: #2c3e50;" />
-                                <Label fx:id="subtotalLabel" text="0.00 TND" style="-fx-font-size: 16px; -fx-text-fill: #2c3e50;" />
-                            </HBox>
-                            <HBox alignment="CENTER_LEFT" spacing="10">
-                                <Label text="Taxe (10%):" style="-fx-font-size: 16px; -fx-text-fill: #2c3e50;" />
-                                <Label fx:id="taxLabel" text="0.00 TND" style="-fx-font-size: 16px; -fx-text-fill: #2c3e50;" />
-                            </HBox>
-                            <HBox alignment="CENTER_LEFT" spacing="10">
-                                <Label text="Total:" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-                                <Label fx:id="totalLabel" text="0.00 TND" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;" />
-                            </HBox>
-                        </VBox>
-                        <Button onAction="#continueShopping" style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12 25; -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand;" text="Continuer mes achats" prefWidth="Infinity">
-                            <graphic>
-                                <Text style="-fx-fill: white; -fx-font-size: 16px;" text="🛍️" />
-                            </graphic>
-                            <tooltip>
-                                <Tooltip text="Retourner à la boutique" />
-                            </tooltip>
-                        </Button>
-                        <Button onAction="#proceedToCheckout" style="-fx-background-color: linear-gradient(to right, #30b4b4, #1abc9c); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12 25; -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand;" text="Procéder au paiement" prefWidth="Infinity">
-                            <graphic>
-                                <Text style="-fx-fill: white; -fx-font-size: 16px;" text="💳" />
-                            </graphic>
-                            <tooltip>
-                                <Tooltip text="Passer à la caisse" />
-                            </tooltip>
-                        </Button>
+                        <HBox spacing="20">
+                            <!-- Cart Items List -->
+                            <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 3);" HBox.hgrow="ALWAYS">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="🛒 Mon Panier" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                                    <Label fx:id="itemCountLabel" text="(0 articles)" style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d; -fx-padding: 8 0 0 0;" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="clearCartButton" onAction="#clearCart" style="-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-font-size: 14px; -fx-cursor: hand;" text="Vider le panier">
+                                        <graphic>
+                                            <Text style="-fx-fill: #e74c3c; -fx-font-size: 16px;" text="🗑️" />
+                                        </graphic>
+                                        <tooltip>
+                                            <Tooltip text="Supprimer tous les articles" />
+                                        </tooltip>
+                                    </Button>
+                                </HBox>
+                                <HBox spacing="20" style="-fx-background-color: #ecf0f1; -fx-padding: 12; -fx-border-radius: 8; -fx-background-radius: 8;">
+                                    <Label text="Produit" prefWidth="150" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                                    <Label text="Image" prefWidth="80" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                                    <Label text="Prix unitaire" prefWidth="120" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                                    <Label text="Quantité" prefWidth="120" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" alignment="CENTER" />
+                                    <Label text="Prix total" prefWidth="120" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                                    <Label text="Actions" prefWidth="100" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" alignment="CENTER" />
+                                </HBox>
+                                <ListView fx:id="cartListView" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS" />
+                            </VBox>
+
+                            <!-- Sticky Summary Section -->
+                            <VBox spacing="15" minWidth="280" maxWidth="320" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 3);">
+                                <Label text="Résumé de la commande" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                                <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f7f9fc; -fx-border-radius: 5; -fx-background-radius: 5;">
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label text="Sous-total:" style="-fx-font-size: 16px; -fx-text-fill: #2c3e50;" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="subtotalLabel" text="0.00 TND" style="-fx-font-size: 16px; -fx-text-fill: #2c3e50;" />
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label text="Taxe (10%):" style="-fx-font-size: 16px; -fx-text-fill: #2c3e50;" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="taxLabel" text="0.00 TND" style="-fx-font-size: 16px; -fx-text-fill: #2c3e50;" />
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label text="Total:" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="totalLabel" text="0.00 TND" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;" />
+                                    </HBox>
+                                </VBox>
+                                <Button onAction="#continueShopping" style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12 25; -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand;" text="Continuer mes achats" maxWidth="Infinity">
+                                    <graphic>
+                                        <Text style="-fx-fill: white; -fx-font-size: 16px;" text="🛍️" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Retourner à la boutique" />
+                                    </tooltip>
+                                </Button>
+                                <Button onAction="#proceedToCheckout" style="-fx-background-color: linear-gradient(to right, #30b4b4, #1abc9c); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12 25; -fx-border-radius: 8; -fx-background-radius: 8; -fx-cursor: hand;" text="Procéder au paiement" maxWidth="Infinity">
+                                    <graphic>
+                                        <Text style="-fx-fill: white; -fx-font-size: 16px;" text="💳" />
+                                    </graphic>
+                                    <tooltip>
+                                        <Tooltip text="Passer à la caisse" />
+                                    </tooltip>
+                                </Button>
+                            </VBox>
+                        </HBox>
                     </VBox>
-                </HBox>
-            </VBox>
+                </content>
+            </ScrollPane>
         </VBox>
     </children>
 </AnchorPane>

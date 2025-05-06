@@ -3,6 +3,9 @@ package org.example.models;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Classe représentant un planning horaire (jour, heure de début et de fin).
+ */
 public class Planning {
     private int id;
     private String jour;
@@ -13,7 +16,7 @@ public class Planning {
     public Planning() {
     }
 
-    // Constructeur avec paramètres
+    // Constructeur complet
     public Planning(int id, String jour, LocalTime heuredebut, LocalTime heurefin) {
         this.id = id;
         this.jour = jour;
@@ -54,7 +57,7 @@ public class Planning {
         this.heurefin = heurefin;
     }
 
-    // Méthode toString pour l'affichage
+    // Méthode toString pour l'affichage dans le ComboBox / ListView / FX UI
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");

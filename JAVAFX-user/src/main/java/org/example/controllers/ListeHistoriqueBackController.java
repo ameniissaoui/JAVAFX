@@ -271,16 +271,8 @@ public class ListeHistoriqueBackController implements Initializable {
 
     private void handleAcceuilRedirect() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AdminDashboard.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-
-            // Get the stage from the acceuil button
-            Stage stage = (Stage) acceuil.getScene().getWindow();
-
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
+            SceneManager.loadScene("/fxml/AdminDashboard.fxml", new ActionEvent(acceuil, null));
+        } catch (Exception e) {
             showErrorDialog("Erreur", "Impossible de charger la page d'accueil: " + e.getMessage());
             e.printStackTrace();
         }
@@ -489,7 +481,6 @@ public class ListeHistoriqueBackController implements Initializable {
     private void navigateToReportDashboard(ActionEvent event) {
         SceneManager.loadScene("/fxml/AdminReportDashboard.fxml", event);
     }
-
     @FXML
     private void handleStatisticsRedirect(ActionEvent event) {
         SceneManager.loadScene("/fxml/statistics-view.fxml", event);

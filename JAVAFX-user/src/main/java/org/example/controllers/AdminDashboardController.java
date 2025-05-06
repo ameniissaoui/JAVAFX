@@ -1,4 +1,5 @@
 package org.example.controllers;
+import javafx.util.Duration;
 
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -6,6 +7,7 @@ import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Div;
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -73,7 +75,7 @@ public class AdminDashboardController implements Initializable {
     @FXML private TableColumn<UserTableData, Boolean> bannedColumn;
     @FXML private Button tablesButton;
     @FXML private Button eventButton;
-
+    @FXML private Button reservationButton;
     @FXML private ComboBox<String> filterComboBox;
     @FXML private TextField searchField;
     @FXML private Button profileButton;
@@ -81,13 +83,18 @@ public class AdminDashboardController implements Initializable {
     @FXML private Button suivi;
     @FXML private Button buttoncommande;
 
+
     private AdminService adminService = new AdminService();
     private MedecinService medecinService = new MedecinService();
     private PatientService patientService = new PatientService();
 
     private ObservableList<UserTableData> allUsers = FXCollections.observableArrayList();
     private ObservableList<UserTableData> filteredUsers = FXCollections.observableArrayList();
+    @FXML
+    private VBox statisticsSubmenu;
 
+    @FXML
+    private Button statisticsMenuButton;
 
     @FXML private Label detailNomLabel;
     @FXML private Label detailPrenomLabel;
@@ -101,14 +108,15 @@ public class AdminDashboardController implements Initializable {
     @FXML private VBox detailsVBox;
     @FXML private HBox specialiteHBox;
     @FXML private HBox diplomeHBox;
+    private boolean statisticsMenuExpanded = false;
 
     //verfication diploma
     @FXML private Label detailVerificationLabel;
     @FXML private Button verifyDiplomaButton;
     @FXML private HBox verificationHBox;
-    private static final String TWILIO_ACCOUNT_SID = "";
-    private static final String TWILIO_AUTH_TOKEN = "";
-    private static final String TWILIO_WHATSAPP_NUMBER = "";
+    private static final String TWILIO_ACCOUNT_SID = "AC10f70f27747b41922e66438d7505dccc";
+    private static final String TWILIO_AUTH_TOKEN = "0b82b2a71654b5a329594b5ba32a6e07";
+    private static final String TWILIO_WHATSAPP_NUMBER = "whatsapp:+14155238886";
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Check if user is logged in and is an admin
@@ -128,11 +136,12 @@ public class AdminDashboardController implements Initializable {
         setupTableColumns();
         setupFilterComboBox();
         setupSearchField();
-        tablesButton.setOnAction(event -> handleTablesRedirect());
-        eventButton.setOnAction(event -> handleeventRedirect());
+        tablesButton.setOnAction(event -> handleTablesRedirect(event));
+        eventButton.setOnAction(event -> handleeventRedirect(event));
+        reservationButton.setOnAction(event -> handlereservationRedirect(event));
         historique.setOnAction(event -> handleHistoriqueRedirect());
         suivi.setOnAction(event -> handleSuiviRedirect());
-        buttoncommande.setOnAction(event -> handleCommandeRedirect());
+        buttoncommande.setOnAction(event -> handleCommandeRedirect(event));
 
         loadUsers();
         detailsVBox.setVisible(false);
@@ -156,6 +165,59 @@ public class AdminDashboardController implements Initializable {
             }
         });
         Twilio.init(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+        setupStatisticsMenuIcon();
+
+    }
+    private void setupStatisticsMenuIcon() {
+        // Add a dropdown arrow icon to the statistics menu button
+        FontIcon arrowIcon = new FontIcon("fas-chevron-right");
+        arrowIcon.setIconSize(12);
+        arrowIcon.setIconColor(javafx.scene.paint.Color.valueOf("#64748b"));
+
+        // Add it to the button (assuming you have an HBox in the button to hold both icons)
+        statisticsMenuButton.setGraphic(new javafx.scene.layout.HBox(5,
+                new FontIcon("fas-chart-bar"), arrowIcon));
+    }
+    @FXML
+    public void toggleStatisticsMenu() {
+        // Toggle the visibility of the statistics submenu
+        statisticsMenuExpanded = !statisticsMenuExpanded;
+
+        // Update the arrow icon direction
+        FontIcon arrowIcon = statisticsMenuExpanded ?
+                new FontIcon("fas-chevron-down") : new FontIcon("fas-chevron-right");
+        arrowIcon.setIconSize(12);
+        arrowIcon.setIconColor(javafx.scene.paint.Color.valueOf("#64748b"));
+
+        // Create chart icon
+        FontIcon chartIcon = new FontIcon("fas-chart-bar");
+        chartIcon.setIconSize(16);
+        chartIcon.setIconColor(javafx.scene.paint.Color.valueOf("#64748b"));
+
+        // Update button graphics
+        statisticsMenuButton.setGraphic(new javafx.scene.layout.HBox(5, chartIcon, arrowIcon));
+
+        // Animate the submenu visibility
+        if (statisticsMenuExpanded) {
+            statisticsSubmenu.setVisible(true);
+            statisticsSubmenu.setManaged(true);
+
+            // Optional: add a slide-down animation
+            TranslateTransition tt = new TranslateTransition(Duration.millis(200), statisticsSubmenu);
+            tt.setFromY(-20);
+            tt.setToY(0);
+            tt.play();
+        } else {
+            // Optional: add a slide-up animation
+            TranslateTransition tt = new TranslateTransition(Duration.millis(200), statisticsSubmenu);
+            tt.setFromY(0);
+            tt.setToY(-20);
+            tt.setOnFinished(e -> {
+                statisticsSubmenu.setVisible(false);
+                statisticsSubmenu.setManaged(false);
+            });
+            tt.play();
+        }
     }
     private void showUserDetails(UserTableData userData) {
         // Fetch the full user object based on type
@@ -319,17 +381,8 @@ public class AdminDashboardController implements Initializable {
         verificationHBox.setVisible(false);
     }
 
-    private void handleTablesRedirect() {
-        try {
-            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showProduit.fxml"));
-            Stage stage = (Stage) tablesButton.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
-            stage.setScene(tableScene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
-            e.printStackTrace();
-        }
+    private void handleTablesRedirect(ActionEvent event) {
+        SceneManager.loadScene("/fxml/back/showProduit.fxml", event);
     }
     private void setupTableColumns() {
         // Basic column setup with strict width control
@@ -689,6 +742,10 @@ public class AdminDashboardController implements Initializable {
     private void handleStatisticsRedirect(ActionEvent event) {
         SceneManager.loadScene("/fxml/statistics-view.fxml", event);
     }
+    @FXML
+    private void handleStatisticsCommandeRedirect(ActionEvent event) {
+        SceneManager.loadScene("/fxml/back/statistics.fxml", event);
+    }
 
     public static class UserTableData {
         private final int id;
@@ -720,8 +777,6 @@ public class AdminDashboardController implements Initializable {
         public boolean isBanned() { return banned; }
 
     }
-
-
     private void sendWhatsAppNotification(Medecin medecin) {
         try {
             String toPhoneNumber = medecin.getTelephone();
@@ -908,60 +963,44 @@ public class AdminDashboardController implements Initializable {
             e.printStackTrace();
         }
     }
-    @FXML
-    private void navigateToReportDashboard(ActionEvent event) {
+    @FXML private void navigateToReportDashboard(ActionEvent event) {
         SceneManager.loadScene("/fxml/AdminReportDashboard.fxml", event);
     }
-    @FXML
-    private void navigateToRegister(ActionEvent event) {
+    @FXML private void navigateToRegister(ActionEvent event) {
         SceneManager.loadScene("/fxml/AdminRegistration.fxml", event);
     }
-    private void handleCommandeRedirect() {
-        try {
-            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/back/showCommande.fxml"));
-            Stage stage = (Stage) buttoncommande.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
-            stage.setScene(tableScene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
-            e.printStackTrace();
-        }
+    private void handleCommandeRedirect(ActionEvent event) {
+        SceneManager.loadScene("/fxml/back/showCommande.fxml", event);
+
     }
     private void handleSuiviRedirect() {
         try {
-            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_suivi_back.fxml"));
-            Stage stage = (Stage) suivi.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
-            stage.setScene(tableScene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page des historiques: " + e.getMessage());
+            // Use SceneManager to load the scene and ensure it displays maximized
+            SceneManager.loadScene("/fxml/liste_suivi_back.fxml", new ActionEvent(suivi, null));
+        } catch (Exception e) {
+            showErrorDialog("Erreur", "Impossible de charger la page des suivis: " + e.getMessage());
             e.printStackTrace();
         }
     }
     private void handleHistoriqueRedirect() {
         try {
-            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/liste_historique_back.fxml"));
-            Stage stage = (Stage) tablesButton.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
-            stage.setScene(tableScene);
-            stage.show();
-        } catch (IOException e) {
+            // Use SceneManager to load the scene and ensure it displays maximized
+            SceneManager.loadScene("/fxml/liste_historique_back.fxml", new ActionEvent(historique, null));
+        } catch (Exception e) {
             showErrorDialog("Erreur", "Impossible de charger la page des historiques: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    private void handleeventRedirect() {
-        try {
-            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/listevent.fxml"));
-            Stage stage = (Stage) tablesButton.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
-            stage.setScene(tableScene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page des produits: " + e.getMessage());
-            e.printStackTrace();
-        }
+    private void handleeventRedirect(ActionEvent event) {
+        SceneManager.loadScene("/fxml/listevent.fxml", event);
     }
+    @FXML
+    private void handlestatRedirect(ActionEvent event)  {
+        SceneManager.loadScene("/fxml/statistique.fxml", event);
+
+    }
+    private void handlereservationRedirect(ActionEvent event)  {
+        SceneManager.loadScene("/fxml/listreservation.fxml", event);
+    }
+
 }

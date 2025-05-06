@@ -34,7 +34,7 @@ public class PlanningEditController implements Initializable {
     private Button btnAnnuler;
 
     private Planning planning;
-    private PlanningDAO planningDAO = new PlanningDAO();
+    private final PlanningDAO planningDAO = new PlanningDAO();
     private PlanningViewController parentController;
 
     @Override
@@ -66,16 +66,15 @@ public class PlanningEditController implements Initializable {
     }
 
     private void setupComboBoxes() {
-        // Remplir la liste des jours
         cmbJour.getItems().addAll("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche");
 
-        // Remplir les heures
         for (int h = 8; h <= 20; h++) {
             cmbHeureDebut.getItems().add(String.format("%02d:00", h));
             cmbHeureDebut.getItems().add(String.format("%02d:30", h));
             cmbHeureFin.getItems().add(String.format("%02d:00", h));
             cmbHeureFin.getItems().add(String.format("%02d:30", h));
         }
+
         cmbHeureFin.getItems().add("21:00");
     }
 
@@ -85,35 +84,33 @@ public class PlanningEditController implements Initializable {
     }
 
     private void savePlanning() {
-        if (validateFields()) {
-            try {
-                if (planning == null) {
-                    planning = new Planning();
-                }
+        if (!validateFields()) return;
 
-                planning.setJour(cmbJour.getValue());
-                planning.setHeuredebut(LocalTime.parse(cmbHeureDebut.getValue()));
-                planning.setHeurefin(LocalTime.parse(cmbHeureFin.getValue()));
-
-                if (planning.getId() == 0) {
-                    // Nouveau planning
-                    planningDAO.savePlanning(planning);
-                    showAlert("Succès", "Planning ajouté avec succès", Alert.AlertType.INFORMATION);
-                } else {
-                    // Mise à jour
-                    planningDAO.updatePlanning(planning);
-                    showAlert("Succès", "Planning mis à jour avec succès", Alert.AlertType.INFORMATION);
-                }
-
-                // Rafraîchir la vue parent
-                if (parentController != null) {
-                    parentController.refreshData();
-                }
-
-                closeWindow();
-            } catch (SQLException e) {
-                showAlert("Erreur", "Erreur lors de l'enregistrement: " + e.getMessage(), Alert.AlertType.ERROR);
+        try {
+            if (planning == null) {
+                planning = new Planning();
             }
+
+            planning.setJour(cmbJour.getValue());
+            planning.setHeuredebut(LocalTime.parse(cmbHeureDebut.getValue()));
+            planning.setHeurefin(LocalTime.parse(cmbHeureFin.getValue()));
+
+            if (planning.getId() == 0) {
+                planningDAO.savePlanning(planning);
+                showAlert("Succès", "Planning ajouté avec succès", Alert.AlertType.INFORMATION);
+            } else {
+                planningDAO.updatePlanning(planning);
+                showAlert("Succès", "Planning mis à jour avec succès", Alert.AlertType.INFORMATION);
+            }
+
+            if (parentController != null) {
+                parentController.refreshData();
+            }
+
+            closeWindow();
+
+        } catch (SQLException e) {
+            showAlert("Erreur", "Erreur lors de l'enregistrement: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -140,7 +137,8 @@ public class PlanningEditController implements Initializable {
     }
 
     private void closeWindow() {
-        ((Stage) btnAnnuler.getScene().getWindow()).close();
+        Stage stage = (Stage) btnAnnuler.getScene().getWindow();
+        stage.close();
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {
@@ -148,10 +146,7 @@ public class PlanningEditController implements Initializable {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
-
-        DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.setStyle("-fx-background-color: white;");
-
+        alert.getDialogPane().setStyle("-fx-background-color: white;");
         alert.showAndWait();
     }
 }

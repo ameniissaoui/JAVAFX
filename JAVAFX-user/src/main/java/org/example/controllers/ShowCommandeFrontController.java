@@ -1,6 +1,7 @@
 package org.example.controllers;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -11,12 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.stage.Screen;
-import org.example.models.Admin;
 import org.example.models.Commande;
 import org.example.models.Medecin;
 import org.example.models.Patient;
@@ -26,7 +22,6 @@ import org.example.util.SessionManager;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -48,6 +43,9 @@ public class ShowCommandeFrontController implements Initializable {
     private ComboBox<String> filterComboBox;
 
     @FXML
+    private Label cartCountLabel1;
+
+    @FXML
     private AnchorPane anchorPane;
 
     private CommandeServices cs = new CommandeServices();
@@ -67,26 +65,18 @@ public class ShowCommandeFrontController implements Initializable {
                 currentUserId = ((Patient) currentUser).getId();
             } else {
                 // Handle unknown user type
-                showAlert(Alert.AlertType.WARNING, "User Error", "Unknown user type", "");
+                showAlert(Alert.AlertType.WARNING, "User Error", "Unknown user type");
                 Platform.runLater(this::navigateToLogin);
                 return;
             }
         } else {
             // Handle the case when no user is logged in
-            showAlert(Alert.AlertType.WARNING, "Authentication Required", "Please log in to view your orders", "");
+            showAlert(Alert.AlertType.WARNING, "Authentication Required", "Please log in to view your orders");
             Platform.runLater(this::navigateToLogin);
             return;
         }
 
-        // Set up the card container with proper styling
-        cardContainer = new FlowPane();
-        cardContainer.setVgap(20);
-        cardContainer.setHgap(20);
-        cardContainer.setPadding(new Insets(20));
-        cardContainer.setPrefWrapLength(1200); // Adjust based on your window size
-        scrollPane.setContent(cardContainer);
-
-        // Configure filter options
+        // Set up the filter options
         if (filterComboBox != null) {
             filterComboBox.getItems().addAll("All Orders", "Recent Orders", "Oldest Orders");
             filterComboBox.setValue("All Orders");
@@ -101,6 +91,11 @@ public class ShowCommandeFrontController implements Initializable {
             });
         }
 
+        // Initialize cart count
+        if (cartCountLabel1 != null) {
+            cartCountLabel1.setText("0");
+        }
+
         // Set up the card container and load data
         refreshCommandesList();
 
@@ -109,38 +104,34 @@ public class ShowCommandeFrontController implements Initializable {
         scrollPane.setFitToHeight(true);
 
         // Add button image if not already set in FXML
-        try {
-            ImageView addIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/plus.png")));
-            addIcon.setFitHeight(16);
-            addIcon.setFitWidth(16);
-            addButton.setGraphic(addIcon);
-        } catch (Exception e) {
-            System.out.println("Could not load add button icon: " + e.getMessage());
-            addButton.setText("+");
+        if (addButton != null) {
+            try {
+                ImageView addIcon = new ImageView(new Image(getClass().getResourceAsStream("/images/plus.png")));
+                addIcon.setFitHeight(16);
+                addIcon.setFitWidth(16);
+                addButton.setGraphic(addIcon);
+            } catch (Exception e) {
+                System.out.println("Could not load add button icon: " + e.getMessage());
+                addButton.setText("+");
+            }
         }
 
         // Add a listener to handle stage setup once the scene is available
-        cardContainer.sceneProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                Platform.runLater(() -> {
-                    Stage stage = (Stage) cardContainer.getScene().getWindow();
-                    maximizeStage(stage);
+        if (cardContainer != null) {
+            cardContainer.sceneProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    Platform.runLater(() -> {
+                        Stage stage = (Stage) cardContainer.getScene().getWindow();
+                        stage.setMaximized(true);
 
-                    // Bind scrollPane size to anchorpane
-                    AnchorPane parent = (AnchorPane) scrollPane.getParent();
-                    scrollPane.prefHeightProperty().bind(parent.heightProperty().subtract(130));
-                    scrollPane.prefWidthProperty().bind(parent.widthProperty().subtract(60));
-                });
-            }
-        });
-    }
-
-    private void maximizeStage(Stage stage) {
-        double screenWidth = Screen.getPrimary().getBounds().getWidth();
-        double screenHeight = Screen.getPrimary().getBounds().getHeight();
-        stage.setMaximized(true);
-        stage.setWidth(screenWidth);
-        stage.setHeight(screenHeight);
+                        // Bind scrollPane size to anchorpane
+                        AnchorPane parent = (AnchorPane) scrollPane.getParent();
+                        scrollPane.prefHeightProperty().bind(parent.heightProperty().subtract(160));
+                        scrollPane.prefWidthProperty().bind(parent.widthProperty().subtract(60));
+                    });
+                }
+            });
+        }
     }
 
     private void refreshCommandesList() {
@@ -249,27 +240,8 @@ public class ShowCommandeFrontController implements Initializable {
 
         contactInfo.getChildren().addAll(emailLabel, phoneLabel, addressLabel);
 
-        // Separator
-        Separator separator = new Separator();
-        separator.setPadding(new Insets(10, 0, 10, 0));
-
-        // Action buttons
-        HBox actions = new HBox(10);
-        actions.setAlignment(javafx.geometry.Pos.CENTER);
-
-        Button viewButton = createActionButton("View", "#2196f3");
-        Button editButton = createActionButton("Edit", "#ff9800");
-        Button deleteButton = createActionButton("Delete", "#f44336");
-
-        // Button actions
-        viewButton.setOnAction(e -> showCommandeDetails(commande));
-        editButton.setOnAction(e -> navigateToEdit(commande));
-        deleteButton.setOnAction(e -> confirmDelete(commande));
-
-        actions.getChildren().addAll(viewButton, editButton, deleteButton);
-
         // Add all elements to the card
-        card.getChildren().addAll(header, nameLabel, contactInfo, separator, actions);
+        card.getChildren().addAll(header, nameLabel, contactInfo);
 
         // Add hover effect
         card.setOnMouseEntered(e -> {
@@ -299,182 +271,11 @@ public class ShowCommandeFrontController implements Initializable {
         return card;
     }
 
-    private Button createActionButton(String text, String color) {
-        Button button = new Button(text);
-        button.setStyle(
-                "-fx-background-color: " + color + "; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-background-radius: 4; " +
-                        "-fx-cursor: hand; " +
-                        "-fx-padding: 8 15;"
-        );
-
-        // Add hover effect
-        button.setOnMouseEntered(e -> {
-            button.setStyle(
-                    "-fx-background-color: derive(" + color + ", 10%); " +
-                            "-fx-text-fill: white; " +
-                            "-fx-font-weight: bold; " +
-                            "-fx-background-radius: 4; " +
-                            "-fx-cursor: hand; " +
-                            "-fx-padding: 8 15;"
-            );
-        });
-
-        button.setOnMouseExited(e -> {
-            button.setStyle(
-                    "-fx-background-color: " + color + "; " +
-                            "-fx-text-fill: white; " +
-                            "-fx-font-weight: bold; " +
-                            "-fx-background-radius: 4; " +
-                            "-fx-cursor: hand; " +
-                            "-fx-padding: 8 15;"
-            );
-        });
-
-        return button;
-    }
-
-    private void showCommandeDetails(Commande commande) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Order Details");
-        alert.setHeaderText("Order #" + commande.getId());
-
-        // Style the alert dialog
-        DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.setStyle("-fx-background-color: white;");
-        dialogPane.getStyleClass().add("custom-alert");
-
-        // Create content
-        String content = String.format(
-                "Customer Information:\n\n" +
-                        "Name: %s %s\n" +
-                        "Email: %s\n" +
-                        "Address: %s\n" +
-                        "Phone Number: %d",
-                commande.getNom(),
-                commande.getPrenom(),
-                commande.getEmail(),
-                commande.getAdresse(),
-                commande.getPhone_number()
-        );
-
-        alert.setContentText(content);
-
-        // Add an icon
-        try {
-            ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/images/shopping-cart.png")));
-            icon.setFitWidth(48);
-            icon.setFitHeight(48);
-            alert.setGraphic(icon);
-        } catch (Exception e) {
-            // If icon can't be loaded, proceed without it
-        }
-
-        // Ensure alert is centered on the screen
-        Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
-        alertStage.setOnShown(e -> {
-            Stage parentStage = (Stage) scrollPane.getScene().getWindow();
-            alertStage.setX(parentStage.getX() + (parentStage.getWidth() - alertStage.getWidth()) / 2);
-            alertStage.setY(parentStage.getY() + (parentStage.getHeight() - alertStage.getHeight()) / 2);
-        });
-
-        alert.showAndWait();
-    }
-
-    private void confirmDelete(Commande commande) {
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Confirm Deletion");
-        confirmAlert.setHeaderText("Delete Order");
-        confirmAlert.setContentText("Are you sure you want to delete the order from: " + commande.getNom() + " " + commande.getPrenom() + "?");
-
-        // Style the confirmation dialog
-        DialogPane dialogPane = confirmAlert.getDialogPane();
-        dialogPane.setStyle("-fx-background-color: white;");
-
-        // Create custom buttons
-        ButtonType yesButton = new ButtonType("Yes, Delete", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        confirmAlert.getButtonTypes().setAll(yesButton, cancelButton);
-
-        // Style the buttons
-        Button yesBtn = (Button) dialogPane.lookupButton(yesButton);
-        yesBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
-
-        Button cancelBtn = (Button) dialogPane.lookupButton(cancelButton);
-        cancelBtn.setStyle("-fx-background-color: #e0e0e0;");
-
-        Optional<ButtonType> result = confirmAlert.showAndWait();
-
-        if (result.isPresent() && result.get() == yesButton) {
-            // Remove commande from database
-            cs.removeProduit(commande);
-            refreshCommandesList();
-
-            // Show success message
-            showAlert(Alert.AlertType.INFORMATION,
-                    "Order Deleted",
-                    "The order has been successfully deleted.",
-                    "");
-        }
-    }
-
-    @FXML
-    private void navigateToAdd() {
-        navigateTo("/fxml/front/addCommande.fxml");
-    }
-
-    private void navigateToEdit(Commande commande) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/editCommande.fxml"));
-            Parent root = loader.load();
-
-            EditCommandeController controller = loader.getController();
-
-            Stage currentStage = (Stage) scrollPane.getScene().getWindow();
-            Scene scene = new Scene(root);
-            currentStage.setScene(scene);
-            maximizeStage(currentStage);
-
-            controller.initData(commande);
-
-            root.applyCss();
-            root.layout();
-
-            currentStage.show();
-
-            Platform.runLater(() -> {
-                maximizeStage(currentStage);
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load edit order form", e.getMessage());
-        }
-    }
-
-    private void navigateToLogin() {
-        navigateTo("/fxml/login.fxml");
-    }
-
-    @FXML
-    private void logout() {
-        try {
-            // Clear session
-            SessionManager.getInstance().clearSession();
-
-            navigateTo("/fxml/login.fxml");
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not log out", "");
-        }
-    }
-
-    private void showAlert(Alert.AlertType alertType, String title, String header, String content) {
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
 
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.setStyle("-fx-background-color: white;");
@@ -504,18 +305,99 @@ public class ShowCommandeFrontController implements Initializable {
     }
 
     @FXML
+    private void navigateToAdd() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/addCommande.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not load add order form: " + e.getMessage());
+        }
+    }
+
+    private void navigateToLogin() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Could not navigate to login page: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void logout() {
+        try {
+            // Clear session
+            SessionManager.getInstance().clearSession();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not log out");
+        }
+    }
+
+    @FXML
     void navigateToHome() {
-        navigateTo("/fxml/front/home.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/home.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to home page");
+        }
     }
 
     @FXML
     void navigateToProfile() {
-        navigateTo("/fxml/front/profile.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/profile.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to profile page");
+        }
     }
 
     @FXML
     void navigateToFavorites() {
-        navigateTo("/fxml/front/favoris.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/favorites.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to favorites page");
+        }
     }
 
     @FXML
@@ -526,66 +408,139 @@ public class ShowCommandeFrontController implements Initializable {
 
     @FXML
     void commande() {
-        navigateTo("/fxml/front/showCartItem.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/cart.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to cart page");
+        }
     }
 
     @FXML
     void navigateToShop() {
-        navigateTo("/fxml/front/showProduit.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/showProduit.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to shop page");
+        }
     }
 
     @FXML
-    void show() {
+    void show(ActionEvent event) {
         navigateToShop();
     }
 
     @FXML
     void navigateToHistoriques() {
-        navigateTo("/fxml/front/historiques.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/historiques.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to historiques page");
+        }
     }
 
     @FXML
     void redirectToDemande() {
-        navigateTo("/fxml/DemandeDashboard.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/demande.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to demande page");
+        }
     }
 
     @FXML
     void redirectToRendezVous() {
-        navigateTo("/fxml/rendez-vous-view.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/rendezVous.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to rendez-vous page");
+        }
     }
 
     @FXML
     void redirectProduit() {
-        navigateTo("/fxml/front/showProduit.fxml");
+        navigateToShop();
     }
 
     @FXML
     void navigateToTraitement() {
-        navigateTo("/fxml/front/traitement.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/traitement.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to traitement page");
+        }
     }
 
     @FXML
     void viewDoctors() {
-        navigateTo("/fxml/DoctorList.fxml");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/doctors.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to doctors page");
+        }
     }
 
     @FXML
     void navigateToContact() {
-        navigateTo("/fxml/front/contact.fxml");
-    }
-
-    // Helper method for navigation
-    private void navigateTo(String fxmlPath) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/front/contact.fxml"));
             Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) anchorPane.getScene().getWindow();
-            stage.setScene(scene);
-            maximizeStage(stage);
+
+            Stage stage = (Stage) scrollPane.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
             stage.show();
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Error navigating to page", e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not navigate to contact page");
         }
     }
 }

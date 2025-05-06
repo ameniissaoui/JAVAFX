@@ -5,13 +5,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import org.example.models.Demande;
+import org.example.models.Patient;
 import org.example.models.Recommandation;
+import org.example.services.DemandeDAO;
+import org.example.services.PatientService;
+import org.example.util.EmailSender;
 import org.example.util.MainFX;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +31,8 @@ public class RecommandationViewController implements Initializable {
 
     private RecommandationController recommandationController;
     private DemandeController demandeController;
+    private PatientService patientService;
+    private DemandeDAO demandeDAO;
 
     // Table View for displaying Recommandation records
     @FXML
@@ -53,6 +64,9 @@ public class RecommandationViewController implements Initializable {
     
     @FXML
     private TableColumn<Recommandation, String> supplementsColumn;
+    
+    @FXML
+    private TableColumn<Recommandation, String> patientNameColumn;
     
     // ComboBox for Demande selection
     @FXML
@@ -91,6 +105,9 @@ public class RecommandationViewController implements Initializable {
     @FXML
     private Button switchRoleButton;
     
+    @FXML
+    private Button generateMealPlanButton;
+    
     // Currently selected Recommandation
     private Recommandation selectedRecommandation;
     
@@ -101,6 +118,8 @@ public class RecommandationViewController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         recommandationController = new RecommandationController();
         demandeController = new DemandeController();
+        patientService = new PatientService();
+        demandeDAO = new DemandeDAO();
         
         // Initialize table columns
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -118,6 +137,24 @@ public class RecommandationViewController implements Initializable {
             return new SimpleStringProperty(duree != null ? duree.toString() : "N/A");
         });
         supplementsColumn.setCellValueFactory(new PropertyValueFactory<>("supplements"));
+        
+        // Initialize patient name column
+        patientNameColumn.setCellValueFactory(cellData -> {
+            try {
+                int demandeId = cellData.getValue().getDemande_id();
+                Demande demande = demandeDAO.getById(demandeId);
+                if (demande != null) {
+                    int patientId = demande.getPatient_id();
+                    Patient patient = patientService.getOne(patientId);
+                    if (patient != null) {
+                        return new SimpleStringProperty(patient.getPrenom() + " " + patient.getNom());
+                    }
+                }
+                return new SimpleStringProperty("N/A");
+            } catch (Exception e) {
+                return new SimpleStringProperty("Erreur");
+            }
+        });
         
         // Initialize ComboBoxes with initial values
         initializeComboBoxes();
@@ -408,6 +445,27 @@ public class RecommandationViewController implements Initializable {
             
             if (success) {
                 showAlert(Alert.AlertType.INFORMATION, "Succès", "Recommandation créée avec succès");
+                
+                // Get the newly created recommendation to send an email
+                Recommandation newRecommandation = recommandationController.getRecommandationByDemandeId(demandeId);
+                if (newRecommandation != null) {
+                    // Get demande to find patient
+                    Demande demande = demandeController.getDemande(demandeId);
+                    if (demande != null) {
+                        // Send email notification to patient in a separate thread
+                        new Thread(() -> {
+                            boolean emailSent = EmailSender.sendRecommandationNotification(
+                                    demande.getPatient_id(), newRecommandation);
+                            
+                            if (emailSent) {
+                                System.out.println("Email notification sent successfully");
+                            } else {
+                                System.err.println("Failed to send email notification");
+                            }
+                        }).start();
+                    }
+                }
+                
                 clearForm();
                 loadAllRecommandations();
             } else {
@@ -632,5 +690,34 @@ public class RecommandationViewController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void handleGenerateMealPlanButton(ActionEvent event) {
+        Recommandation selectedRecommandation = tableView.getSelectionModel().getSelectedItem();
+        if (selectedRecommandation == null) {
+            showAlert(Alert.AlertType.WARNING, "Aucune sélection", "Veuillez sélectionner une recommandation pour générer un plan alimentaire");
+            return;
+        }
+        
+        try {
+            // Load the MealPlanGenerator view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MealPlanGenerator.fxml"));
+            Parent root = loader.load();
+            
+            // Get the controller and pass the recommendation ID
+            MealPlanGeneratorController controller = loader.getController();
+            controller.loadRecommandation(selectedRecommandation.getId());
+            
+            // Create new scene and show it in a new stage
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setTitle("Générateur de Plan Alimentaire");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger le générateur de plan alimentaire: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 } 

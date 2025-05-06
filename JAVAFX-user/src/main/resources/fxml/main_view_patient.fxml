@@ -9,6 +9,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <?import java.net.URL?>
 
+
 <?import javafx.scene.text.Font?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -46,7 +47,7 @@
                             <Font size="14.0" />
                         </font>
                     </Button>
-                    <Button   style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="EVENEMENT">
+                    <Button onAction="#redirectToEvents"  style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="EVENEMENT">
                         <font>
                             <Font size="14.0" />
                         </font>
@@ -56,12 +57,12 @@
                             <Font size="14.0" />
                         </font>
                     </Button>
-                    <Button   onAction="#redirectToHistorique" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="HISTORIQUE">
+                    <Button  fx:id="historique" onAction="#redirectToHistorique" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="HISTORIQUE">
                         <font>
                             <Font size="14.0" />
                         </font>
                     </Button>
-                    <Button   onAction="#redirectToCalendrier" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="CALANDRIER">
+                    <Button fx:id="calendarButton" onAction="#redirectToCalendar" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="CALENDRIER">
                         <font>
                             <Font size="14.0" />
                         </font>
@@ -71,7 +72,7 @@
                             <Font size="14.0" />
                         </font>
                     </Button>
-                    <Button   style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="RENDEZ-VOUS">
+                    <Button  fx:id="rendezVousButton" onAction="#redirectToRendezVous" style="-fx-background-color: transparent; -fx-text-fill: #333333;" text="RENDEZ-VOUS">
                         <font>
                             <Font size="14.0" />
                         </font>

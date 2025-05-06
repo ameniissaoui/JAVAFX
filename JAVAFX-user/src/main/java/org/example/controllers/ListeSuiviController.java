@@ -1,6 +1,9 @@
 package org.example.controllers;
 
+import javafx.animation.*;
 import javafx.scene.layout.*;
+import org.example.models.Medecin;
+import org.example.util.SessionManager;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
 import org.kordamp.ikonli.javafx.FontIcon;
 import javafx.scene.control.Tooltip;
@@ -22,9 +25,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
-import javafx.animation.RotateTransition;
-import javafx.animation.ScaleTransition;
-import javafx.animation.ParallelTransition;
 import javafx.util.Duration;
 import java.io.IOException;
 import java.net.URL;
@@ -46,8 +46,15 @@ public class ListeSuiviController implements Initializable {
     @FXML
     private Button acceuil;
 
+
     @FXML
     private Button profileButton;
+    @FXML
+    private BorderPane mainBorderPane;
+    @FXML
+    private AnchorPane sidebarContainer;
+    private boolean sidebarExpanded = false;
+    private final double SIDEBAR_WIDTH = 220.0; // Largeur maximale de la sidebar
 
     private SuivServices suivServices;
     private HisServices hisServices;
@@ -66,13 +73,9 @@ public class ListeSuiviController implements Initializable {
 
     private void handleAcceuilRedirect() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/liste_historique.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) acceuil.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
+            // Use SceneManager to load the scene and maximize the window
+            SceneManager.loadScene("/fxml/liste_historique.fxml", new ActionEvent(acceuil, null));
+        } catch (Exception e) {
             showErrorDialog("Erreur", "Impossible de charger la page d'accueil: " + e.getMessage());
             e.printStackTrace();
         }
@@ -156,6 +159,7 @@ public class ListeSuiviController implements Initializable {
         }
     }
 
+
     @FXML
     private void ajouterNouveauSuivi() {
         try {
@@ -176,33 +180,6 @@ public class ListeSuiviController implements Initializable {
         }
     }
 
-    @FXML
-    private void retourVersList() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/liste_historique.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) retourButton.getScene().getWindow();
-            stage.setTitle("Liste des Historiques de Traitement");
-            stage.setScene(new Scene(root));
-        } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Impossible de retourner à la liste des historiques: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void backToProfile() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/profile.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) profileButton.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page de profil: " + e.getMessage());
-        }
-    }
 
     private void modifierSuivi(suivie_medical suivi) {
         try {
@@ -447,7 +424,7 @@ public class ListeSuiviController implements Initializable {
 
     private void setFullScreen() {
         anchorPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
+            if (newScene != null && newScene.getWindow() != null) { // Add null check for getWindow()
                 Stage stage = (Stage) newScene.getWindow();
                 stage.setMaximized(true);
                 VBox mainVBox = (VBox) anchorPane.getChildren().stream()
@@ -462,7 +439,6 @@ public class ListeSuiviController implements Initializable {
             }
         });
     }
-
     @FXML
     private void navigateToProfile(ActionEvent event) {
         try {
@@ -475,5 +451,114 @@ public class ListeSuiviController implements Initializable {
         } catch (IOException e) {
             System.err.println("Erreur lors du chargement de la vue medecin_profile.fxml: " + e.getMessage());
         }
+    }
+    @FXML
+    private void navigateToRecom(ActionEvent event) {
+        SceneManager.loadScene("/fxml/MedecinRecommendations.fxml", event);
+    }
+    @FXML
+    private void navigateToProduit(ActionEvent event) {
+        SceneManager.loadScene("/fxml/front/showProduit.fxml", event);
+    }
+
+    @FXML
+    public void redirectToSuivi(ActionEvent event) {
+        try {
+            // Check if user is logged in and is a medecin
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showAlert("Vous devez être connecté pour accéder à cette page.", "error");
+                return;
+            }
+
+            if (!SessionManager.getInstance().isMedecin()) {
+                showAlert("Seuls les médecins peuvent accéder à cette fonctionnalité.", "error");
+                return;
+            }
+
+            // Get the current medecin
+            Medecin medecin = SessionManager.getInstance().getCurrentMedecin();
+            if (medecin == null) {
+                showAlert("Impossible de récupérer les informations du médecin.", "error");
+                return;
+            }
+
+            // Use SceneManager to load the liste_historique page in full screen
+            String fxmlPath = "/fxml/liste_historique.fxml";
+            SceneManager.loadScene(fxmlPath, event);
+
+            // Get the controller and pass the medecin if needed
+            try {
+                ListeHistoriqueController controller = SceneManager.getController(fxmlPath);
+                // If needed, set the medecin in the controller
+                // controller.setMedecin(medecin);
+            } catch (IOException e) {
+                System.err.println("Error getting controller: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error during navigation to liste historique: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Impossible de charger la page de liste d'historique: " + e.getMessage(), "error");
+        }
+    }
+
+    private void showAlert(String s, String error) {
+    }
+
+    @FXML
+    public void redirectToPlanning(ActionEvent event) {
+        SceneManager.loadScene("/fxml/planning-view.fxml", event);
+
+    }
+    @FXML
+    private void navigateToAcceuil(ActionEvent event) {
+        SceneManager.loadScene("/fxml/main_view_medecin.fxml", event);
+    }
+    @FXML
+    private void toggleSidebar() {
+        if (!sidebarExpanded) {
+            // Montrer la sidebar
+            sidebarContainer.setVisible(true);
+            sidebarContainer.toFront(); // Bring the sidebar to the front
+
+            // Animation pour agrandir la sidebar
+            Timeline timeline = new Timeline();
+            KeyValue kvWidth = new KeyValue(sidebarContainer.prefWidthProperty(), SIDEBAR_WIDTH);
+            KeyValue kvMinWidth = new KeyValue(sidebarContainer.minWidthProperty(), SIDEBAR_WIDTH);
+            KeyValue kvMaxWidth = new KeyValue(sidebarContainer.maxWidthProperty(), SIDEBAR_WIDTH);
+            // Shift the main container to the right
+            KeyFrame kf = new KeyFrame(Duration.millis(250),
+                    event -> AnchorPane.setLeftAnchor(mainContainer, SIDEBAR_WIDTH),
+                    kvWidth, kvMinWidth, kvMaxWidth
+            );
+            timeline.getKeyFrames().add(kf);
+            timeline.play();
+
+            sidebarExpanded = true;
+        } else {
+            // Animation pour réduire la sidebar
+            Timeline timeline = new Timeline();
+            KeyValue kvWidth = new KeyValue(sidebarContainer.prefWidthProperty(), 0);
+            KeyValue kvMinWidth = new KeyValue(sidebarContainer.minWidthProperty(), 0);
+            KeyValue kvMaxWidth = new KeyValue(sidebarContainer.maxWidthProperty(), 0);
+            // Shift the main container back to the left
+            KeyFrame kf = new KeyFrame(Duration.millis(250),
+                    event -> {
+                        AnchorPane.setLeftAnchor(mainContainer, 0.0);
+                        sidebarContainer.setVisible(false);
+                        sidebarContainer.toBack(); // Send the sidebar to the back when closed
+                    },
+                    kvWidth, kvMinWidth, kvMaxWidth
+            );
+            timeline.getKeyFrames().add(kf);
+            timeline.play();
+
+            sidebarExpanded = false;
+        }
+    }
+    @FXML
+    private void handleProfileButtonClick(ActionEvent event) {
+        SceneManager.loadScene("/fxml/medecin_profile.fxml", event);
     }
 }

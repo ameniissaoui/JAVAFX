@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import org.example.util.SessionManager;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.example.models.historique_traitement;
 import org.example.models.suivie_medical;
@@ -79,41 +80,70 @@ public class DetailsHistoriqueController implements Initializable {
         listViewSuivis.setCellFactory(listView -> new ProfessionalTableLikeListCell());
     }
 
-    public void navigateToHome(ActionEvent actionEvent) {
+    @FXML
+    public void navigateToAcceuil(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_profile.fxml", event);
     }
 
-    public void handleHistoRedirect(ActionEvent actionEvent) {
+    @FXML
+    public void redirectToHistorique(ActionEvent event) {
+        SceneManager.loadScene("/fxml/ajouter_historique.fxml", event);
     }
 
-    public void redirectToCalendar(ActionEvent actionEvent) {
+    @FXML
+    public void redirectToCalendar(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_calendar.fxml", event);
     }
 
-    public void redirectToDemande(ActionEvent actionEvent) {
+    // Helper method to show alerts
+    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
-    public void redirectToRendezVous(ActionEvent actionEvent) {
+    // Helper method to show messages (this might need to be adapted based on your application's message system)
+    private void showMessage(String message, String type) {
+        System.out.println("[" + type + "] " + message);
+        // Implement your message display logic here
+    }
+
+    @FXML
+    public void redirectToDemande(ActionEvent event) {
+        SceneManager.loadScene("/fxml/demande.fxml", event);
+
+    }
+
+    @FXML
+    public void redirectToRendezVous(ActionEvent event) {
+
+    }
+    @FXML
+    public void viewDoctors(ActionEvent event) {
+        try {
+            if (!SessionManager.getInstance().isLoggedIn()) {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Utilisateur non connecté",
+                        "Vous devez être connecté pour accéder à cette page.");
+                return;
+            }
+
+            // Use SceneManager to load the DoctorList.fxml in full screen
+            SceneManager.loadScene("/fxml/DoctorList.fxml", event);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Erreur de Navigation",
+                    "Impossible d'ouvrir la page des médecins: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void redirectProduit(ActionEvent actionEvent) {
     }
 
-    public void viewDoctors(ActionEvent actionEvent) {
+    public void handleHistoRedirect(ActionEvent actionEvent) {
     }
 
-    public void navigateToEvent(ActionEvent actionEvent) {
-    }
-
-    public void navigateToReservation(ActionEvent actionEvent) {
-    }
-
-    public void navigateToContact(ActionEvent actionEvent) {
-    }
-
-    public void showNotifications(ActionEvent actionEvent) {
-    }
-
-    public void navigateToProfile(ActionEvent actionEvent) {
-    }
 
     private class ProfessionalTableLikeListCell extends ListCell<suivie_medical> {
         private final GridPane gridPane = new GridPane();
@@ -371,49 +401,34 @@ public class DetailsHistoriqueController implements Initializable {
     }
 
     public void retourProfil(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/patient_profile.fxml"));
-            Parent root = loader.load();
-            PatientProfileController controller = loader.getController();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("Profil Patient");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+        // Use the SceneManager to load the patient profile scene
+        // This will automatically handle setting the window to full screen
+        SceneManager.loadScene("/fxml/historique_patient.fxml", event);
 
+        // Get the stage and update the title
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setTitle("Profil Patient");
+    }
     @FXML
-    private void fermer() {
+    private void fermer(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/patient_profile.fxml"));
-            Parent root = loader.load();
-            Scene currentScene = null;
-            if (btnfermer != null && btnfermer.getScene() != null) {
-                currentScene = btnfermer.getScene();
-            } else if (labelNom != null && labelNom.getScene() != null) {
-                currentScene = labelNom.getScene();
-            } else if (bilanContainer != null && bilanContainer.getScene() != null) {
-                currentScene = bilanContainer.getScene();
-            } else {
-                throw new RuntimeException("Impossible de trouver la scène actuelle");
-            }
+            // Log the attempt to load the FXML
+            System.out.println("Attempting to load /fxml/historiques_patient.fxml");
 
-            Stage stage = (Stage) currentScene.getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("Liste des Historiques");
-            stage.show();
+            // Use SceneManager to load the scene
+            SceneManager.loadScene("/fxml/historiques_patient.fxml", event);
+
+            System.out.println("Successfully loaded historiques_patient.fxml");
         } catch (Exception e) {
-            System.err.println("Erreur lors du retour à la liste des historiques: " + e.getMessage());
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur",
-                    "Erreur lors du retour à la liste des historiques: " + e.getMessage());
+            // Show error alert
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Impossible de charger historiques_patient.fxml");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
-
     @FXML
     private void ajouterSuivi() {
         try {
@@ -450,5 +465,9 @@ public class DetailsHistoriqueController implements Initializable {
         } else {
             return "";
         }
+    }
+    @FXML
+    private void handleProfileButtonClick(ActionEvent event) {
+        SceneManager.loadScene("/fxml/patient_profile.fxml", event);
     }
 }

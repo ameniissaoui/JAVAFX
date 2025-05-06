@@ -16,17 +16,9 @@ public class PlanningDAO {
     public List<Planning> getAllPlannings() throws SQLException {
         List<Planning> plannings = new ArrayList<>();
         String query = "SELECT * FROM planning";
-        
-        // Get a connection from MaConnexion (will automatically reconnect if closed)
-        Connection conn = MaConnexion.getInstance().getCnx();
-        
-        // Check if connection is valid, reconnect if needed
-        if (!validateConnection(conn)) {
-            MaConnexion.getInstance().reconnect();
-            conn = MaConnexion.getInstance().getCnx();
-        }
 
-        try (Statement stmt = conn.createStatement();
+        try (Connection conn = MaConnexion.getInstance().getCnx();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
@@ -38,9 +30,6 @@ public class PlanningDAO {
 
                 plannings.add(planning);
             }
-        } catch (SQLException e) {
-            System.err.println("Error loading plannings: " + e.getMessage());
-            throw e;
         }
 
         return plannings;
@@ -51,17 +40,10 @@ public class PlanningDAO {
      */
     public Planning getPlanningById(int id) throws SQLException {
         String query = "SELECT * FROM planning WHERE id = ?";
-        
-        // Get a connection from MaConnexion (will automatically reconnect if closed)
-        Connection conn = MaConnexion.getInstance().getCnx();
-        
-        // Check if connection is valid, reconnect if needed
-        if (!validateConnection(conn)) {
-            MaConnexion.getInstance().reconnect();
-            conn = MaConnexion.getInstance().getCnx();
-        }
 
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = MaConnexion.getInstance().getCnx();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+
             ps.setInt(1, id);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -75,9 +57,6 @@ public class PlanningDAO {
                     return planning;
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("Error getting planning by ID: " + e.getMessage());
-            throw e;
         }
 
         return null;
@@ -88,17 +67,10 @@ public class PlanningDAO {
      */
     public void savePlanning(Planning planning) throws SQLException {
         String query = "INSERT INTO planning (jour, heuredebut, heurefin) VALUES (?, ?, ?)";
-        
-        // Get a connection from MaConnexion (will automatically reconnect if closed)
-        Connection conn = MaConnexion.getInstance().getCnx();
-        
-        // Check if connection is valid, reconnect if needed
-        if (!validateConnection(conn)) {
-            MaConnexion.getInstance().reconnect();
-            conn = MaConnexion.getInstance().getCnx();
-        }
 
-        try (PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = MaConnexion.getInstance().getCnx();
+             PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
             ps.setString(1, planning.getJour());
             ps.setTime(2, Time.valueOf(planning.getHeuredebut()));
             ps.setTime(3, Time.valueOf(planning.getHeurefin()));
@@ -106,7 +78,6 @@ public class PlanningDAO {
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-                // Récupérer l'ID généré
                 try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         planning.setId(generatedKeys.getInt(1));
@@ -114,9 +85,6 @@ public class PlanningDAO {
                     }
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("Error saving planning: " + e.getMessage());
-            throw e;
         }
     }
 
@@ -125,17 +93,10 @@ public class PlanningDAO {
      */
     public void updatePlanning(Planning planning) throws SQLException {
         String query = "UPDATE planning SET jour = ?, heuredebut = ?, heurefin = ? WHERE id = ?";
-        
-        // Get a connection from MaConnexion (will automatically reconnect if closed)
-        Connection conn = MaConnexion.getInstance().getCnx();
-        
-        // Check if connection is valid, reconnect if needed
-        if (!validateConnection(conn)) {
-            MaConnexion.getInstance().reconnect();
-            conn = MaConnexion.getInstance().getCnx();
-        }
 
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = MaConnexion.getInstance().getCnx();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+
             ps.setString(1, planning.getJour());
             ps.setTime(2, Time.valueOf(planning.getHeuredebut()));
             ps.setTime(3, Time.valueOf(planning.getHeurefin()));
@@ -143,9 +104,6 @@ public class PlanningDAO {
 
             int rowsAffected = ps.executeUpdate();
             System.out.println(rowsAffected + " planning(s) mis à jour.");
-        } catch (SQLException e) {
-            System.err.println("Error updating planning: " + e.getMessage());
-            throw e;
         }
     }
 
@@ -154,24 +112,13 @@ public class PlanningDAO {
      */
     public void deletePlanning(int id) throws SQLException {
         String query = "DELETE FROM planning WHERE id = ?";
-        
-        // Get a connection from MaConnexion (will automatically reconnect if closed)
-        Connection conn = MaConnexion.getInstance().getCnx();
-        
-        // Check if connection is valid, reconnect if needed
-        if (!validateConnection(conn)) {
-            MaConnexion.getInstance().reconnect();
-            conn = MaConnexion.getInstance().getCnx();
-        }
 
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = MaConnexion.getInstance().getCnx();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+
             ps.setInt(1, id);
-
             int rowsAffected = ps.executeUpdate();
             System.out.println(rowsAffected + " planning(s) supprimé(s).");
-        } catch (SQLException e) {
-            System.err.println("Error deleting planning: " + e.getMessage());
-            throw e;
         }
     }
 
@@ -181,25 +128,9 @@ public class PlanningDAO {
     public boolean testConnection() {
         try {
             Connection conn = MaConnexion.getInstance().getCnx();
-            return validateConnection(conn);
+            return conn != null && !conn.isClosed();
         } catch (SQLException e) {
             System.err.println("Erreur de connexion: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Validates that a connection is open and valid
-     */
-    private boolean validateConnection(Connection conn) throws SQLException {
-        try {
-            if (conn == null || conn.isClosed()) {
-                return false;
-            }
-            // Check if connection is valid with a 2-second timeout
-            return conn.isValid(2);
-        } catch (SQLException e) {
-            System.err.println("Error validating connection: " + e.getMessage());
             return false;
         }
     }

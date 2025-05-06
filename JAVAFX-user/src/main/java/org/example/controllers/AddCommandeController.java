@@ -26,8 +26,6 @@ import org.example.models.Commande;
 import org.example.models.Produit;
 import org.example.models.CartItem;
 import org.example.models.User;
-import org.example.models.Medecin;
-import org.example.models.Patient;
 import org.example.services.CommandeServices;
 import org.example.services.CartItemServices;
 import org.example.services.ProduitServices;
@@ -90,18 +88,18 @@ public class AddCommandeController {
     private Label cartCountLabel1;
 
     @FXML
-    private Label cartCountLabel;
+    private HBox navButtonsHBox;
 
     private CommandeServices commandeServices;
     private CartItemServices cartItemServices;
     private ProduitServices produitServices;
-    private SmsGenerator smsGenerator; // Added for SMS
+    private SmsGenerator smsGenerator;
     private Produit selectedProduct;
     private List<CartItem> cartItems;
     private final ObservableList<CartItem> observableCartItems = FXCollections.observableArrayList();
     private HttpServer server;
-    private static final String STRIPE_API_KEY = "";
-    private static final int SERVER_PORT = 8089;
+    private static final String STRIPE_API_KEY = "sk_test_51Q8guRRqOXMp4o1HGPTVEZpvcogn1v8SxvtYbNT2ugbc5vYyG4d8wVGULXizAQe6xQnhlgeBQRg4KFRMi9kAvXLF00OyawA2RF";
+    private static final int SERVER_PORT = 8090;
     private Commande currentCommande;
 
     @FXML
@@ -110,7 +108,6 @@ public class AddCommandeController {
         cartItemServices = new CartItemServices();
         produitServices = new ProduitServices();
 
-        // Initialize SmsGenerator with Twilio credentials
         smsGenerator = new SmsGenerator(
                 ConfigLoader.getProperty("twilio.accountSid"),
                 ConfigLoader.getProperty("twilio.authToken"),
@@ -120,29 +117,22 @@ public class AddCommandeController {
         Stripe.apiKey = STRIPE_API_KEY;
         System.out.println("AddCommandeController initialized");
 
-        // Populate the form fields with the logged-in user's information
         populateUserFields();
 
-        // Set actions for the buttons
         submitButton.setOnAction(event -> handleSubmit());
         backButton.setOnAction(event -> navigateBack());
 
-        // Initialize cart items ListView
         setupCartItemsListView();
 
-        // Update cart count label
         updateCartCountLabel();
 
-        // Start the local HTTP server
         startLocalServer();
 
-        // Ensure server stops when application exits
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             stop();
             System.out.println("Shutdown hook executed: Server stopped");
         }));
 
-        // Handle window close event
         Platform.runLater(() -> {
             Stage stage;
             if (nomField != null && nomField.getScene() != null && nomField.getScene().getWindow() != null) {
@@ -152,10 +142,13 @@ public class AddCommandeController {
                     System.out.println("Window close event: Server stopped");
                 });
 
-                // Maximize the stage
                 maximizeStage(stage);
+
+                // Set up dynamic header
+                nomField.getScene().getRoot().setUserData(this);
+                DynamicHeaderSetup.setupHeader(navButtonsHBox);
             } else {
-                System.err.println("Could not set close request handler: nomField or its scene/window is null during initialize");
+                System.err.println("Could not set close request handler or dynamic header: nomField or its scene/window is null during initialize");
             }
         });
     }
@@ -229,7 +222,6 @@ public class AddCommandeController {
             }
         });
 
-        // Populate ListView if cartItems is already set
         if (cartItems != null && !cartItems.isEmpty()) {
             observableCartItems.setAll(cartItems);
             updateCartCountLabel();
@@ -240,11 +232,6 @@ public class AddCommandeController {
         if (cartCountLabel1 != null) {
             int count = observableCartItems.size();
             cartCountLabel1.setText(String.valueOf(count));
-        }
-
-        if (cartCountLabel != null) {
-            int count = observableCartItems.size();
-            cartCountLabel.setText(String.valueOf(count));
         }
     }
 
@@ -313,24 +300,22 @@ public class AddCommandeController {
                         commandeServices.editProduit(currentCommande);
                         System.out.println("Updated payment status to paid for commande: " + currentCommande.getId());
 
-                        // Update stock quantities for all purchased products
                         for (CartItem item : cartItems) {
                             Produit produit = produitServices.getoneProduit(item.getProduitId());
                             if (produit != null) {
-                                int newStock = produit.getStock_quantite() - item.getQuantite();
+                                int purchasedQuantity = item.getQuantite();
+                                int newStock = produit.getStock_quantite() - purchasedQuantity;
                                 produit.setStock_quantite(Math.max(0, newStock));
                                 produitServices.editProduit(produit);
-                                System.out.println("Updated stock for product ID " + produit.getId() + " to " + produit.getStock_quantite());
+                                System.out.println("Updated stock for product ID " + produit.getId() + " to " + produit.getStock_quantite() + " (Purchased: " + purchasedQuantity + ")");
                             } else {
                                 System.err.println("Produit not found for cart item: produitId=" + item.getProduitId());
                             }
                         }
 
-                        // Send SMS confirmation
                         smsGenerator.sendOrderConfirmation(currentCommande, cartItems);
                         System.out.println("SMS confirmation sent for commande: " + currentCommande.getId());
 
-                        // Remove cart items after successful purchase
                         for (CartItem item : cartItems) {
                             cartItemServices.removeProduit(item);
                             System.out.println("Removed cart item from database: produitId=" + item.getProduitId());
@@ -576,7 +561,7 @@ public class AddCommandeController {
 
     @FXML
     void show() {
-        navigateTo("/fxml/front/showCommande.fxml");
+        navigateTo("/fxml/front/ShowCommande.fxml");
     }
 
     @FXML
@@ -609,7 +594,7 @@ public class AddCommandeController {
                         .setPriceData(
                                 SessionCreateParams.LineItem.PriceData.builder()
                                         .setCurrency("eur")
-                                        .setUnitAmount((long) (item.getProduit().getPrix() * 100)) // Price in cents
+                                        .setUnitAmount((long) (item.getProduit().getPrix() * 100))
                                         .setProductData(
                                                 SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                         .setName(item.getProduit().getNom())
@@ -622,7 +607,6 @@ public class AddCommandeController {
                 paramsBuilder.addLineItem(lineItem);
             }
         } else if (selectedProduct != null) {
-            // Fallback for single product case
             SessionCreateParams.LineItem lineItem = SessionCreateParams.LineItem.builder()
                     .setPriceData(
                             SessionCreateParams.LineItem.PriceData.builder()
@@ -635,7 +619,7 @@ public class AddCommandeController {
                                     )
                                     .build()
                     )
-                    .setQuantity(1L) // Single product quantity
+                    .setQuantity(1L)
                     .build();
             paramsBuilder.addLineItem(lineItem);
         }
@@ -723,7 +707,6 @@ public class AddCommandeController {
         }
     }
 
-    // Navigation methods from the first file
     @FXML
     void navigateToHome() {
         navigateTo("/fxml/front/home.fxml");
@@ -781,7 +764,7 @@ public class AddCommandeController {
 
     @FXML
     void navigateToCommandes() {
-        navigateTo("/fxml/front/ShowCommande.fxml");
+        navigateTo("/fxml/front/showCommande.fxml");
     }
 
     @FXML
@@ -789,7 +772,6 @@ public class AddCommandeController {
         navigateTo("/fxml/front/showCartItem.fxml");
     }
 
-    // Helper method for navigation
     private void navigateTo(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));

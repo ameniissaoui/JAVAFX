@@ -50,8 +50,14 @@ public class ListeHistoriqueController implements Initializable {
     @FXML
     private Button suiviButton;
     @FXML
-    private BorderPane mainBorderPane;
+    private Button profileButton;
 
+    @FXML
+    private BorderPane mainBorderPane;
+    @FXML
+    private AnchorPane sidebarContainer;
+    private boolean sidebarExpanded = false;
+    private final double SIDEBAR_WIDTH = 220.0; // Largeur maximale de la sidebar
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         hisServices = new HisServices();
@@ -599,5 +605,65 @@ public class ListeHistoriqueController implements Initializable {
             e.printStackTrace();
             System.err.println("Erreur lors du chargement de la vue medecin_profile.fxml: " + e.getMessage());
         }
+    }
+    @FXML
+    private void navigateToRecom(ActionEvent event) {
+        SceneManager.loadScene("/fxml/MedecinRecommendations.fxml", event);
+    }
+    @FXML
+    private void navigateToProduit(ActionEvent event) {
+        SceneManager.loadScene("/fxml/front/showProduit.fxml", event);
+    }
+
+    @FXML
+    public void redirectToSuivi(ActionEvent event) {
+        SceneManager.loadScene("/fxml/liste_historique.fxml", event);
+
+    }
+
+    @FXML
+    public void redirectToPlanning(ActionEvent event) {
+        SceneManager.loadScene("/fxml/planning-view.fxml", event);
+
+    }
+    @FXML
+    private void navigateToAcceuil(ActionEvent event) {
+        SceneManager.loadScene("/fxml/main_view_medecin.fxml", event);
+    }
+    @FXML
+    private void toggleSidebar() {
+        // Animation de la sidebar
+        if (!sidebarExpanded) {
+            // Montrer la sidebar
+            sidebarContainer.setVisible(true);
+
+            // Animation pour agrandir la sidebar
+            Timeline timeline = new Timeline();
+            KeyValue kvWidth = new KeyValue(sidebarContainer.prefWidthProperty(), SIDEBAR_WIDTH);
+            KeyValue kvMinWidth = new KeyValue(sidebarContainer.minWidthProperty(), SIDEBAR_WIDTH);
+            KeyValue kvMaxWidth = new KeyValue(sidebarContainer.maxWidthProperty(), SIDEBAR_WIDTH);
+            KeyFrame kf = new KeyFrame(Duration.millis(250), kvWidth, kvMinWidth, kvMaxWidth);
+            timeline.getKeyFrames().add(kf);
+            timeline.play();
+
+            sidebarExpanded = true;
+        } else {
+            // Animation pour réduire la sidebar
+            Timeline timeline = new Timeline();
+            KeyValue kvWidth = new KeyValue(sidebarContainer.prefWidthProperty(), 0);
+            KeyValue kvMinWidth = new KeyValue(sidebarContainer.minWidthProperty(), 0);
+            KeyValue kvMaxWidth = new KeyValue(sidebarContainer.maxWidthProperty(), 0);
+            KeyFrame kf = new KeyFrame(Duration.millis(250), e -> {
+                sidebarContainer.setVisible(false);
+            }, kvWidth, kvMinWidth, kvMaxWidth);
+            timeline.getKeyFrames().add(kf);
+            timeline.play();
+
+            sidebarExpanded = false;
+        }
+    }
+    @FXML
+    private void handleProfileButtonClick(ActionEvent event) {
+        SceneManager.loadScene("/fxml/medecin_profile.fxml", event);
     }
 }

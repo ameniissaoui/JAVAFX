@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,9 +20,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.example.models.Commande;
 import org.example.services.CommandeServices;
 import org.example.services.CartItemServices;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.net.URL;
@@ -49,7 +52,6 @@ public class StatisticsCommandeController implements Initializable {
     @FXML private Button eventButton;
     @FXML private Button historique;
     @FXML private Button suivi;
-    @FXML private Button acceuil;
     @FXML private Label welcomeLabel;
     @FXML private Button profileButton;
     @FXML private Button userProfileButton;
@@ -58,7 +60,12 @@ public class StatisticsCommandeController implements Initializable {
     private CartItemServices cartItemServices;
     private org.example.util.MaConnexion dbInstance;
     private Connection cnx;
+    private boolean statisticsMenuExpanded = false;
+    @FXML
+    private VBox statisticsSubmenu;
 
+    @FXML
+    private Button statisticsMenuButton;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         commandeServices = new CommandeServices();
@@ -72,17 +79,6 @@ public class StatisticsCommandeController implements Initializable {
         eventButton.setOnAction(event -> handleeventRedirect());
         historique.setOnAction(event -> handleHistoriqueRedirect());
         suivi.setOnAction(event -> handleSuiviRedirect());
-        acceuil.setOnAction(event -> handleAcceuilRedirect());
-
-        // Set up profile button if it exists
-        if (profileButton != null) {
-            profileButton.setOnAction(event -> handleProfileRedirect());
-        }
-
-        // Set up user profile button if it exists
-        if (userProfileButton != null) {
-            userProfileButton.setOnAction(event -> handleProfileRedirect());
-        }
 
         // Update cart count
         updateCartCount();
@@ -99,7 +95,60 @@ public class StatisticsCommandeController implements Initializable {
             maximizeStage(stage);
         });
     }
+    private void setupStatisticsMenuIcon() {
+        // Add a dropdown arrow icon to the statistics menu button
+        FontIcon arrowIcon = new FontIcon("fas-chevron-right");
+        arrowIcon.setIconSize(12);
+        arrowIcon.setIconColor(javafx.scene.paint.Color.valueOf("#64748b"));
 
+        // Add it to the button (assuming you have an HBox in the button to hold both icons)
+        statisticsMenuButton.setGraphic(new javafx.scene.layout.HBox(5,
+                new FontIcon("fas-chart-bar"), arrowIcon));
+    }
+    @FXML
+    public void toggleStatisticsMenu() {
+        // Toggle the visibility of the statistics submenu
+        statisticsMenuExpanded = !statisticsMenuExpanded;
+
+        // Update the arrow icon direction
+        FontIcon arrowIcon = statisticsMenuExpanded ?
+                new FontIcon("fas-chevron-down") : new FontIcon("fas-chevron-right");
+        arrowIcon.setIconSize(12);
+        arrowIcon.setIconColor(javafx.scene.paint.Color.valueOf("#64748b"));
+
+        // Create chart icon
+        FontIcon chartIcon = new FontIcon("fas-chart-bar");
+        chartIcon.setIconSize(16);
+        chartIcon.setIconColor(javafx.scene.paint.Color.valueOf("#64748b"));
+
+        // Update button graphics
+        statisticsMenuButton.setGraphic(new javafx.scene.layout.HBox(5, chartIcon, arrowIcon));
+
+        // Animate the submenu visibility
+        if (statisticsMenuExpanded) {
+            statisticsSubmenu.setVisible(true);
+            statisticsSubmenu.setManaged(true);
+
+            // Optional: add a slide-down animation
+            TranslateTransition tt = new TranslateTransition(Duration.millis(200), statisticsSubmenu);
+            tt.setFromY(-20);
+            tt.setToY(0);
+            tt.play();
+        } else {
+            // Optional: add a slide-up animation
+            TranslateTransition tt = new TranslateTransition(Duration.millis(200), statisticsSubmenu);
+            tt.setFromY(0);
+            tt.setToY(-20);
+            tt.setOnFinished(e -> {
+                statisticsSubmenu.setVisible(false);
+                statisticsSubmenu.setManaged(false);
+            });
+            tt.play();
+        }
+    }
+    @FXML private void acceuiRedirect(ActionEvent event) {
+        SceneManager.loadScene("/fxml/AdminDashboard.fxml", event);
+    }
     private void maximizeStage(Stage stage) {
         double screenWidth = Screen.getPrimary().getBounds().getWidth();
         double screenHeight = Screen.getPrimary().getBounds().getHeight();
@@ -509,25 +558,12 @@ public class StatisticsCommandeController implements Initializable {
         }
     }
 
-    private void handleAcceuilRedirect() {
-        try {
-            Parent tableRoot = FXMLLoader.load(getClass().getResource("/fxml/AdminDashboard.fxml"));
-            Stage stage = (Stage) acceuil.getScene().getWindow();
-            Scene tableScene = new Scene(tableRoot);
-            stage.setScene(tableScene);
-            stage.show();
-        } catch (IOException e) {
-            showErrorDialog("Erreur", "Impossible de charger la page d'accueil: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private void handleProfileRedirect() {
+    @FXML private void handleProfileRedirect() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin_profile.fxml"));
             Parent profileRoot = loader.load();
 
-            Stage stage = (Stage) anchorPane.getScene().getWindow();
+            Stage stage = (Stage) profileButton.getScene().getWindow();
             Scene profileScene = new Scene(profileRoot);
             stage.setScene(profileScene);
             stage.show();
@@ -543,6 +579,9 @@ public class StatisticsCommandeController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    @FXML private void navigateToRegister(ActionEvent event) {
+        SceneManager.loadScene("/fxml/AdminRegistration.fxml", event);
     }
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
