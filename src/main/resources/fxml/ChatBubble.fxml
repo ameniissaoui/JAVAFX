@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.ChatBubbleController">
+   <children>
+      <Button fx:id="chatBubbleButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#openChatDialog" styleClass="chat-bubble" text="💬" textAlignment="CENTER">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Button>
+   </children>
+</StackPane> 
