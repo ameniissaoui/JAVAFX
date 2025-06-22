@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Pages / Register</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{{ asset('assets/imgBack/favicon.png') }}" rel="icon">
+  <link href="{{ asset('assets/imgBack/apple-touch-icon.png') }}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{{ asset('assets/vendorBack/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendorBack/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendorBack/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendorBack/quill/quill.snow.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendorBack/quill/quill.bubble.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendorBack/remixicon/remixicon.css') }}" rel="stylesheet">
+  <link href="{{ asset('assets/vendorBack/simple-datatables/style.css') }}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{{ asset('assets/cssBack/style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+
+  <main>
+    <div class="container">
+
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+              <div class="card mb-3">
+
+                <div class="card-body">
+
+                  <div class="pt-4 pb-2">
+                    <h5 class="card-title text-center pb-0 fs-4">Create an Account</h5>
+                    <p class="text-center small">Enter your personal details to create account</p>
+                  </div>
+
+                  {{ form_start(form, {'attr': {'class': 'row g-3 needs-validation', 'novalidate': 'novalidate'}}) }}
+                    <div class="col-12">
+                      {{ form_label(form.name, 'Your Name', {'label_attr': {'class': 'form-label'}}) }}
+                      {{ form_widget(form.name, {'attr': {'class': 'form-control', 'id': 'yourName'}}) }}
+                      <div class="invalid-feedback">Please, enter your name!</div>
+                      {{ form_errors(form.name) }}
+                    </div>
+
+                    <div class="col-12">
+                      {{ form_label(form.email, 'Your Email', {'label_attr': {'class': 'form-label'}}) }}
+                      {{ form_widget(form.email, {'attr': {'class': 'form-control', 'id': 'yourEmail'}}) }}
+                      <div class="invalid-feedback">Please enter a valid Email address!</div>
+                      {{ form_errors(form.email) }}
+                    </div>
+
+                    <div class="col-12">
+                      {{ form_label(form.username, 'Username', {'label_attr': {'class': 'form-label'}}) }}
+                      <div class="input-group has-validation">
+                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+                        {{ form_widget(form.username, {'attr': {'class': 'form-control', 'id': 'yourUsername'}}) }}
+                        <div class="invalid-feedback">Please choose a username.</div>
+                      </div>
+                      {{ form_errors(form.username) }}
+                    </div>
+
+                    <div class="col-12">
+                      {{ form_label(form.password, 'Password', {'label_attr': {'class': 'form-label'}}) }}
+                      {{ form_widget(form.password, {'attr': {'class': 'form-control', 'id': 'yourPassword'}}) }}
+                      <div class="invalid-feedback">Please enter your password!</div>
+                      {{ form_errors(form.password) }}
+                    </div>
+
+                    <div class="col-12">
+                      <div class="form-check">
+                        {{ form_widget(form.terms, {'attr': {'class': 'form-check-input', 'id': 'acceptTerms'}}) }}
+                        {{ form_label(form.terms, 'I agree and accept the terms and conditions'|raw, {'label_attr': {'class': 'form-check-label', 'for': 'acceptTerms'}}) }}
+                        <div class="invalid-feedback">You must agree before submitting.</div>
+                        {{ form_errors(form.terms) }}
+                      </div>
+                    </div>
+                    
+                    <div class="col-12">
+                      <button class="btn btn-primary w-100" type="submit">Create Account</button>
+                    </div>
+                    
+                    <div class="col-12">
+                      <p class="small mb-0">Already have an account? <a href="{{ path('app_login') }}">Log in</a></p>
+                    </div>
+                  {{ form_end(form) }}
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main><!-- End #main -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="{{ asset('assets/vendorBack/apexcharts/apexcharts.min.js') }}"></script>
+  <script src="{{ asset('assets/vendorBack/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ asset('assets/vendorBack/chart.js/chart.umd.js') }}"></script>
+  <script src="{{ asset('assets/vendorBack/echarts/echarts.min.js') }}"></script>
+  <script src="{{ asset('assets/vendorBack/quill/quill.js') }}"></script>
+  <script src="{{ asset('assets/vendorBack/simple-datatables/simple-datatables.js') }}"></script>
+  <script src="{{ asset('assets/vendorBack/tinymce/tinymce.min.js') }}"></script>
+  <script src="{{ asset('assets/vendorBack/php-email-form/validate.js') }}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{{ asset('assets/jsBack/main.js') }}"></script>
+
+</body>
+
+</html>

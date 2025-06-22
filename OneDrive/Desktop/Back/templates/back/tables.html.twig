@@ -1,0 +1,211 @@
+{% extends 'base.html.twig' %}
+
+{% block main %}
+    <div class="pagetitle">
+        <h1>Données Excel - Activités Mensuelles</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_back') }}">Home</a></li>
+                <li class="breadcrumb-item">Tables</li>
+                <li class="breadcrumb-item active">Data</li>
+            </ol>
+        </nav>
+    </div>
+
+    <section class="section">
+        <!-- Section Import Excel -->
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Import Fichier Excel</h5>
+                        
+                        {% for message in app.flashes('success') %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                        
+                        {% for message in app.flashes('error') %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+
+                      <form action="{{ path('app_import_excel') }}" method="post" enctype="multipart/form-data">
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <input type="file" class="form-control" name="excel_file" accept=".xlsx,.xls" required>
+                                  <div class="form-text">Formats acceptés: .xlsx, .xls</div>
+                              </div>
+                              <div class="col-md-6">
+                                  <button type="submit" class="btn btn-primary me-2">
+                                      <i class="bi bi-upload"></i> Importer Excel
+                                  </button>
+                                  <button type="submit" formaction="{{ path('app_debug_excel') }}" class="btn btn-warning">
+                                      <i class="bi bi-bug"></i> Debug Excel
+                                  </button>
+                              </div>
+                          </div>
+                      </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if results is defined and imported_data is defined and imported_data|length > 0 %}
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card sales-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Employés <span>| Total</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{{ results.employees_created }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card revenue-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Activités <span>| Total</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-plus-circle"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6>{{ results.activities_created }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card customers-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Revenue <span>| Total</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-currency-euro"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6>
+                                        {% set totalRevenue = 0 %}
+                                        {% for employee in imported_data %}
+                                            {% for activity in employee.activities %}
+                                                {% set totalRevenue = totalRevenue + activity.actualInternalRevenue %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {{ totalRevenue|number_format(0, '.', ',') }}€
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Jours <span>| Total</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-calendar-check"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6>
+                                        {% set totalDays = 0 %}
+                                        {% for employee in imported_data %}
+                                            {% for activity in employee.activities %}
+                                                {% set totalDays = totalDays + activity.actualResourceUsage %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {{ totalDays }}
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Table des données -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            {% if imported_data is defined and imported_data|length > 0 %}
+                                Données Excel Importées
+                            {% else %}
+                                Aucune donnée - Importez un fichier Excel
+                            {% endif %}
+                        </h5>
+
+                        {% if imported_data is defined and imported_data|length > 0 %}
+                            <!-- Table avec les données -->
+                            <table class="table datatable">
+                                <thead>
+                                    <tr>
+                                        <th><b>Code Employé</b></th>
+                                        <th>Mois</th>
+                                        <th>Jours Travaillés</th>
+                                        <th>Revenue Généré (€)</th>
+                                        <th>TJ Calculé (€)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for employee in imported_data %}
+                                        {% for activity in employee.activities %}
+                                            <tr>
+                                                <td><strong>{{ employee.code }}</strong></td>
+                                                <td>{{ activity.monthName }}</td>
+                                                <td>
+                                                    <span class="badge bg-info">{{ activity.actualResourceUsage }}</span>
+                                                </td>
+                                                <td>{{ activity.actualInternalRevenue|number_format(2, '.', ',') }}</td>
+                                                <td>
+                                                    {% if activity.actualResourceUsage > 0 %}
+                                                        {% set dailyRate = (activity.actualInternalRevenue / activity.actualResourceUsage) %}
+                                                        {% if dailyRate > 300 %}
+                                                            <span class="badge bg-success">{{ dailyRate|number_format(2, '.', ',') }}</span>
+                                                        {% elseif dailyRate > 200 %}
+                                                            <span class="badge bg-warning">{{ dailyRate|number_format(2, '.', ',') }}</span>
+                                                        {% else %}
+                                                            <span class="badge bg-danger">{{ dailyRate|number_format(2, '.', ',') }}</span>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">0.00</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="bi bi-file-excel" style="font-size: 3rem; color: #ccc;"></i>
+                                <p class="mt-2 text-muted">Aucune donnée disponible. Importez un fichier Excel pour commencer.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block script %}
+    <script src="assets/vendorBack/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/jsBack/main.js"></script>
+{% endblock %}
